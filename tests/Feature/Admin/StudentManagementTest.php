@@ -1,0 +1,114 @@
+<?php
+
+use App\Models\Branch;
+use App\Models\Guardian;
+use App\Models\Student;
+use App\Models\User;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
+function makeStudentManager(): User
+{
+    Role::findOrCreate('المشرف العام', 'web');
+    Role::findOrCreate('السكرتيرة', 'web');
+    Role::findOrCreate('المعلم', 'web');
+
+    foreach (['students.view', 'students.create', 'students.update', 'students.delete'] as $permissionName) {
+        Permission::findOrCreate($permissionName, 'web');
+    }
+
+    $role = Role::findByName('المشرف العام', 'web');
+    $role->syncPermissions(['students.view', 'students.create', 'students.update', 'students.delete']);
+
+    $user = User::factory()->create();
+    $user->assignRole('المشرف العام');
+
+    return $user;
+}
+
+it('يعرض صفحة فهرس الطلاب للمستخدم المخول', function () {
+    $user = makeStudentManager();
+
+    $this->actingAs($user)
+        ->get(route('admin.students.index'))
+        ->assertOk()
+        ->assertSee('إدارة الطلاب - الفهرس');
+});
+
+it('ينشئ طالبًا جديدًا بنجاح', function () {
+    $user = makeStudentManager();
+    $branch = Branch::factory()->create();
+
+    $response = $this->actingAs($user)->post(route('admin.students.store'), [
+        'branch_id' => $branch->id,
+        'guardian_mode' => 'none',
+        'guardian_id' => null,
+        'full_name' => 'أحمد محمد',
+        'age' => 12,
+        'nationality' => 'سعودي',
+        'identity_number' => 'A1234567',
+        'phone' => '0501234567',
+        'whatsapp' => '0501234567',
+        'status' => 'active',
+    ]);
+
+    $response
+        ->assertRedirect(route('admin.students.index'))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('students', [
+        'full_name' => 'أحمد محمد',
+        'branch_id' => $branch->id,
+    ]);
+});
+
+it('ينشئ طالبًا مع إنشاء ولي أمر جديد من نفس النموذج', function () {
+    $user = makeStudentManager();
+    $branch = Branch::factory()->create();
+
+    $response = $this->actingAs($user)->post(route('admin.students.store'), [
+        'branch_id' => $branch->id,
+        'guardian_mode' => 'new',
+        'guardian_full_name' => 'ولي أمر جديد',
+        'guardian_phone' => '0507776665',
+        'guardian_whatsapp' => '0507776665',
+        'full_name' => 'طالب جديد',
+        'age' => 13,
+        'nationality' => 'مصري',
+        'identity_number' => 'P998877',
+        'phone' => '0501112233',
+        'whatsapp' => '0501112233',
+        'status' => 'active',
+    ]);
+
+    $response
+        ->assertRedirect(route('admin.students.index'))
+        ->assertSessionHas('success');
+
+    $guardian = Guardian::query()->where('full_name', 'ولي أمر جديد')->first();
+
+    expect($guardian)->not->toBeNull();
+
+    $this->assertDatabaseHas('students', [
+        'full_name' => 'طالب جديد',
+        'guardian_id' => $guardian->id,
+    ]);
+});
+
+it('يعيد بيانات datatable للطلاب بصيغة json', function () {
+    $user = makeStudentManager();
+    Student::factory()->create();
+
+    $this->actingAs($user)
+        ->getJson(route('admin.students.datatable', ['draw' => 1]))
+        ->assertOk()
+        ->assertJsonStructure([
+            'draw',
+            'recordsTotal',
+            'recordsFiltered',
+            'data' => [
+                ['full_name', 'age', 'nationality', 'identity_number', 'phone', 'whatsapp', 'branch', 'status'],
+            ],
+        ]);
+});
+

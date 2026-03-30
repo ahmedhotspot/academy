@@ -1,0 +1,97 @@
+@extends('admin.layouts.master')
+
+@section('title', 'عرض [اسم الوحدة] — أكاديمية تحفيظ القرآن')
+
+@section('css')
+@endsection
+
+@section('content')
+<div class="page-content-wrapper">
+    <div class="content-container">
+        <div class="page-content">
+
+            @include('admin.partials.page-header', [
+                'title'       => 'تفاصيل [اسم الوحدة]',
+                'breadcrumbs' => [
+                    ['title' => 'الرئيسية',       'url' => route('admin.dashboard')],
+                    ['title' => '[اسم الوحدة]',   'url' => route('admin.MODULE.index')],
+                    ['title' => 'عرض'],
+                ],
+            ])
+
+            @include('admin.partials.alerts')
+
+            <div class="row g-3">
+
+                {{-- البيانات الأساسية --}}
+                <div class="col-xl-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h6 class="mb-0 fw-semibold">البيانات الأساسية</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">الاسم</p>
+                                    <p class="fw-semibold mb-0">{{ $record->name }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">الحالة</p>
+                                    <span class="badge {{ $record->status?->badgeClass() }}">
+                                        {{ $record->status?->label() }}
+                                    </span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">تاريخ الإضافة</p>
+                                    <p class="fw-semibold mb-0">{{ $record->created_at?->format('Y-m-d') }}</p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-muted small mb-1">آخر تحديث</p>
+                                    <p class="fw-semibold mb-0">{{ $record->updated_at?->format('Y-m-d') }}</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- الإجراءات --}}
+                <div class="col-xl-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h6 class="mb-0 fw-semibold">الإجراءات</h6>
+                        </div>
+                        <div class="card-body d-grid gap-2">
+                            <a href="{{ route('admin.MODULE.edit', $record) }}" class="btn btn-warning">
+                                <i class="ti ti-edit me-1"></i> تعديل
+                            </a>
+                            <a href="{{ route('admin.MODULE.index') }}" class="btn btn-outline-secondary">
+                                <i class="ti ti-arrow-right me-1"></i> رجوع إلى القائمة
+                            </a>
+                            <form action="{{ route('admin.MODULE.destroy', $record) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger w-100">
+                                    <i class="ti ti-trash me-1"></i> حذف
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('js')
+@endsection
+
