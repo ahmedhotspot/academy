@@ -66,7 +66,7 @@
     <div class="app-navbar-wrapper">
         <div class="brand-link brand-logo">
             <a href="{{ route('admin.dashboard') }}" class="b-brand">
-                <img src="{{ asset('dash/assets/images/logo.jpg') }}" width="163px" height="45px" alt="أكاديمية القرآن" class="logo logo-lg" />
+                <img src="{{ asset('dash/assets/images/8fb1f1a5-c2d9-4ee6-8f7b-d9bb9615d598.jpg') }}" width="163px" height="45px" alt="أكاديمية القرآن" class="logo logo-lg" />
             </a>
         </div>
 
