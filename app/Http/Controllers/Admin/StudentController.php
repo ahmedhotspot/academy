@@ -12,6 +12,7 @@ use App\Services\Admin\StudentManagementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class StudentController extends AdminController
@@ -119,6 +120,23 @@ class StudentController extends AdminController
         return redirect()
             ->route('admin.students.index')
             ->with('success', 'تم حذف الطالب بنجاح.');
+    }
+
+    public function setPortalPassword(Request $request, Student $student): RedirectResponse
+    {
+        $request->validate([
+            'portal_password' => ['required', 'string', 'min:6', 'confirmed'],
+        ], [
+            'portal_password.required'  => 'كلمة المرور مطلوبة.',
+            'portal_password.min'       => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.',
+            'portal_password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+        ]);
+
+        $student->update(['password' => Hash::make($request->portal_password)]);
+
+        return redirect()
+            ->route('admin.students.show', $student)
+            ->with('success', 'تم تعيين كلمة مرور البوابة بنجاح.');
     }
 }
 

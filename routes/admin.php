@@ -140,6 +140,10 @@ Route::prefix('admin')
                 Route::delete('/{student}', [StudentController::class, 'destroy'])
                     ->middleware('permission:students.delete')
                     ->name('destroy');
+
+                Route::post('/{student}/set-portal-password', [StudentController::class, 'setPortalPassword'])
+                    ->middleware('permission:students.update')
+                    ->name('set-portal-password');
             });
 
         /*
@@ -181,6 +185,10 @@ Route::prefix('admin')
                 Route::delete('/{guardian}', [GuardianController::class, 'destroy'])
                     ->middleware('permission:guardians.delete')
                     ->name('destroy');
+
+                Route::post('/{guardian}/set-portal-password', [GuardianController::class, 'setPortalPassword'])
+                    ->middleware('permission:guardians.update')
+                    ->name('set-portal-password');
             });
 
         /*

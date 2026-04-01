@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'auth.guardian' => \App\Http\Middleware\AuthenticateGuardian::class,
+            'auth.student'  => \App\Http\Middleware\AuthenticateStudent::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

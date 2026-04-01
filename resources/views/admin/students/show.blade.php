@@ -310,6 +310,9 @@
 
                         <div class="d-flex gap-2">
                             @can('students.update')
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#portalPasswordModal">
+                                    <i class="ti ti-key me-1"></i> تعيين كلمة مرور البوابة
+                                </button>
                                 <a href="{{ route('admin.students.edit', $student) }}" class="btn btn-primary">
                                     <i class="ti ti-pencil me-1"></i> تعديل الطالب
                                 </a>
@@ -331,6 +334,49 @@
         </div>
     </div>
 @endsection
+
+@can('students.update')
+@section('js')
+<div class="modal fade" id="portalPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.students.set-portal-password', $student) }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="ti ti-key me-2 text-success"></i>تعيين كلمة مرور بوابة الطالب
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        سيستخدم الطالب <strong>{{ $student->full_name }}</strong> رقم هاتفه
+                        <code>{{ $student->phone }}</code> مع هذه الكلمة للدخول إلى
+                        <a href="{{ route('student.login') }}" target="_blank">بوابة الطلاب</a>.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور الجديدة <span class="text-danger">*</span></label>
+                        <input type="password" name="portal_password" class="form-control"
+                               placeholder="6 أحرف على الأقل" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">تأكيد كلمة المرور <span class="text-danger">*</span></label>
+                        <input type="password" name="portal_password_confirmation" class="form-control"
+                               placeholder="أعد كتابة كلمة المرور" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="ti ti-check me-1"></i> حفظ كلمة المرور
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
+@endcan
 
 
 
