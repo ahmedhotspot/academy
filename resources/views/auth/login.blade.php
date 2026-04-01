@@ -45,7 +45,7 @@
     <div class="p-0 d-none d-lg-block col-lg-7 col-xl-8 img-side">
         <img
             class="img-fluid w-100"
-            src="{{ asset('dash/assets/images/auth/using-laptop-gray-wall.jpg') }}"
+            src="{{ asset('dash/assets/images/8fb1f1a5-c2d9-4ee6-8f7b-d9bb9615d598.jpg') }}"
             alt="تسجيل الدخول"
         >
     </div>
