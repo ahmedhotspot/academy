@@ -23,7 +23,7 @@
                     <h5 class="fw-bold mb-0 text-primary">
                         {{ count($studentPayments['payments']) }}
                     </h5>
-                    <small class="text-muted">{{ number_format($studentPayments['totalPaid'], 2) }} ر.س</small>
+                    <small class="text-muted">{{ number_format($studentPayments['totalPaid'], 2) }} ج</small>
                 </div>
             </div>
 
@@ -48,7 +48,7 @@
                         $remaining = $subscription?->remaining_amount ?? 0;
                     @endphp
                     <h5 class="fw-bold mb-0 {{ $remaining > 0 ? 'text-danger' : 'text-success' }}">
-                        {{ number_format($remaining, 2) }} ر.س
+                        {{ number_format($remaining, 2) }} ج
                     </h5>
                     <small class="text-muted">
                         @if($remaining > 0)

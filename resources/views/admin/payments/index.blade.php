@@ -42,7 +42,7 @@
                                 </div>
                                 <div>
                                     <p class="mb-0 text-muted small">الإجمالي المدفوع</p>
-                                    <h4 class="mb-0 fw-bold text-success">{{ number_format($reportSummary['totalAmount'], 2) }} ر.س</h4>
+                                    <h4 class="mb-0 fw-bold text-success">{{ number_format($reportSummary['totalAmount'], 2) }} ج</h4>
                                 </div>
                             </div>
                         </div>
@@ -55,7 +55,7 @@
                                 </div>
                                 <div>
                                     <p class="mb-0 text-muted small">متوسط الدفعة</p>
-                                    <h4 class="mb-0 fw-bold text-info">{{ number_format($reportSummary['averagePayment'], 2) }} ر.س</h4>
+                                    <h4 class="mb-0 fw-bold text-info">{{ number_format($reportSummary['averagePayment'], 2) }} ج</h4>
                                 </div>
                             </div>
                         </div>

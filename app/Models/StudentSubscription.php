@@ -79,27 +79,27 @@ class StudentSubscription extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return number_format($this->amount, 2) . ' ر.س';
+        return number_format($this->amount, 2) . ' ج';
     }
 
     public function getFormattedFinalAmountAttribute(): string
     {
-        return number_format($this->final_amount, 2) . ' ر.س';
+        return number_format($this->final_amount, 2) . ' ج';
     }
 
     public function getFormattedPaidAmountAttribute(): string
     {
-        return number_format($this->paid_amount, 2) . ' ر.س';
+        return number_format($this->paid_amount, 2) . ' ج';
     }
 
     public function getFormattedRemainingAmountAttribute(): string
     {
-        return number_format($this->remaining_amount, 2) . ' ر.س';
+        return number_format($this->remaining_amount, 2) . ' ج';
     }
 
     public function getFormattedDiscountAttribute(): string
     {
-        return number_format($this->discount_amount, 2) . ' ر.س';
+        return number_format($this->discount_amount, 2) . ' ج';
     }
 
     public function getIsOverdueAttribute(): bool

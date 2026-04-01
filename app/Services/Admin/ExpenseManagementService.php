@@ -119,7 +119,7 @@ class ExpenseManagementService extends BaseService
             ->map(fn ($rows, $title) => [
                 'title' => $title,
                 'count' => $rows->count(),
-                'total' => number_format((float) $rows->sum('amount'), 2) . ' ر.س',
+                'total' => number_format((float) $rows->sum('amount'), 2) . ' ج',
             ])
             ->values()
             ->all();
@@ -136,9 +136,9 @@ class ExpenseManagementService extends BaseService
             ],
             'stats' => [
                 'month_count' => $monthCount,
-                'month_amount' => number_format($monthAmount, 2) . ' ر.س',
+                'month_amount' => number_format($monthAmount, 2) . ' ج',
                 'all_count' => $allCount,
-                'all_amount' => number_format($allAmount, 2) . ' ر.س',
+                'all_amount' => number_format($allAmount, 2) . ' ج',
             ],
             'recent_expenses' => $recentExpenses,
             'titles_breakdown' => $titlesBreakdown,

@@ -84,7 +84,7 @@
         <div class="card border-0 shadow-sm text-center">
             <div class="card-body">
                 <p class="text-muted small mb-1">إجمالي المدفوع</p>
-                <h5 class="fw-bold text-success mb-0">{{ $financial['total_paid'] ?? '0 ر.س' }}</h5>
+                <h5 class="fw-bold text-success mb-0">{{ $financial['total_paid'] ?? '0 ج' }}</h5>
             </div>
         </div>
     </div>
@@ -92,7 +92,7 @@
         <div class="card border-0 shadow-sm text-center">
             <div class="card-body">
                 <p class="text-muted small mb-1">المتبقي</p>
-                <h5 class="fw-bold text-danger mb-0">{{ $financial['total_remaining'] ?? '0 ر.س' }}</h5>
+                <h5 class="fw-bold text-danger mb-0">{{ $financial['total_remaining'] ?? '0 ج' }}</h5>
             </div>
         </div>
     </div>

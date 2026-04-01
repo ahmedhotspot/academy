@@ -59,27 +59,27 @@ class TeacherPayroll extends Model
 
     public function getFormattedBaseSalaryAttribute(): string
     {
-        return number_format($this->base_salary, 2) . ' ر.س';
+        return number_format($this->base_salary, 2) . ' ج';
     }
 
     public function getFormattedDeductionAttribute(): string
     {
-        return number_format($this->deduction_amount, 2) . ' ر.س';
+        return number_format($this->deduction_amount, 2) . ' ج';
     }
 
     public function getFormattedPenaltyAttribute(): string
     {
-        return number_format($this->penalty_amount, 2) . ' ر.س';
+        return number_format($this->penalty_amount, 2) . ' ج';
     }
 
     public function getFormattedBonusAttribute(): string
     {
-        return number_format($this->bonus_amount, 2) . ' ر.س';
+        return number_format($this->bonus_amount, 2) . ' ج';
     }
 
     public function getFormattedFinalAttribute(): string
     {
-        return number_format($this->final_amount, 2) . ' ر.س';
+        return number_format($this->final_amount, 2) . ' ج';
     }
 
     public function getMonthYearAttribute(): string

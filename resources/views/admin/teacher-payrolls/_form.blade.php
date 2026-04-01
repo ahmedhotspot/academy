@@ -57,7 +57,7 @@
     {{-- الراتب الأساسي --}}
     <div class="col-md-6">
         <label class="form-label fw-semibold">
-            الراتب الأساسي (ر.س) <span class="text-danger">*</span>
+            الراتب الأساسي (ج) <span class="text-danger">*</span>
         </label>
         <input type="number" name="base_salary" class="form-control"
                step="0.01" min="0" max="999999.99"
@@ -69,7 +69,7 @@
     @if(! isset($payroll))
         <div class="col-md-6">
             <label class="form-label fw-semibold">
-                الاستقطاع عن كل غياب (ر.س)
+                الاستقطاع عن كل غياب (ج)
             </label>
             <input type="number" name="deduction_per_absence" class="form-control"
                    step="0.01" min="0" max="999999.99"
@@ -85,7 +85,7 @@
 
     {{-- الاستقطاع --}}
     <div class="col-md-4">
-        <label class="form-label fw-semibold">الاستقطاع (ر.س)</label>
+        <label class="form-label fw-semibold">الاستقطاع (ج)</label>
         <input type="number" name="deduction_amount" class="form-control"
                step="0.01" min="0" max="999999.99"
                placeholder="0.00"
@@ -95,7 +95,7 @@
 
     {{-- الجزاء --}}
     <div class="col-md-4">
-        <label class="form-label fw-semibold">الجزاء (ر.س)</label>
+        <label class="form-label fw-semibold">الجزاء (ج)</label>
         <input type="number" name="penalty_amount" class="form-control"
                step="0.01" min="0" max="999999.99"
                placeholder="0.00"
@@ -105,7 +105,7 @@
 
     {{-- المكافأة --}}
     <div class="col-md-4">
-        <label class="form-label fw-semibold">المكافأة (ر.س)</label>
+        <label class="form-label fw-semibold">المكافأة (ج)</label>
         <input type="number" name="bonus_amount" class="form-control"
                step="0.01" min="0" max="999999.99"
                placeholder="0.00"

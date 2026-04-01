@@ -41,7 +41,7 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
                                 <p class="text-muted small">الإجمالي المستحق</p>
-                                <h4 class="fw-bold">{{ number_format($report['totalSalaries'], 2) }} ر.س</h4>
+                                <h4 class="fw-bold">{{ number_format($report['totalSalaries'], 2) }} ج</h4>
                             </div>
                         </div>
                     </div>

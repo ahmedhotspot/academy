@@ -59,7 +59,7 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">مصروفات الشهر</p>
-                                <h5 class="fw-bold text-danger mb-0">{{ $stats['month_amount'] ?? '0.00 ر.س' }}</h5>
+                                <h5 class="fw-bold text-danger mb-0">{{ $stats['month_amount'] ?? '0.00 ج' }}</h5>
                             </div>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">إجمالي مصروفات الجهة</p>
-                                <h5 class="fw-bold text-warning mb-0">{{ $stats['all_amount'] ?? '0.00 ر.س' }}</h5>
+                                <h5 class="fw-bold text-warning mb-0">{{ $stats['all_amount'] ?? '0.00 ج' }}</h5>
                             </div>
                         </div>
                     </div>

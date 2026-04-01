@@ -392,7 +392,7 @@
                                 beginAtZero: true,
                                 ticks: {
                                     callback: function (value) {
-                                        return value + ' ر.س';
+                                        return value + 'ج';
                                     }
                                 },
                                 grid: {

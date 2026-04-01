@@ -41,7 +41,7 @@
                                 </div>
                                 <div>
                                     <p class="mb-0 text-muted small">الإجمالي</p>
-                                    <h4 class="mb-0 fw-bold">{{ number_format($reportSummary['totalAmount'], 2) }} ر.س</h4>
+                                    <h4 class="mb-0 fw-bold">{{ number_format($reportSummary['totalAmount'], 2) }} ج</h4>
                                 </div>
                             </div>
                         </div>

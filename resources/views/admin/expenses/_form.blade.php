@@ -35,7 +35,7 @@
     </div>
 
     <div class="col-md-4">
-        <label class="form-label fw-semibold">المبلغ (ر.س) <span class="text-danger">*</span></label>
+        <label class="form-label fw-semibold">المبلغ (ج) <span class="text-danger">*</span></label>
         <input type="number" name="amount" class="form-control"
                step="0.01" min="0" max="999999.99"
                placeholder="0.00"

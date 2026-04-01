@@ -129,19 +129,19 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                     <span class="text-muted">التحصيل الشهري</span>
-                                    <span class="fw-bold text-success">{{ $finance['payments_month'] ?? '0.00 ر.س' }}</span>
+                                    <span class="fw-bold text-success">{{ $finance['payments_month'] ?? '0.00 ج' }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                     <span class="text-muted">مصروفات الشهر</span>
-                                    <span class="fw-bold text-danger">{{ $finance['expenses_month'] ?? '0.00 ر.س' }}</span>
+                                    <span class="fw-bold text-danger">{{ $finance['expenses_month'] ?? '0.00 ج' }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                     <span class="text-muted">إجمالي المتبقي على الاشتراكات</span>
-                                    <span class="fw-bold text-warning">{{ $finance['remaining_subscriptions'] ?? '0.00 ر.س' }}</span>
+                                    <span class="fw-bold text-warning">{{ $finance['remaining_subscriptions'] ?? '0.00 ج' }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center pt-2">
                                     <span class="text-muted">الصافي الشهري</span>
-                                    <span class="fw-bold text-primary">{{ $finance['net_month'] ?? '0.00 ر.س' }}</span>
+                                    <span class="fw-bold text-primary">{{ $finance['net_month'] ?? '0.00 ج' }}</span>
                                 </div>
                             </div>
                         </div>

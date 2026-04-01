@@ -72,7 +72,7 @@
                 <div class="bg-success-subtle rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
                     <i class="ti ti-coin text-success" style="font-size:1.4rem;"></i>
                 </div>
-                <h4 class="fw-bold mb-0 text-success small">{{ $financial['total_paid'] ?? '0 ر.س' }}</h4>
+                <h4 class="fw-bold mb-0 text-success small">{{ $financial['total_paid'] ?? '0 ج' }}</h4>
                 <p class="text-muted small mb-0">إجمالي المدفوع</p>
             </div>
         </div>
@@ -83,7 +83,7 @@
                 <div class="bg-danger-subtle rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
                     <i class="ti ti-coin-off text-danger" style="font-size:1.4rem;"></i>
                 </div>
-                <h4 class="fw-bold mb-0 text-danger small">{{ $financial['total_remaining'] ?? '0 ر.س' }}</h4>
+                <h4 class="fw-bold mb-0 text-danger small">{{ $financial['total_remaining'] ?? '0 ج' }}</h4>
                 <p class="text-muted small mb-0">المتبقي</p>
             </div>
         </div>

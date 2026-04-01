@@ -89,7 +89,7 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">إجمالي المستحق</p>
-                                <h5 class="fw-bold text-primary mb-0">{{ $financial['total_final'] ?? '0.00 ر.س' }}</h5>
+                                <h5 class="fw-bold text-primary mb-0">{{ $financial['total_final'] ?? '0.00 ج' }}</h5>
                             </div>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">إجمالي المدفوع</p>
-                                <h5 class="fw-bold text-success mb-0">{{ $financial['total_paid'] ?? '0.00 ر.س' }}</h5>
+                                <h5 class="fw-bold text-success mb-0">{{ $financial['total_paid'] ?? '0.00 ج' }}</h5>
                             </div>
                         </div>
                     </div>
@@ -105,7 +105,7 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">إجمالي المتبقي</p>
-                                <h5 class="fw-bold text-danger mb-0">{{ $financial['total_remaining'] ?? '0.00 ر.س' }}</h5>
+                                <h5 class="fw-bold text-danger mb-0">{{ $financial['total_remaining'] ?? '0.00 ج' }}</h5>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">تحصيل هذا الشهر</p>
-                                <h5 class="fw-bold text-info mb-0">{{ $financial['payments_month'] ?? '0.00 ر.س' }}</h5>
+                                <h5 class="fw-bold text-info mb-0">{{ $financial['payments_month'] ?? '0.00 ج' }}</h5>
                             </div>
                         </div>
                     </div>

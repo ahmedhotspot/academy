@@ -191,9 +191,9 @@ class StudentEnrollmentManagementService extends BaseService
                 'assessments_count' => Assessment::query()->where('student_id', $student->id)->count(),
             ],
             'financial' => [
-                'total_final' => number_format($totalFinal, 2) . ' ر.س',
-                'total_paid' => number_format($totalPaid, 2) . ' ر.س',
-                'total_remaining' => number_format($totalRemaining, 2) . ' ر.س',
+                'total_final' => number_format($totalFinal, 2) . ' ج',
+                'total_paid' => number_format($totalPaid, 2) . ' ج',
+                'total_remaining' => number_format($totalRemaining, 2) . ' ج',
             ],
             'current_enrollment' => $currentEnrollment,
             'previous_enrollments' => $previousEnrollments,

@@ -48,7 +48,7 @@
     {{-- المبلغ الأساسي --}}
     <div class="col-md-3">
         <label class="form-label fw-semibold">
-            المبلغ الأساسي (ر.س) <span class="text-danger">*</span>
+            المبلغ الأساسي (ج) <span class="text-danger">*</span>
         </label>
         <input type="number" name="amount" class="form-control"
                step="0.01" min="0" max="999999.99"
@@ -58,7 +58,7 @@
 
     {{-- الخصم --}}
     <div class="col-md-3">
-        <label class="form-label fw-semibold">خصم (ر.س)</label>
+        <label class="form-label fw-semibold">خصم (ج)</label>
         <input type="number" name="discount_amount" class="form-control"
                step="0.01" min="0" max="999999.99"
                placeholder="0.00"
@@ -68,7 +68,7 @@
 
     {{-- المبلغ المدفوع --}}
     <div class="col-md-3">
-        <label class="form-label fw-semibold">المبلغ المدفوع (ر.س)</label>
+        <label class="form-label fw-semibold">المبلغ المدفوع (ج)</label>
         <input type="number" name="paid_amount" class="form-control"
                step="0.01" min="0" max="999999.99"
                placeholder="0.00"
@@ -94,7 +94,7 @@
 
 <div class="row g-3">
     <div class="col-md-4">
-        <label class="form-label fw-semibold">المبلغ المتبقي (ر.س)</label>
+        <label class="form-label fw-semibold">المبلغ المتبقي (ج)</label>
         <input type="text" id="remaining_amount_preview" class="form-control" readonly
                value="{{ number_format(max(0, (old('amount', $subscription->amount ?? 0) - old('discount_amount', $subscription->discount_amount ?? 0) - old('paid_amount', $subscription->paid_amount ?? 0))), 2, '.', '') }}">
         <small class="text-muted">يتم احتساب المتبقي تلقائيًا من (المبلغ الأساسي - الخصم - المدفوع)</small>

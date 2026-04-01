@@ -25,7 +25,7 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
                                 <p class="text-muted small">الإجمالي</p>
-                                <h4 class="fw-bold text-danger">{{ number_format($report['amount'], 2) }} ر.س</h4>
+                                <h4 class="fw-bold text-danger">{{ number_format($report['amount'], 2) }} ج</h4>
                             </div>
                         </div>
                     </div>

@@ -117,11 +117,11 @@ class DashboardStatsService
                 ['title' => 'إجمالي الحلقات', 'value' => $totalGroups, 'hint' => 'الحلقات التعليمية', 'icon' => 'fa fa-book', 'bg' => 'soft-warning'],
                 ['title' => 'حضور الطلاب اليوم', 'value' => $studentsPresentToday, 'hint' => 'تمت متابعتهم اليوم', 'icon' => 'fa fa-thumbs-up', 'bg' => 'soft-success'],
                 ['title' => 'غياب الطلاب اليوم', 'value' => $studentsAbsentToday, 'hint' => 'بدون متابعة اليوم', 'icon' => 'fa fa-thumbs-down', 'bg' => 'soft-danger'],
-                ['title' => 'التحصيل اليوم', 'value' => number_format($todayCollection, 2) . ' ر.س', 'hint' => 'مدفوعات اليوم', 'icon' => 'fa fa-coins', 'bg' => 'soft-indigo'],
+                ['title' => 'التحصيل اليوم', 'value' => number_format($todayCollection, 2) . ' ج', 'hint' => 'مدفوعات اليوم', 'icon' => 'fa fa-coins', 'bg' => 'soft-indigo'],
                 ['title' => 'الطلاب المتأخرون', 'value' => $overdueStudentsCount, 'hint' => 'في السداد', 'icon' => 'fa fa-exclamation-circle', 'bg' => 'soft-danger'],
                 ['title' => 'حضور المعلمين اليوم', 'value' => $teachersPresentToday, 'hint' => 'معلم حاضر', 'icon' => 'fa fa-calendar-check', 'bg' => 'soft-success'],
                 ['title' => 'غياب المعلمين اليوم', 'value' => $teachersAbsentToday, 'hint' => 'معلم غائب', 'icon' => 'fa fa-calendar-times', 'bg' => 'soft-danger'],
-                ['title' => 'إجمالي المتبقي', 'value' => number_format($totalRemaining, 2) . ' ر.س', 'hint' => 'على الاشتراكات', 'icon' => 'fa fa-receipt', 'bg' => 'soft-warning'],
+                ['title' => 'إجمالي المتبقي', 'value' => number_format($totalRemaining, 2) . ' ج', 'hint' => 'على الاشتراكات', 'icon' => 'fa fa-receipt', 'bg' => 'soft-warning'],
                 ['title' => 'اختبارات هذا الشهر', 'value' => $assessmentsThisMonth, 'hint' => 'اختبار مسجل', 'icon' => 'fa fa-clipboard-check', 'bg' => 'soft-info'],
                 ['title' => 'متابعات هذا الأسبوع', 'value' => $progressLogsThisWeek, 'hint' => 'سجل متابعة', 'icon' => 'fa fa-chart-line', 'bg' => 'soft-primary'],
                 ['title' => 'عدد الفروع', 'value' => $totalBranches, 'hint' => 'الفروع العاملة', 'icon' => 'fa fa-building', 'bg' => 'soft-secondary'],
@@ -232,7 +232,7 @@ class DashboardStatsService
                 'icon' => 'fa fa-exclamation-circle',
                 'color' => 'warning',
                 'title' => 'متأخرات مالية',
-                'message' => 'الطالب ' . ($sub->student?->full_name ?? '-') . ' متأخر بمبلغ ' . number_format($sub->remaining_amount, 2) . ' ر.س.',
+                'message' => 'الطالب ' . ($sub->student?->full_name ?? '-') . ' متأخر بمبلغ ' . number_format($sub->remaining_amount, 2) . ' ج.',
             ];
         }
 
@@ -249,7 +249,7 @@ class DashboardStatsService
                 'icon' => 'fa fa-money-bill',
                 'color' => 'success',
                 'title' => 'دفعة جديدة',
-                'description' => 'تم تسجيل دفعة للطالب ' . ($payment->student?->full_name ?? '-') . ' بقيمة ' . number_format($payment->amount, 2) . ' ر.س',
+                'description' => 'تم تسجيل دفعة للطالب ' . ($payment->student?->full_name ?? '-') . ' بقيمة ' . number_format($payment->amount, 2) . ' ج',
                 'time' => $payment->created_at?->diffForHumans(),
                 'timestamp' => $payment->created_at?->timestamp ?? 0,
             ];

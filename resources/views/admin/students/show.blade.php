@@ -105,11 +105,11 @@
 
                                 <div class="d-flex justify-content-between align-items-center py-1">
                                     <span class="text-muted">إجمالي المدفوع</span>
-                                    <span class="fw-bold text-success">{{ $financial['total_paid'] ?? '0.00 ر.س' }}</span>
+                                    <span class="fw-bold text-success">{{ $financial['total_paid'] ?? '0.00 ج' }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center py-1">
                                     <span class="text-muted">إجمالي المتبقي</span>
-                                    <span class="fw-bold text-warning">{{ $financial['total_remaining'] ?? '0.00 ر.س' }}</span>
+                                    <span class="fw-bold text-warning">{{ $financial['total_remaining'] ?? '0.00 ج' }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center py-1">
                                     <span class="text-muted">متوسط الاختبارات</span>

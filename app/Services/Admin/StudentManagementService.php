@@ -214,9 +214,9 @@ class StudentManagementService extends BaseService
                 'assessments' => Assessment::query()->where('student_id', $student->id)->count(),
             ],
             'financial' => [
-                'total_paid' => number_format($totalPaid, 2) . ' ر.س',
-                'total_remaining' => number_format($totalRemaining, 2) . ' ر.س',
-                'total_final' => number_format($totalFinal, 2) . ' ر.س',
+                'total_paid' => number_format($totalPaid, 2) . ' ج',
+                'total_remaining' => number_format($totalRemaining, 2) . ' ج',
+                'total_final' => number_format($totalFinal, 2) . ' ج',
             ],
             'learning' => [
                 'assessment_avg' => $assessmentAverage > 0 ? round($assessmentAverage, 2) : null,

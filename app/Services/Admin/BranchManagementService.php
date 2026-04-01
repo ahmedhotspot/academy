@@ -215,10 +215,10 @@ class BranchManagementService extends BaseService
                 'teacher_late_today' => $teacherLateToday,
             ],
             'finance' => [
-                'payments_month' => number_format((float) $paymentsInMonth, 2) . ' ر.س',
-                'expenses_month' => number_format((float) $expensesInMonth, 2) . ' ر.س',
-                'remaining_subscriptions' => number_format((float) $remainingSubscriptions, 2) . ' ر.س',
-                'net_month' => number_format((float) ($paymentsInMonth - $expensesInMonth), 2) . ' ر.س',
+                'payments_month' => number_format((float) $paymentsInMonth, 2) . ' ج',
+                'expenses_month' => number_format((float) $expensesInMonth, 2) . ' ج',
+                'remaining_subscriptions' => number_format((float) $remainingSubscriptions, 2) . ' ج',
+                'net_month' => number_format((float) ($paymentsInMonth - $expensesInMonth), 2) . ' ج',
             ],
             'recent' => [
                 'students' => $recentStudents,

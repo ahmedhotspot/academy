@@ -40,7 +40,7 @@ class Expense extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return number_format($this->amount, 2) . ' ر.س';
+        return number_format($this->amount, 2) . ' ج';
     }
 
     public function getFormattedDateAttribute(): string
