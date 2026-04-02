@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -10,8 +12,26 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    if (Auth::guard('web')->check()) {
+        $user = Auth::guard('web')->user();
+
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    if (Auth::guard('guardian')->check()) {
+        return redirect()->route('guardian.dashboard');
+    }
+
+    if (Auth::guard('student')->check()) {
+        return redirect()->route('student.dashboard');
+    }
+
+    return redirect()->route('login');
+})->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
