@@ -87,6 +87,7 @@
     (function () {
         const studentSelect = document.getElementById('student_id');
         const subscriptionSelect = document.getElementById('student_subscription_id');
+        const apiUrl = "{{ route('admin.student-subscriptions') }}";
 
         function loadSubscriptions(studentId) {
             if (!studentId) {
@@ -97,7 +98,7 @@
             // Get CSRF token from meta tag
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-            fetch('/admin/api/student-subscriptions?student_id=' + encodeURIComponent(studentId), {
+            fetch(apiUrl + '?student_id=' + encodeURIComponent(studentId), {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',

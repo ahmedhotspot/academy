@@ -874,7 +874,7 @@ Route::prefix('admin')
                     ]);
 
                 return response()->json($subscriptions);
-            });
+            })->name('student-subscriptions');
         });
     });
 
