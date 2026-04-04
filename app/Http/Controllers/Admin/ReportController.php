@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Services\Admin\ReportService;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
+use Mpdf\Mpdf;
+use Mpdf\Output\Destination;
 
 class ReportController extends AdminController
 {
@@ -232,14 +233,22 @@ class ReportController extends AdminController
 
     private function exportPdf(string $title, array $columns, array $rows, string $fileName): Response
     {
-        $pdf = Pdf::loadView('admin.reports.pdf', [
+        $html = view('admin.reports.pdf', [
             'title' => $title,
             'columns' => $columns,
             'rows' => $rows,
             'generatedAt' => now()->format('Y-m-d H:i'),
-        ])->setPaper('a4', 'landscape');
+        ])->render();
 
-        return response($pdf->output(), 200, [
+        $pdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4-L',
+            'autoScriptToLang' => true,
+            'autoLangToFont' => true,
+        ]);
+        $pdf->WriteHTML($html);
+
+        return response($pdf->Output('', Destination::STRING_RETURN), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ]);

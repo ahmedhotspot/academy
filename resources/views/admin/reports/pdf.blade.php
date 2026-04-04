@@ -4,10 +4,15 @@
     <meta charset="utf-8">
     <title>{{ $title }}</title>
     <style>
+        * {
+            font-family: dejavusans, sans-serif;
+        }
         body {
-            font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
             color: #111827;
+            direction: rtl;
+            text-align: right;
+            unicode-bidi: embed;
         }
         h2 {
             margin: 0 0 8px;
@@ -20,6 +25,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            direction: rtl;
         }
         th, td {
             border: 1px solid #d1d5db;
