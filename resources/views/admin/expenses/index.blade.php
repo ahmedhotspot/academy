@@ -103,8 +103,8 @@
                         orderable: false,
                         render: function (id) {
                             return '<div class="d-flex gap-1">'
-                                + '<a class="btn btn-sm btn-outline-info" href="/admin/expenses/' + id + '"><i class="ti ti-eye"></i></a>'
-                                + '<a class="btn btn-sm btn-outline-primary" href="/admin/expenses/' + id + '/edit"><i class="ti ti-pencil"></i></a>'
+                                + '<a class="btn btn-sm btn-outline-info" href="public/admin/expenses/' + id + '"><i class="ti ti-eye"></i></a>'
+                                + '<a class="btn btn-sm btn-outline-primary" href="public/admin/expenses/' + id + '/edit"><i class="ti ti-pencil"></i></a>'
                                 + '</div>';
                         }
                     }
