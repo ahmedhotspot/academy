@@ -77,13 +77,9 @@ class TeacherAttendanceController extends AdminController
     {
         $result = $createTeacherAttendanceAction->handle($request->validated());
 
-        $message = $result['updated'] > 0
-            ? "تم حفظ كشف الحضور بنجاح. تمت إضافة {$result['created']} سجل وتحديث {$result['updated']} سجل موجود."
-            : "تم حفظ كشف الحضور بنجاح بعدد {$result['processed']} سجل.";
-
         return redirect()
             ->route('admin.teacher-attendances.index')
-            ->with('success', $message);
+            ->with('success', "تم حفظ كشف الحضور بنجاح بعدد {$result['processed']} سجل.");
     }
 
     public function show(User $teacher): View
