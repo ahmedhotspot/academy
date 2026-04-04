@@ -16,7 +16,7 @@ class TeacherPayrollManagementService extends BaseService
     public function getTeacherOptions(): array
     {
         return User::query()
-            ->whereHas('roles', fn ($q) => $q->where('name', 'معلم'))
+            ->whereHas('roles', fn ($q) => $q->where('name', 'المعلم'))
             ->where('status', 'active')
             ->orderBy('name')
             ->pluck('name', 'id')
