@@ -94,20 +94,39 @@
                 return;
             }
 
-            fetch('/admin/api/student-subscriptions?student_id=' + studentId, {
-                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+            fetch('/admin/api/student-subscriptions?student_id=' + encodeURIComponent(studentId), {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
             })
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error(`HTTP error! status: ${r.status}`);
+                }
+                return r.json();
+            })
             .then(subs => {
                 subscriptionSelect.innerHTML = '<option value="">— اختر الاشتراك —</option>';
-                subs.forEach(function (sub) {
-                    const opt = document.createElement('option');
-                    opt.value = sub.id;
-                    opt.textContent = sub.plan_name + ' (متبقي: ' + sub.remaining + ')';
-                    subscriptionSelect.appendChild(opt);
-                });
+                if (Array.isArray(subs) && subs.length > 0) {
+                    subs.forEach(function (sub) {
+                        const opt = document.createElement('option');
+                        opt.value = sub.id;
+                        opt.textContent = sub.plan_name + ' (متبقي: ' + sub.remaining + ')';
+                        subscriptionSelect.appendChild(opt);
+                    });
+                } else {
+                    subscriptionSelect.innerHTML = '<option value="">لا توجد اشتراكات متاحة</option>';
+                }
             })
-            .catch(() => {
+            .catch(error => {
+                console.error('خطأ:', error);
                 subscriptionSelect.innerHTML = '<option value="">تعذّر تحميل الاشتراكات</option>';
             });
         }
