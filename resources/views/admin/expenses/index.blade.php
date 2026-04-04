@@ -78,6 +78,12 @@
 @section('js')
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script>
+        // Helper functions للحصول على URLs من routes
+        const routes = {
+            show: (id) => "{{ route('admin.expenses.show', ':id') }}".replace(':id', id),
+            edit: (id) => "{{ route('admin.expenses.edit', ':id') }}".replace(':id', id)
+        };
+
         $(function () {
             $('#expenses-table').DataTable({
                 processing: true,
@@ -103,8 +109,8 @@
                         orderable: false,
                         render: function (id) {
                             return '<div class="d-flex gap-1">'
-                                + '<a class="btn btn-sm btn-outline-info" href="/admin/expenses/' + id + '"><i class="ti ti-eye"></i></a>'
-                                + '<a class="btn btn-sm btn-outline-primary" href="/admin/expenses/' + id + '/edit"><i class="ti ti-pencil"></i></a>'
+                                + '<a class="btn btn-sm btn-outline-info" href="' + routes.show(id) + '"><i class="ti ti-eye"></i></a>'
+                                + '<a class="btn btn-sm btn-outline-primary" href="' + routes.edit(id) + '"><i class="ti ti-pencil"></i></a>'
                                 + '</div>';
                         }
                     }
