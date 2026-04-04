@@ -654,27 +654,7 @@ Route::prefix('admin')
                     ->name('destroy');
             });
 
-        /*
-        |------------------------------------------------------------------
-        | API Routes للبيانات الديناميكية
-        |------------------------------------------------------------------
-        */
-        Route::prefix('api')->group(function () {
-            Route::get('/student-subscriptions', function (\Illuminate\Http\Request $request) {
-                $studentId = $request->input('student_id');
-                $subscriptions = \App\Models\StudentSubscription::query()
-                    ->where('student_id', $studentId)
-                    ->with('feePlan')
-                    ->get()
-                    ->map(fn ($sub) => [
-                        'id'        => $sub->id,
-                        'plan_name' => $sub->feePlan?->name ?? '-',
-                        'remaining' => $sub->formatted_remaining_amount,
-                    ]);
-
-                return response()->json($subscriptions);
-            });
-        });
+        // API Routes moved outside this group to avoid strict role middleware
 
         /*
         |------------------------------------------------------------------
@@ -874,5 +854,27 @@ Route::prefix('admin')
             });
 
         // عند بدء أي وحدة تشغيلية جديدة يتم اعتماد نفس أسلوب التنظيم والحماية.
+
+        /*
+        |------------------------------------------------------------------
+        | API Routes للبيانات الديناميكية
+        |------------------------------------------------------------------
+        */
+        Route::prefix('api')->middleware(['auth', 'verified'])->group(function () {
+            Route::get('/student-subscriptions', function (\Illuminate\Http\Request $request) {
+                $studentId = $request->input('student_id');
+                $subscriptions = \App\Models\StudentSubscription::query()
+                    ->where('student_id', $studentId)
+                    ->with('feePlan')
+                    ->get()
+                    ->map(fn ($sub) => [
+                        'id'        => $sub->id,
+                        'plan_name' => $sub->feePlan?->name ?? '-',
+                        'remaining' => $sub->formatted_remaining_amount,
+                    ]);
+
+                return response()->json($subscriptions);
+            });
+        });
     });
 
