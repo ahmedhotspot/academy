@@ -10,16 +10,58 @@ use App\Models\StudentSubscription;
 use App\Models\TeacherAttendance;
 use App\Models\TeacherPayroll;
 use App\Services\BaseService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class ReportService extends BaseService
 {
+    private function applyDateRange(Builder $query, Request $request, string $column): Builder
+    {
+        if ($request->filled('start_date')) {
+            $query->whereDate($column, '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate($column, '<=', $request->input('end_date'));
+        }
+
+        return $query;
+    }
+
+    private function makeDatatable(Request $request, Builder $query, callable $mapper, callable $searchHandler): array
+    {
+        $draw   = (int) $request->input('draw', 1);
+        $start  = max((int) $request->input('start', 0), 0);
+        $length = max((int) $request->input('length', 10), 1);
+        $search = trim((string) data_get($request->input('search'), 'value', ''));
+
+        $recordsTotal = (clone $query)->count();
+
+        if ($search !== '') {
+            $searchHandler($query, $search);
+        }
+
+        $recordsFiltered = (clone $query)->count();
+
+        $rows = $query
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        return [
+            'draw'            => $draw,
+            'recordsTotal'    => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data'            => $rows->map($mapper)->values()->all(),
+        ];
+    }
+
     /**
      * تقرير الطلاب
      */
     public function studentReport(Request $request): array
     {
-        $query = Student::query();
+        $query = Student::query()->with('branch');
 
         if ($request->filled('branch_id')) {
             $query->where('branch_id', $request->input('branch_id'));
@@ -29,20 +71,13 @@ class ReportService extends BaseService
             $query->where('status', $request->input('status'));
         }
 
-        $students = $query->with(['branch', 'enrollments'])
-            ->orderBy('full_name')
-            ->get()
-            ->map(fn ($s) => [
-                'id'        => $s->id,
-                'name'      => $s->full_name,
-                'branch'    => $s->branch?->name,
-                'age'       => $s->age,
-                'status'    => $s->status,
-            ])->values()->all();
+        $this->applyDateRange($query, $request, 'created_at');
+
+        $total = (clone $query)->count();
 
         return [
-            'total'    => count($students),
-            'students' => $students,
+            'total'    => $total,
+            'students' => [],
         ];
     }
 
@@ -51,30 +86,22 @@ class ReportService extends BaseService
      */
     public function attendanceReport(Request $request): array
     {
-        $query = TeacherAttendance::query()->with('teacher');
+        $query = TeacherAttendance::query();
 
         if ($request->filled('teacher_id')) {
             $query->where('teacher_id', $request->input('teacher_id'));
         }
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('attendance_date', '>=', $request->input('start_date'));
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('attendance_date', '<=', $request->input('end_date'));
-        }
-
-        $records = $query->orderByDesc('attendance_date')->get();
+        $this->applyDateRange($query, $request, 'attendance_date');
 
         $stats = [
-            'present'  => $records->where('status', 'حاضر')->count(),
-            'absent'   => $records->where('status', 'غائب')->count(),
-            'late'     => $records->where('status', 'متأخر')->count(),
-            'excused'  => $records->where('status', 'بعذر')->count(),
+            'present'  => (clone $query)->where('status', 'حاضر')->count(),
+            'absent'   => (clone $query)->where('status', 'غائب')->count(),
+            'late'     => (clone $query)->where('status', 'متأخر')->count(),
+            'excused'  => (clone $query)->where('status', 'بعذر')->count(),
         ];
 
-        return ['stats' => $stats, 'records' => $records];
+        return ['stats' => $stats, 'records' => []];
     }
 
     /**
@@ -82,21 +109,15 @@ class ReportService extends BaseService
      */
     public function progressReport(Request $request): array
     {
-        $query = StudentProgressLog::query()->with(['student', 'teacher']);
+        $query = StudentProgressLog::query();
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
         }
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('progress_date', '>=', $request->input('start_date'));
-        }
+        $this->applyDateRange($query, $request, 'progress_date');
 
-        if ($request->filled('end_date')) {
-            $query->whereDate('progress_date', '<=', $request->input('end_date'));
-        }
-
-        return ['records' => $query->orderByDesc('progress_date')->get()];
+        return ['records' => []];
     }
 
     /**
@@ -104,30 +125,23 @@ class ReportService extends BaseService
      */
     public function assessmentReport(Request $request): array
     {
-        $query = Assessment::query()->with('student');
+        $query = Assessment::query();
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
         }
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('assessment_date', '>=', $request->input('start_date'));
-        }
+        $this->applyDateRange($query, $request, 'assessment_date');
 
-        if ($request->filled('end_date')) {
-            $query->whereDate('assessment_date', '<=', $request->input('end_date'));
-        }
-
-        $records = $query->orderByDesc('assessment_date')->get();
-
-        $avgResult = $records->avg(function ($r) {
-            return ($r->memorization_result + $r->tajweed_result + $r->tadabbur_result) / 3;
+        $total = (clone $query)->count();
+        $avgResult = (clone $query)->get()->avg(function ($r) {
+            return ((float) $r->memorization_result + (float) $r->tajweed_result + (float) $r->tadabbur_result) / 3;
         });
 
         return [
-            'total'    => count($records),
-            'average'  => round($avgResult, 2),
-            'records'  => $records,
+            'total'    => $total,
+            'average'  => round((float) $avgResult, 2),
+            'records'  => [],
         ];
     }
 
@@ -136,15 +150,9 @@ class ReportService extends BaseService
      */
     public function subscriptionReport(Request $request): array
     {
-        $query = StudentSubscription::query()->with('student');
+        $query = StudentSubscription::query();
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->input('start_date'));
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->input('end_date'));
-        }
+        $this->applyDateRange($query, $request, 'created_at');
 
         $total     = (clone $query)->count();
         $active    = (clone $query)->where('status', 'نشط')->count();
@@ -152,28 +160,13 @@ class ReportService extends BaseService
         $complete  = (clone $query)->where('status', 'مكتمل')->count();
         $remaining = (clone $query)->sum('remaining_amount');
 
-        $overdueList = StudentSubscription::query()
-            ->with('student')
-            ->where('status', 'متأخر')
-            ->where('remaining_amount', '>', 0);
-
-        if ($request->filled('start_date')) {
-            $overdueList->whereDate('created_at', '>=', $request->input('start_date'));
-        }
-
-        if ($request->filled('end_date')) {
-            $overdueList->whereDate('created_at', '<=', $request->input('end_date'));
-        }
-
-        $overdueList = $overdueList->orderByDesc('remaining_amount')->get();
-
         return [
             'total'       => $total,
             'active'      => $active,
             'overdue'     => $overdue,
             'complete'    => $complete,
             'totalRemaining' => $remaining,
-            'overdueList' => $overdueList,
+            'overdueList' => [],
         ];
     }
 
@@ -184,13 +177,7 @@ class ReportService extends BaseService
     {
         $query = TeacherPayroll::query()->with('teacher');
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->input('start_date'));
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->input('end_date'));
-        }
+        $this->applyDateRange($query, $request, 'created_at');
 
         $total     = (clone $query)->count();
         $processed = (clone $query)->where('status', 'مصروف')->count();
@@ -202,7 +189,7 @@ class ReportService extends BaseService
             'processed'     => $processed,
             'pending'       => $pending,
             'totalSalaries' => $totalSalaries,
-            'records'       => $query->orderByDesc('year')->orderByDesc('month')->get(),
+            'records'       => [],
         ];
     }
 
@@ -217,13 +204,7 @@ class ReportService extends BaseService
             $query->where('branch_id', $request->input('branch_id'));
         }
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('expense_date', '>=', $request->input('start_date'));
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('expense_date', '<=', $request->input('end_date'));
-        }
+        $this->applyDateRange($query, $request, 'expense_date');
 
         $total   = (clone $query)->count();
         $amount  = (clone $query)->sum('amount');
@@ -231,8 +212,359 @@ class ReportService extends BaseService
         return [
             'total'   => $total,
             'amount'  => $amount,
-            'records' => $query->orderByDesc('expense_date')->get(),
+            'records' => [],
         ];
+    }
+
+    public function studentsDatatable(Request $request): array
+    {
+        $query = Student::query()->with('branch');
+
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->input('branch_id'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $this->applyDateRange($query, $request, 'created_at');
+
+        $query->orderByDesc('created_at')->orderByDesc('id');
+
+        return $this->makeDatatable(
+            $request,
+            $query,
+            fn (Student $s) => [
+                'id' => $s->id,
+                'name' => $s->full_name,
+                'branch' => $s->branch?->name ?? '-',
+                'age' => $s->age,
+                'status' => $s->status,
+                'date' => optional($s->created_at)->format('Y-m-d'),
+            ],
+            function (Builder $q, string $search): void {
+                $q->where(function (Builder $nested) use ($search) {
+                    $nested->where('full_name', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhereHas('branch', fn (Builder $b) => $b->where('name', 'like', "%{$search}%"));
+                });
+            }
+        );
+    }
+
+    public function attendanceDatatable(Request $request): array
+    {
+        $query = TeacherAttendance::query()->with('teacher');
+
+        if ($request->filled('teacher_id')) {
+            $query->where('teacher_id', $request->input('teacher_id'));
+        }
+
+        $this->applyDateRange($query, $request, 'attendance_date');
+        $query->orderByDesc('attendance_date')->orderByDesc('id');
+
+        return $this->makeDatatable(
+            $request,
+            $query,
+            fn (TeacherAttendance $r) => [
+                'id' => $r->id,
+                'teacher' => $r->teacher?->name ?? '-',
+                'date' => optional($r->attendance_date)->format('Y-m-d'),
+                'status' => $r->status,
+            ],
+            function (Builder $q, string $search): void {
+                $q->where(function (Builder $nested) use ($search) {
+                    $nested->where('status', 'like', "%{$search}%")
+                        ->orWhereHas('teacher', fn (Builder $t) => $t->where('name', 'like', "%{$search}%"));
+                });
+            }
+        );
+    }
+
+    public function progressDatatable(Request $request): array
+    {
+        $query = StudentProgressLog::query()->with(['student', 'teacher', 'group']);
+
+        if ($request->filled('student_id')) {
+            $query->where('student_id', $request->input('student_id'));
+        }
+
+        $this->applyDateRange($query, $request, 'progress_date');
+        $query->orderByDesc('progress_date')->orderByDesc('id');
+
+        return $this->makeDatatable(
+            $request,
+            $query,
+            fn (StudentProgressLog $r) => [
+                'id' => $r->id,
+                'student' => $r->student?->full_name ?? '-',
+                'teacher' => $r->teacher?->name ?? '-',
+                'group' => $r->group?->name ?? '-',
+                'date' => optional($r->progress_date)->format('Y-m-d'),
+                'mastery' => (int) $r->mastery_level . '%',
+            ],
+            function (Builder $q, string $search): void {
+                $q->where(function (Builder $nested) use ($search) {
+                    $nested->whereHas('student', fn (Builder $s) => $s->where('full_name', 'like', "%{$search}%"))
+                        ->orWhereHas('teacher', fn (Builder $t) => $t->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('group', fn (Builder $g) => $g->where('name', 'like', "%{$search}%"));
+                });
+            }
+        );
+    }
+
+    public function assessmentsDatatable(Request $request): array
+    {
+        $query = Assessment::query()->with('student');
+
+        if ($request->filled('student_id')) {
+            $query->where('student_id', $request->input('student_id'));
+        }
+
+        $this->applyDateRange($query, $request, 'assessment_date');
+        $query->orderByDesc('assessment_date')->orderByDesc('id');
+
+        return $this->makeDatatable(
+            $request,
+            $query,
+            function (Assessment $r): array {
+                $avg = ((float) $r->memorization_result + (float) $r->tajweed_result + (float) $r->tadabbur_result) / 3;
+
+                return [
+                    'id' => $r->id,
+                    'student' => $r->student?->full_name ?? '-',
+                    'type' => $r->type,
+                    'date' => optional($r->assessment_date)->format('Y-m-d'),
+                    'result' => round($avg, 0) . '%',
+                ];
+            },
+            function (Builder $q, string $search): void {
+                $q->where(function (Builder $nested) use ($search) {
+                    $nested->where('type', 'like', "%{$search}%")
+                        ->orWhereHas('student', fn (Builder $s) => $s->where('full_name', 'like', "%{$search}%"));
+                });
+            }
+        );
+    }
+
+    public function subscriptionsDatatable(Request $request): array
+    {
+        $query = StudentSubscription::query()->with(['student', 'feePlan'])
+            ->where('status', 'متأخر')
+            ->where('remaining_amount', '>', 0);
+
+        $this->applyDateRange($query, $request, 'created_at');
+        $query->orderByDesc('remaining_amount')->orderByDesc('id');
+
+        return $this->makeDatatable(
+            $request,
+            $query,
+            fn (StudentSubscription $r) => [
+                'id' => $r->id,
+                'student' => $r->student?->full_name ?? '-',
+                'plan' => $r->feePlan?->name ?? '-',
+                'status' => $r->status,
+                'remaining' => $r->formatted_remaining_amount,
+                'date' => optional($r->created_at)->format('Y-m-d'),
+            ],
+            function (Builder $q, string $search): void {
+                $q->where(function (Builder $nested) use ($search) {
+                    $nested->where('status', 'like', "%{$search}%")
+                        ->orWhereHas('student', fn (Builder $s) => $s->where('full_name', 'like', "%{$search}%"))
+                        ->orWhereHas('feePlan', fn (Builder $p) => $p->where('name', 'like', "%{$search}%"));
+                });
+            }
+        );
+    }
+
+    public function payrollsDatatable(Request $request): array
+    {
+        $query = TeacherPayroll::query()->with('teacher');
+
+        $this->applyDateRange($query, $request, 'created_at');
+        $query->orderByDesc('year')->orderByDesc('month')->orderByDesc('id');
+
+        return $this->makeDatatable(
+            $request,
+            $query,
+            fn (TeacherPayroll $r) => [
+                'id' => $r->id,
+                'teacher' => $r->teacher?->name ?? '-',
+                'period' => $r->month_year,
+                'salary' => $r->formatted_base_salary,
+                'bonus' => $r->formatted_bonus,
+                'final' => $r->formatted_final,
+                'status' => $r->status,
+                'date' => optional($r->created_at)->format('Y-m-d'),
+            ],
+            function (Builder $q, string $search): void {
+                $q->where(function (Builder $nested) use ($search) {
+                    $nested->where('status', 'like', "%{$search}%")
+                        ->orWhereHas('teacher', fn (Builder $t) => $t->where('name', 'like', "%{$search}%"));
+                });
+            }
+        );
+    }
+
+    public function expensesDatatable(Request $request): array
+    {
+        $query = Expense::query()->with('branch');
+
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->input('branch_id'));
+        }
+
+        $this->applyDateRange($query, $request, 'expense_date');
+        $query->orderByDesc('expense_date')->orderByDesc('id');
+
+        return $this->makeDatatable(
+            $request,
+            $query,
+            fn (Expense $r) => [
+                'id' => $r->id,
+                'date' => $r->formatted_date,
+                'title' => $r->title,
+                'branch' => $r->branch?->name ?? 'عام',
+                'amount' => $r->formatted_amount,
+            ],
+            function (Builder $q, string $search): void {
+                $q->where(function (Builder $nested) use ($search) {
+                    $nested->where('title', 'like', "%{$search}%")
+                        ->orWhere('amount', 'like', "%{$search}%")
+                        ->orWhereHas('branch', fn (Builder $b) => $b->where('name', 'like', "%{$search}%"));
+                });
+            }
+        );
+    }
+
+    public function studentsPdfRows(Request $request): array
+    {
+        $query = Student::query()->with('branch');
+
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->input('branch_id'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $this->applyDateRange($query, $request, 'created_at');
+
+        return $query->orderByDesc('created_at')->get()
+            ->map(fn (Student $s) => [
+                $s->full_name,
+                $s->branch?->name ?? '-',
+                $s->age,
+                $s->status,
+                optional($s->created_at)->format('Y-m-d'),
+            ])->all();
+    }
+
+    public function attendancePdfRows(Request $request): array
+    {
+        $query = TeacherAttendance::query()->with('teacher');
+        if ($request->filled('teacher_id')) {
+            $query->where('teacher_id', $request->input('teacher_id'));
+        }
+        $this->applyDateRange($query, $request, 'attendance_date');
+
+        return $query->orderByDesc('attendance_date')->get()
+            ->map(fn (TeacherAttendance $r) => [
+                $r->teacher?->name ?? '-',
+                optional($r->attendance_date)->format('Y-m-d'),
+                $r->status,
+            ])->all();
+    }
+
+    public function progressPdfRows(Request $request): array
+    {
+        $query = StudentProgressLog::query()->with(['student', 'teacher', 'group']);
+        if ($request->filled('student_id')) {
+            $query->where('student_id', $request->input('student_id'));
+        }
+        $this->applyDateRange($query, $request, 'progress_date');
+
+        return $query->orderByDesc('progress_date')->get()
+            ->map(fn (StudentProgressLog $r) => [
+                $r->student?->full_name ?? '-',
+                $r->teacher?->name ?? '-',
+                $r->group?->name ?? '-',
+                optional($r->progress_date)->format('Y-m-d'),
+                (int) $r->mastery_level . '%',
+            ])->all();
+    }
+
+    public function assessmentsPdfRows(Request $request): array
+    {
+        $query = Assessment::query()->with('student');
+        if ($request->filled('student_id')) {
+            $query->where('student_id', $request->input('student_id'));
+        }
+        $this->applyDateRange($query, $request, 'assessment_date');
+
+        return $query->orderByDesc('assessment_date')->get()
+            ->map(function (Assessment $r): array {
+                $avg = ((float) $r->memorization_result + (float) $r->tajweed_result + (float) $r->tadabbur_result) / 3;
+                return [
+                    $r->student?->full_name ?? '-',
+                    $r->type,
+                    optional($r->assessment_date)->format('Y-m-d'),
+                    round($avg, 0) . '%',
+                ];
+            })->all();
+    }
+
+    public function subscriptionsPdfRows(Request $request): array
+    {
+        $query = StudentSubscription::query()->with(['student', 'feePlan'])
+            ->where('status', 'متأخر')
+            ->where('remaining_amount', '>', 0);
+        $this->applyDateRange($query, $request, 'created_at');
+
+        return $query->orderByDesc('remaining_amount')->get()
+            ->map(fn (StudentSubscription $r) => [
+                $r->student?->full_name ?? '-',
+                $r->feePlan?->name ?? '-',
+                $r->status,
+                $r->formatted_remaining_amount,
+                optional($r->created_at)->format('Y-m-d'),
+            ])->all();
+    }
+
+    public function payrollsPdfRows(Request $request): array
+    {
+        $query = TeacherPayroll::query()->with('teacher');
+        $this->applyDateRange($query, $request, 'created_at');
+
+        return $query->orderByDesc('year')->orderByDesc('month')->get()
+            ->map(fn (TeacherPayroll $r) => [
+                $r->teacher?->name ?? '-',
+                $r->month_year,
+                $r->formatted_base_salary,
+                $r->formatted_bonus,
+                $r->formatted_final,
+                $r->status,
+                optional($r->created_at)->format('Y-m-d'),
+            ])->all();
+    }
+
+    public function expensesPdfRows(Request $request): array
+    {
+        $query = Expense::query()->with('branch');
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->input('branch_id'));
+        }
+        $this->applyDateRange($query, $request, 'expense_date');
+
+        return $query->orderByDesc('expense_date')->get()
+            ->map(fn (Expense $r) => [
+                $r->formatted_date,
+                $r->title,
+                $r->branch?->name ?? 'عام',
+                $r->formatted_amount,
+            ])->all();
     }
 
     /**

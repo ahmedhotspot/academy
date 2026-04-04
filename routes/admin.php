@@ -764,12 +764,26 @@ Route::prefix('admin')
             ->group(function () {
                 Route::get('/', [ReportController::class, 'index'])->name('index');
                 Route::get('/students', [ReportController::class, 'students'])->name('students');
+                Route::get('/students/datatable', [ReportController::class, 'studentsDatatable'])->name('students.datatable');
+                Route::get('/students/pdf', [ReportController::class, 'studentsPdf'])->name('students.pdf');
                 Route::get('/attendance', [ReportController::class, 'attendance'])->name('attendance');
+                Route::get('/attendance/datatable', [ReportController::class, 'attendanceDatatable'])->name('attendance.datatable');
+                Route::get('/attendance/pdf', [ReportController::class, 'attendancePdf'])->name('attendance.pdf');
                 Route::get('/progress', [ReportController::class, 'progress'])->name('progress');
+                Route::get('/progress/datatable', [ReportController::class, 'progressDatatable'])->name('progress.datatable');
+                Route::get('/progress/pdf', [ReportController::class, 'progressPdf'])->name('progress.pdf');
                 Route::get('/assessments', [ReportController::class, 'assessments'])->name('assessments');
+                Route::get('/assessments/datatable', [ReportController::class, 'assessmentsDatatable'])->name('assessments.datatable');
+                Route::get('/assessments/pdf', [ReportController::class, 'assessmentsPdf'])->name('assessments.pdf');
                 Route::get('/subscriptions', [ReportController::class, 'subscriptions'])->name('subscriptions');
+                Route::get('/subscriptions/datatable', [ReportController::class, 'subscriptionsDatatable'])->name('subscriptions.datatable');
+                Route::get('/subscriptions/pdf', [ReportController::class, 'subscriptionsPdf'])->name('subscriptions.pdf');
                 Route::get('/payrolls', [ReportController::class, 'payrolls'])->name('payrolls');
+                Route::get('/payrolls/datatable', [ReportController::class, 'payrollsDatatable'])->name('payrolls.datatable');
+                Route::get('/payrolls/pdf', [ReportController::class, 'payrollsPdf'])->name('payrolls.pdf');
                 Route::get('/expenses', [ReportController::class, 'expenses'])->name('expenses');
+                Route::get('/expenses/datatable', [ReportController::class, 'expensesDatatable'])->name('expenses.datatable');
+                Route::get('/expenses/pdf', [ReportController::class, 'expensesPdf'])->name('expenses.pdf');
             });
 
         /*

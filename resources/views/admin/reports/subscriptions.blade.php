@@ -2,6 +2,10 @@
 
 @section('title', 'تقرير الاشتراكات والمتأخرات')
 
+@section('css')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+@endsection
+
 @section('content')
     <div class="page-content-wrapper">
         <div class="content-container">
@@ -12,65 +16,31 @@
                     'breadcrumbs' => $breadcrumbs,
                 ])
 
-                {{-- فلاتر البحث --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body">
                         <form method="GET" class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">تاريخ البداية</label>
-                                <input type="date" name="start_date" class="form-control"
-                                       value="{{ request('start_date') }}">
+                                <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">تاريخ النهاية</label>
-                                <input type="date" name="end_date" class="form-control"
-                                       value="{{ request('end_date') }}">
+                                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
                             </div>
                             <div class="col-md-4 d-flex align-items-end gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="ti ti-search me-1"></i> بحث
-                                </button>
-                                <a href="{{ route('admin.reports.subscriptions') }}" class="btn btn-secondary">
-                                    <i class="ti ti-refresh me-1"></i> إعادة تعيين
-                                </a>
+                                <button type="submit" class="btn btn-primary"><i class="ti ti-search me-1"></i> بحث</button>
+                                <a href="{{ route('admin.reports.subscriptions') }}" class="btn btn-secondary"><i class="ti ti-refresh me-1"></i> إعادة تعيين</a>
+                                <a href="{{ route('admin.reports.subscriptions.pdf', request()->query()) }}" class="btn btn-danger"><i class="ti ti-file-download me-1"></i> PDF</a>
                             </div>
                         </form>
                     </div>
                 </div>
 
                 <div class="row g-3 mb-4">
-                    <div class="col-md-3">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <p class="text-muted small">إجمالي الاشتراكات</p>
-                                <h4 class="fw-bold">{{ $report['total'] }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <p class="text-muted small">المتأخرة</p>
-                                <h4 class="fw-bold text-danger">{{ $report['overdue'] }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <p class="text-muted small">المكتملة</p>
-                                <h4 class="fw-bold text-success">{{ $report['complete'] }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <p class="text-muted small">المتبقي</p>
-                                <h4 class="fw-bold">{{ number_format($report['totalRemaining'], 2) }} ج</h4>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">إجمالي الاشتراكات</p><h4 class="fw-bold">{{ $report['total'] }}</h4></div></div></div>
+                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">المتأخرة</p><h4 class="fw-bold text-danger">{{ $report['overdue'] }}</h4></div></div></div>
+                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">المكتملة</p><h4 class="fw-bold text-success">{{ $report['complete'] }}</h4></div></div></div>
+                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">المتبقي</p><h4 class="fw-bold">{{ number_format($report['totalRemaining'], 2) }} ج</h4></div></div></div>
                 </div>
 
                 <div class="card border-0 shadow-sm">
@@ -79,7 +49,7 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table id="subscriptions-table" class="table table-hover mb-0 w-100">
                                 <thead class="table-light">
                                 <tr>
                                     <th>#</th>
@@ -87,23 +57,9 @@
                                     <th>الخطة</th>
                                     <th>الحالة</th>
                                     <th>المتبقي</th>
+                                    <th>التاريخ</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                @forelse($report['overdueList'] as $sub)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td class="fw-semibold">{{ $sub->student?->full_name }}</td>
-                                        <td>{{ $sub->feePlan?->name }}</td>
-                                        <td><span class="badge bg-warning">{{ $sub->status }}</span></td>
-                                        <td class="fw-bold text-danger">{{ $sub->formatted_remaining_amount }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">لا توجد متأخرات</td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -114,3 +70,35 @@
     </div>
 @endsection
 
+@section('js')
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(function () {
+            $('#subscriptions-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route('admin.reports.subscriptions.datatable') }}',
+                    data: function (d) {
+                        d.start_date = '{{ request('start_date') }}';
+                        d.end_date = '{{ request('end_date') }}';
+                    }
+                },
+                language: {
+                    emptyTable: 'لا توجد بيانات',
+                    processing: 'جاري التحميل...',
+                    search: 'بحث:',
+                    paginate: {first:'الأول', last:'الأخير', next:'التالي', previous:'السابق'}
+                },
+                columns: [
+                    {data: 'id'},
+                    {data: 'student'},
+                    {data: 'plan'},
+                    {data: 'status'},
+                    {data: 'remaining'},
+                    {data: 'date'}
+                ]
+            });
+        });
+    </script>
+@endsection
