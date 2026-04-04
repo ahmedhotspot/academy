@@ -8,7 +8,9 @@ use App\Models\TeacherAttendance;
 use App\Models\User;
 use App\Services\BaseService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class TeacherAttendanceManagementService extends BaseService
 {
@@ -106,60 +108,45 @@ class TeacherAttendanceManagementService extends BaseService
         $length = max((int) $request->input('length', 10), 1);
         $search = trim((string) data_get($request->input('search'), 'value', ''));
 
-        $baseQuery = TeacherAttendance::query()
-            ->with('teacher')
-            ->select([
-                'id',
-                'teacher_id',
-                'attendance_date',
-                'status',
-                'notes',
-                'created_at',
-            ]);
+        $baseQuery = TeacherAttendance::query()->with('teacher');
+        $this->applyAttendanceFilters($baseQuery, $request, $search);
 
-        // فلترة حسب المعلم
-        if ($request->filled('teacher_id')) {
-            $baseQuery->where('teacher_id', $request->input('teacher_id'));
-        }
+        $recordsTotal = TeacherAttendance::query()
+            ->distinct('teacher_id')
+            ->count('teacher_id');
 
-        // فلترة حسب التاريخ
-        if ($request->filled('attendance_date')) {
-            $baseQuery->whereDate('attendance_date', $request->input('attendance_date'));
-        }
+        $aggregatedQuery = (clone $baseQuery)
+            ->selectRaw('teacher_id, MIN(attendance_date) as first_attendance_date, MAX(attendance_date) as last_attendance_date, COUNT(*) as records_count')
+            ->groupBy('teacher_id');
 
-        // فلترة حسب الحالة
-        if ($request->filled('status')) {
-            $baseQuery->where('status', $request->input('status'));
-        }
+        $recordsFiltered = (clone $aggregatedQuery)->get()->count();
 
-        $recordsTotal = TeacherAttendance::query()->count();
-
-        if ($search !== '') {
-            $baseQuery->where(function ($q) use ($search) {
-                $q->whereHas('teacher', fn ($u) => $u->where('name', 'like', "%{$search}%"))
-                    ->orWhere('status', 'like', "%{$search}%")
-                    ->orWhere('notes', 'like', "%{$search}%");
-            });
-        }
-
-        $recordsFiltered = (clone $baseQuery)->count();
-
-        $rows = $baseQuery
-            ->orderByDesc('attendance_date')
-            ->orderByDesc('id')
+        $aggregatedRows = $aggregatedQuery
+            ->orderByDesc('last_attendance_date')
             ->skip($start)
             ->take($length)
             ->get();
 
-        $data = $rows->map(function (TeacherAttendance $attendance) {
+        $teacherIds = $aggregatedRows->pluck('teacher_id')->all();
+
+        $latestAttendances = $teacherIds === []
+            ? collect()
+            : $this->getLatestAttendancesForTeachers($request, $search, $teacherIds);
+
+        $data = $aggregatedRows->map(function ($row) use ($latestAttendances) {
+            /** @var TeacherAttendance|null $latestAttendance */
+            $latestAttendance = $latestAttendances->get((int) $row->teacher_id);
+
             return [
-                'id'              => $attendance->id,
-                'teacher_id'      => $attendance->teacher_id,
-                'teacher_name'    => $attendance->teacher?->name ?? '-',
-                'attendance_date' => $attendance->attendance_date?->format('Y-m-d') ?? '-',
-                'status'          => $attendance->status,
-                'status_badge'    => $attendance->status_badge_class,
-                'notes'           => $attendance->notes ?: '-',
+                'teacher_id' => (int) $row->teacher_id,
+                'teacher_name' => $latestAttendance?->teacher?->name ?? '-',
+                'first_attendance_date' => $row->first_attendance_date ? Carbon::parse($row->first_attendance_date)->format('Y-m-d') : '-',
+                'last_attendance_date' => $row->last_attendance_date ? Carbon::parse($row->last_attendance_date)->format('Y-m-d') : '-',
+                'status' => $latestAttendance?->status ?? '-',
+                'status_badge' => $latestAttendance?->status_badge_class ?? 'bg-secondary',
+                'notes' => $latestAttendance?->notes ?: '-',
+                'records_count' => (int) $row->records_count,
+                'latest_attendance_id' => $latestAttendance?->id,
             ];
         })->values()->all();
 
@@ -169,6 +156,45 @@ class TeacherAttendanceManagementService extends BaseService
             'recordsFiltered' => $recordsFiltered,
             'data'            => $data,
         ];
+    }
+
+    private function applyAttendanceFilters(Builder $query, Request $request, string $search = ''): void
+    {
+        if ($request->filled('teacher_id')) {
+            $query->where('teacher_id', $request->input('teacher_id'));
+        }
+
+        if ($request->filled('attendance_date')) {
+            $query->whereDate('attendance_date', $request->input('attendance_date'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($search !== '') {
+            $query->where(function (Builder $q) use ($search) {
+                $q->whereHas('teacher', fn (Builder $u) => $u->where('name', 'like', "%{$search}%"))
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('notes', 'like', "%{$search}%");
+            });
+        }
+    }
+
+    private function getLatestAttendancesForTeachers(Request $request, string $search, array $teacherIds): Collection
+    {
+        $rows = TeacherAttendance::query()
+            ->with('teacher')
+            ->whereIn('teacher_id', $teacherIds);
+
+        $this->applyAttendanceFilters($rows, $request, $search);
+
+        return $rows
+            ->orderByDesc('attendance_date')
+            ->orderByDesc('id')
+            ->get()
+            ->unique('teacher_id')
+            ->keyBy('teacher_id');
     }
 
     public function getTeacherAttendanceProfile(User $teacher): array

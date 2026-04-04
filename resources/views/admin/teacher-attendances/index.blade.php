@@ -71,7 +71,7 @@
 
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
-                        <h6 class="mb-0 fw-semibold">سجلات حضور وغياب المعلمين</h6>
+                        <h6 class="mb-0 fw-semibold">ملخص حضور المعلمين</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -79,9 +79,11 @@
                                 <thead>
                                 <tr>
                                     <th>المعلم</th>
-                                    <th>التاريخ</th>
-                                    <th>الحالة</th>
-                                    <th>ملاحظات</th>
+                                    <th>أول تسجيل</th>
+                                    <th>آخر تسجيل</th>
+                                    <th>آخر حالة</th>
+                                    <th>آخر ملاحظات</th>
+                                    <th>عدد السجلات</th>
                                     <th>العمليات</th>
                                 </tr>
                                 </thead>
@@ -115,7 +117,8 @@
                 },
                 columns: [
                     {data: 'teacher_name'},
-                    {data: 'attendance_date'},
+                    {data: 'first_attendance_date'},
+                    {data: 'last_attendance_date'},
                     {
                         data: 'status',
                         render: function (value, type, row) {
@@ -123,24 +126,29 @@
                         }
                     },
                     {data: 'notes'},
+                    {data: 'records_count'},
                     {
-                        data: 'id',
+                        data: 'latest_attendance_id',
                         searchable: false,
                         orderable: false,
                         render: function (id, type, row) {
                             const showUrl = '{{ route('admin.teacher-attendances.show', ['teacher' => '__TEACHER__']) }}'.replace('__TEACHER__', row.teacher_id);
-                            const editUrl = '{{ route('admin.teacher-attendances.edit', ['teacherAttendance' => '__ID__']) }}'.replace('__ID__', id);
-                            const deleteUrl = '{{ route('admin.teacher-attendances.destroy', ['teacherAttendance' => '__ID__']) }}'.replace('__ID__', id);
+                            let actions = '<div class="d-flex gap-1 flex-wrap">'
+                                + '<a class="btn btn-sm btn-outline-info" href="' + showUrl + '">سجل المعلم</a>';
 
-                            return '<div class="d-flex gap-1">'
-                                + '<a class="btn btn-sm btn-outline-info" href="' + showUrl + '">سجل المعلم</a>'
-                                + '<a class="btn btn-sm btn-outline-primary" href="' + editUrl + '">تعديل</a>'
-                                + '<form method="POST" action="' + deleteUrl + '" onsubmit="return confirm(\'هل تريد حذف هذا السجل؟\')">'
-                                + '<input type="hidden" name="_token" value="{{ csrf_token() }}">'
-                                + '<input type="hidden" name="_method" value="DELETE">'
-                                + '<button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>'
-                                + '</form>'
-                                + '</div>';
+                            if (id) {
+                                const editUrl = '{{ route('admin.teacher-attendances.edit', ['teacherAttendance' => '__ID__']) }}'.replace('__ID__', id);
+                                const deleteUrl = '{{ route('admin.teacher-attendances.destroy', ['teacherAttendance' => '__ID__']) }}'.replace('__ID__', id);
+
+                                actions += '<a class="btn btn-sm btn-outline-primary" href="' + editUrl + '">تعديل آخر سجل</a>'
+                                    + '<form method="POST" action="' + deleteUrl + '" onsubmit="return confirm(\'هل تريد حذف آخر سجل لهذا المعلم؟\')">'
+                                    + '<input type="hidden" name="_token" value="{{ csrf_token() }}">'
+                                    + '<input type="hidden" name="_method" value="DELETE">'
+                                    + '<button type="submit" class="btn btn-sm btn-outline-danger">حذف آخر سجل</button>'
+                                    + '</form>';
+                            }
+
+                            return actions + '</div>';
                         }
                     }
                 ]
