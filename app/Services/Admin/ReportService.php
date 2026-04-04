@@ -57,6 +57,14 @@ class ReportService extends BaseService
             $query->where('teacher_id', $request->input('teacher_id'));
         }
 
+        if ($request->filled('start_date')) {
+            $query->whereDate('attendance_date', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('attendance_date', '<=', $request->input('end_date'));
+        }
+
         $records = $query->orderByDesc('attendance_date')->get();
 
         $stats = [
@@ -80,6 +88,14 @@ class ReportService extends BaseService
             $query->where('student_id', $request->input('student_id'));
         }
 
+        if ($request->filled('start_date')) {
+            $query->whereDate('progress_date', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('progress_date', '<=', $request->input('end_date'));
+        }
+
         return ['records' => $query->orderByDesc('progress_date')->get()];
     }
 
@@ -92,6 +108,14 @@ class ReportService extends BaseService
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('assessment_date', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('assessment_date', '<=', $request->input('end_date'));
         }
 
         $records = $query->orderByDesc('assessment_date')->get();
@@ -114,6 +138,14 @@ class ReportService extends BaseService
     {
         $query = StudentSubscription::query()->with('student');
 
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->input('end_date'));
+        }
+
         $total     = (clone $query)->count();
         $active    = (clone $query)->where('status', 'نشط')->count();
         $overdue   = (clone $query)->where('status', 'متأخر')->count();
@@ -123,9 +155,17 @@ class ReportService extends BaseService
         $overdueList = StudentSubscription::query()
             ->with('student')
             ->where('status', 'متأخر')
-            ->where('remaining_amount', '>', 0)
-            ->orderByDesc('remaining_amount')
-            ->get();
+            ->where('remaining_amount', '>', 0);
+
+        if ($request->filled('start_date')) {
+            $overdueList->whereDate('created_at', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $overdueList->whereDate('created_at', '<=', $request->input('end_date'));
+        }
+
+        $overdueList = $overdueList->orderByDesc('remaining_amount')->get();
 
         return [
             'total'       => $total,
@@ -143,6 +183,14 @@ class ReportService extends BaseService
     public function payrollReport(Request $request): array
     {
         $query = TeacherPayroll::query()->with('teacher');
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->input('end_date'));
+        }
 
         $total     = (clone $query)->count();
         $processed = (clone $query)->where('status', 'مصروف')->count();
@@ -167,6 +215,14 @@ class ReportService extends BaseService
 
         if ($request->filled('branch_id')) {
             $query->where('branch_id', $request->input('branch_id'));
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('expense_date', '>=', $request->input('start_date'));
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('expense_date', '<=', $request->input('end_date'));
         }
 
         $total   = (clone $query)->count();

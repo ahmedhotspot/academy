@@ -12,6 +12,32 @@
                     'breadcrumbs' => $breadcrumbs,
                 ])
 
+                {{-- فلاتر البحث --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <form method="GET" class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">تاريخ البداية</label>
+                                <input type="date" name="start_date" class="form-control"
+                                       value="{{ request('start_date') }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">تاريخ النهاية</label>
+                                <input type="date" name="end_date" class="form-control"
+                                       value="{{ request('end_date') }}">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-search me-1"></i> بحث
+                                </button>
+                                <a href="{{ route('admin.reports.expenses') }}" class="btn btn-secondary">
+                                    <i class="ti ti-refresh me-1"></i> إعادة تعيين
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <div class="card border-0 shadow-sm">
