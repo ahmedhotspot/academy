@@ -29,8 +29,8 @@ class TeacherAttendanceController extends AdminController
 
         if (auth()->user()?->can('teacher-attendances.create')) {
             $actions[] = [
-                'title' => 'تسجيل حضور معلم',
-                'url' => route('admin.teacher-attendances.create'),
+                'title' => 'تسجيل حضور اليوم',
+                'url' => route('admin.teacher-attendances.create', ['attendance_date' => now()->toDateString()]),
                 'icon' => 'ti ti-plus',
                 'class' => 'btn-primary',
             ];
@@ -57,25 +57,33 @@ class TeacherAttendanceController extends AdminController
         return response()->json($this->teacherAttendanceManagementService->datatable($request));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        $attendanceDate = $request->input('attendance_date', now()->toDateString());
+        $dailySheet = $this->teacherAttendanceManagementService->getDailyAttendanceSheet($attendanceDate);
+
         return $this->adminView('admin.teacher-attendances.create', [
             'breadcrumbs' => [
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
                 ['title' => 'إدارة حضور وغياب المعلمين', 'url' => route('admin.teacher-attendances.index')],
-                ['title' => 'تسجيل حضور معلم'],
+                ['title' => 'تسجيل حضور المعلمين'],
             ],
             'teacherOptions' => $this->teacherAttendanceManagementService->getTeacherOptions(),
+            'dailySheet' => $dailySheet,
         ]);
     }
 
     public function store(StoreTeacherAttendanceRequest $request, CreateTeacherAttendanceAction $createTeacherAttendanceAction): RedirectResponse
     {
-        $createTeacherAttendanceAction->handle($request->validated());
+        $result = $createTeacherAttendanceAction->handle($request->validated());
+
+        $message = $result['updated'] > 0
+            ? "تم حفظ كشف الحضور بنجاح. تمت إضافة {$result['created']} سجل وتحديث {$result['updated']} سجل موجود."
+            : "تم حفظ كشف الحضور بنجاح بعدد {$result['processed']} سجل.";
 
         return redirect()
             ->route('admin.teacher-attendances.index')
-            ->with('success', 'تم تسجيل حضور المعلم بنجاح.');
+            ->with('success', $message);
     }
 
     public function show(User $teacher): View

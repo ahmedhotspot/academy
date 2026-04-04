@@ -26,6 +26,49 @@ class TeacherAttendanceManagementService extends BaseService
     }
 
     /**
+     * تجهيز كشف يومي سريع لتسجيل حضور جميع المعلمين في شاشة واحدة.
+     */
+    public function getDailyAttendanceSheet(?string $date = null): array
+    {
+        $attendanceDate = $date ?: now()->toDateString();
+
+        $teachers = User::query()
+            ->role('المعلم')
+            ->with('branch:id,name')
+            ->orderBy('name')
+            ->get();
+
+        $existingAttendances = TeacherAttendance::query()
+            ->whereDate('attendance_date', $attendanceDate)
+            ->get()
+            ->keyBy('teacher_id');
+
+        $rows = $teachers->map(function (User $teacher) use ($existingAttendances) {
+            $attendance = $existingAttendances->get($teacher->id);
+
+            return [
+                'teacher_id' => $teacher->id,
+                'teacher_name' => $teacher->name,
+                'branch_name' => $teacher->branch?->name ?? 'بدون فرع',
+                'status' => $attendance?->status ?? 'حاضر',
+                'notes' => $attendance?->notes ?? '',
+                'existing_attendance_id' => $attendance?->id,
+                'is_recorded' => (bool) $attendance,
+            ];
+        })->values();
+
+        return [
+            'attendance_date' => $attendanceDate,
+            'rows' => $rows->all(),
+            'summary' => [
+                'teachers_count' => $rows->count(),
+                'recorded_count' => $rows->where('is_recorded', true)->count(),
+                'pending_count' => $rows->where('is_recorded', false)->count(),
+            ],
+        ];
+    }
+
+    /**
      * ملخص إحصائي لتقرير الحضور مع دعم الفلاتر
      *
      * @param array $filters ['teacher_id' => ?, 'attendance_date' => ?]
