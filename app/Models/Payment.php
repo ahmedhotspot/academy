@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Traits\BranchScoped;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    use BranchScoped;
-
     protected $table = 'payments';
 
     protected $fillable = [
@@ -41,6 +39,42 @@ class Payment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(StudentSubscription::class, 'student_subscription_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('branch', function (Builder $builder) {
+            if (! auth()->check() || auth()->user()?->isSuperAdmin()) {
+                return;
+            }
+
+            $branchId = auth()->user()?->branch_id;
+
+            if ($branchId) {
+                $builder->whereHas('student', fn (Builder $query) => $query->where('branch_id', $branchId));
+            }
+        });
+    }
+
+    public function scopeForBranch(Builder $query, int $branchId): Builder
+    {
+        return $query->whereHas('student', fn (Builder $studentQuery) => $studentQuery->where('branch_id', $branchId));
+    }
+
+    public function scopeCurrentBranch(Builder $query): Builder
+    {
+        $branchId = auth()->user()?->branch_id;
+
+        if (! $branchId) {
+            return $query;
+        }
+
+        return $query->forBranch($branchId);
+    }
+
+    public function scopeWithoutBranchFilter(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope('branch');
     }
 
     // =====================================================

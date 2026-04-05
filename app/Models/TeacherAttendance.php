@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeacherAttendance extends Model
 {
+    use BranchScoped;
+
     protected $table = 'teacher_attendances';
 
     protected $fillable = [
+        'branch_id',
         'teacher_id',
         'attendance_date',
         'status',
@@ -23,19 +27,8 @@ class TeacherAttendance extends Model
         ];
     }
 
-    // =====================================================
-                use App\Traits\BranchScoped;
-    // الحالات المعتمدة
-    // =====================================================
-
     public const STATUSES = ['حاضر', 'غائب', 'متأخر', 'بعذر'];
 
-                    use BranchScoped;
-    // العلاقات
-                    protected $table = 'teacher_attendances';
-    // =====================================================
-
-                        'branch_id',
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
@@ -46,20 +39,13 @@ class TeacherAttendance extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
-    // =====================================================
-    // Accessors
-    // =====================================================
-
-    /**
-     * كلاس Badge لحالة الحضور (لاستخدامها في الـ Blade و DataTable)
-     */
     public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
-            'حاضر'  => 'bg-success',
-            'غائب'  => 'bg-danger',
+            'حاضر' => 'bg-success',
+            'غائب' => 'bg-danger',
             'متأخر' => 'bg-warning text-dark',
-            'بعذر'  => 'bg-info text-dark',
+            'بعذر' => 'bg-info text-dark',
             default => 'bg-secondary',
         };
     }
