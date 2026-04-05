@@ -24,14 +24,22 @@ class TeacherAttendance extends Model
     }
 
     // =====================================================
+                use App\Traits\BranchScoped;
     // الحالات المعتمدة
     // =====================================================
 
     public const STATUSES = ['حاضر', 'غائب', 'متأخر', 'بعذر'];
 
-    // =====================================================
+                    use BranchScoped;
     // العلاقات
+                    protected $table = 'teacher_attendances';
     // =====================================================
+
+                        'branch_id',
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function teacher(): BelongsTo
     {

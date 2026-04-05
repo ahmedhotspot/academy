@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Database\Factories\StudentEnrollmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,11 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentEnrollment extends Model
 {
-    use HasFactory;
+    use HasFactory, BranchScoped;
 
     protected $table = 'student_enrollments';
 
     protected $fillable = [
+        'branch_id',
         'student_id',
         'group_id',
         'status',
@@ -54,4 +56,3 @@ class StudentEnrollment extends Model
         return StudentEnrollmentFactory::new();
     }
 }
-

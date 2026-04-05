@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Assessment extends Model
 {
+    use BranchScoped;
+
     protected $table = 'assessments';
 
     protected $fillable = [
+        'branch_id',
         'student_id',
         'group_id',
         'teacher_id',
@@ -41,6 +45,11 @@ class Assessment extends Model
     // =====================================================
     // العلاقات
     // =====================================================
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function student(): BelongsTo
     {

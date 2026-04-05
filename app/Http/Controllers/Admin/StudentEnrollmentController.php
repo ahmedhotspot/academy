@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Admin\StudentEnrollments\CreateStudentEnrollmentAction;
 use App\Actions\Admin\StudentEnrollments\DeleteStudentEnrollmentAction;
 use App\Actions\Admin\StudentEnrollments\UpdateStudentEnrollmentAction;
+use App\Traits\PreservesBranchId;
 use App\Http\Requests\Admin\StudentEnrollments\StoreStudentEnrollmentRequest;
 use App\Http\Requests\Admin\StudentEnrollments\UpdateStudentEnrollmentRequest;
 use App\Models\Student;
@@ -17,6 +18,8 @@ use Illuminate\View\View;
 
 class StudentEnrollmentController extends AdminController
 {
+    use PreservesBranchId;
+
     protected string $title = 'إدارة تسجيل الطلاب في الحلقات';
 
     public function __construct(private readonly StudentEnrollmentManagementService $studentEnrollmentManagementService)
@@ -67,6 +70,12 @@ class StudentEnrollmentController extends AdminController
     public function store(StoreStudentEnrollmentRequest $request, CreateStudentEnrollmentAction $createStudentEnrollmentAction): RedirectResponse
     {
         $payload = $request->validated();
+
+        // التأكد من حفظ branch_id من المستخدم الحالي
+        if (!$this->validateBranchOwnership($payload)) {
+            abort(403, 'لا يمكنك تسجيل طلاب من فروع أخرى');
+        }
+
         $studentIds = collect($payload['student_ids'])
             ->map(fn ($id) => (int) $id)
             ->unique()
@@ -74,6 +83,7 @@ class StudentEnrollmentController extends AdminController
 
         foreach ($studentIds as $studentId) {
             $createStudentEnrollmentAction->handle([
+                'branch_id' => auth()->user()->branch_id ?? 1,
                 'student_id' => $studentId,
                 'group_id' => $payload['group_id'],
                 'status' => $payload['status'],

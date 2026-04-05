@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentSubscription extends Model
 {
+    use BranchScoped;
+
     protected $table = 'student_subscriptions';
 
     protected $fillable = [
+        'branch_id',
         'student_id',
         'fee_plan_id',
         'amount',
@@ -112,4 +116,3 @@ class StudentSubscription extends Model
         return $this->status === 'مكتمل' && $this->remaining_amount == 0;
     }
 }
-

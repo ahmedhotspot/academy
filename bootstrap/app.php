@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'auth.guardian' => \App\Http\Middleware\AuthenticateGuardian::class,
             'auth.student'  => \App\Http\Middleware\AuthenticateStudent::class,
+            'branch.access' => \App\Http\Middleware\EnsureBranchAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

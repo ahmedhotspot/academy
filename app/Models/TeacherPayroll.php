@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TeacherPayroll extends Model
 {
+    use BranchScoped;
+
     protected $table = 'teacher_payrolls';
 
     protected $fillable = [
+        'branch_id',
         'teacher_id',
         'month',
         'year',
@@ -42,6 +46,11 @@ class TeacherPayroll extends Model
     // =====================================================
     // العلاقات
     // =====================================================
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function teacher(): BelongsTo
     {

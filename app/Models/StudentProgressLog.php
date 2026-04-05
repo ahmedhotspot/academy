@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentProgressLog extends Model
 {
+    use BranchScoped;
+
     protected $table = 'student_progress_logs';
 
     protected $fillable = [
+        'branch_id',
         'student_id',
         'group_id',
         'teacher_id',
@@ -41,6 +45,11 @@ class StudentProgressLog extends Model
     // =====================================================
     // العلاقات
     // =====================================================
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function student(): BelongsTo
     {

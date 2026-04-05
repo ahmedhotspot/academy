@@ -37,7 +37,8 @@ abstract class AdminController extends Controller
     {
         return view($view, array_merge([
             'pageTitle' => $this->title,
+            'userBranchId' => auth()->user()?->branch_id,
+            'isSuperAdmin' => auth()->user()?->isSuperAdmin(),
         ], $data));
     }
 }
-

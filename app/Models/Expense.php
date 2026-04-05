@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Expense extends Model
 {
+    use BranchScoped;
+
     protected $table = 'expenses';
 
     protected $fillable = [
