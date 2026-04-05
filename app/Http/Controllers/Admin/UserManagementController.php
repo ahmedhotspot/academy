@@ -36,7 +36,7 @@ class UserManagementController extends AdminController
 
             $actions[] = [
                 'title' => 'إضافة معلم',
-                'url' => route('admin.teachers.create'),
+                'url' => route('admin.teachers.index'),
                 'icon' => 'ti ti-school',
                 'class' => 'btn-outline-primary',
             ];

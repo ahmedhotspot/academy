@@ -21,7 +21,7 @@
                     ['title' => 'الفروع', 'route' => 'admin.branches.index', 'route_is' => 'admin.branches.*', 'icon' => 'fa fa-building', 'permission' => 'branches.view'],
                     ['title' => 'الطلاب', 'route' => 'admin.students.index', 'route_is' => 'admin.students.*', 'icon' => 'fa fa-user-check', 'permission' => 'students.view'],
                     ['title' => 'أولياء الأمور', 'route' => 'admin.guardians.index', 'route_is' => 'admin.guardians.*', 'icon' => 'fa fa-user', 'permission' => 'guardians.view'],
-                    ['title' => 'إضافة معلم', 'route' => 'admin.teachers.create', 'route_is' => 'admin.teachers.*', 'icon' => 'fa fa-chalkboard-teacher', 'permission' => 'users.create'],
+                    ['title' => 'المعلمون', 'route' => 'admin.teachers.index', 'route_is' => 'admin.teachers.*', 'icon' => 'fa fa-chalkboard-teacher', 'permission' => 'users.view'],
                     ['title' => 'الحلقات', 'route' => 'admin.groups.index', 'route_is' => 'admin.groups.*', 'icon' => 'fa fa-book', 'permission' => 'groups.view'],
                     ['title' => 'تسجيل في الحلقات', 'route' => 'admin.student-enrollments.index', 'route_is' => 'admin.student-enrollments.*', 'icon' => 'fa fa-users', 'permission' => 'student-enrollments.view'],
                     ['title' => 'المستويات ', 'route' => 'admin.study-levels.index', 'route_is' => 'admin.study-levels.*', 'icon' => 'fa fa-graduation-cap', 'permission' => 'study-levels.view'],

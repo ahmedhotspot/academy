@@ -1,22 +1,22 @@
 <div class="row g-3">
     <div class="col-md-6">
         <label class="form-label">الاسم</label>
-        <input type="text" name="name" class="form-control" value="{{ old('name') }}" placeholder="الاسم الكامل للمعلم">
+        <input type="text" name="name" class="form-control" value="{{ old('name', $teacher->name ?? '') }}" placeholder="الاسم الكامل للمعلم">
     </div>
 
     <div class="col-md-6">
         <label class="form-label">رقم الجوال</label>
-        <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" placeholder="05xxxxxxxx">
+        <input type="text" name="phone" class="form-control" value="{{ old('phone', $teacher->phone ?? '') }}" placeholder="05xxxxxxxx">
     </div>
 
     <div class="col-md-6">
         <label class="form-label">البريد الإلكتروني</label>
-        <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="teacher@email.com">
+        <input type="email" name="email" class="form-control" value="{{ old('email', $teacher->email ?? '') }}" placeholder="teacher@email.com">
     </div>
 
     <div class="col-md-6">
         <label class="form-label">اسم المستخدم</label>
-        <input type="text" name="username" class="form-control" value="{{ old('username') }}" placeholder="اسم مستخدم اختياري">
+        <input type="text" name="username" class="form-control" value="{{ old('username', $teacher->username ?? '') }}" placeholder="اسم مستخدم اختياري">
     </div>
 
     <div class="col-md-6">
@@ -34,7 +34,7 @@
         <select name="branch_id" class="form-select">
             <option value="">اختر الفرع</option>
             @foreach($branches as $branchId => $branchName)
-                <option value="{{ $branchId }}" @selected((string) old('branch_id') === (string) $branchId)>
+                <option value="{{ $branchId }}" @selected((string) old('branch_id', $teacher->branch_id ?? '') === (string) $branchId)>
                     {{ $branchName }}
                 </option>
             @endforeach
@@ -46,7 +46,7 @@
         <select name="status" class="form-select">
             <option value="">اختر الحالة</option>
             @foreach($statuses as $statusValue => $statusLabel)
-                <option value="{{ $statusValue }}" @selected(old('status') === $statusValue)>
+                <option value="{{ $statusValue }}" @selected(old('status', $teacher->status?->value ?? '') === $statusValue)>
                     {{ $statusLabel }}
                 </option>
             @endforeach

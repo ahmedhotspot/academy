@@ -22,6 +22,27 @@ function makeTeacherManagerUser(): User
     return $user;
 }
 
+function makeTeacherRecord(): User
+{
+    Role::findOrCreate('المعلم', 'web');
+
+    $teacher = User::factory()->create([
+        'branch_id' => Branch::factory()->create()->id,
+    ]);
+    $teacher->assignRole('المعلم');
+
+    return $teacher;
+}
+
+it('يعرض صفحة فهرس المعلمين المستقلة', function () {
+    $user = makeTeacherManagerUser();
+
+    $this->actingAs($user)
+        ->get(route('admin.teachers.index'))
+        ->assertOk()
+        ->assertSee('إدارة المعلمين - الفهرس');
+});
+
 it('يعرض صفحة إضافة المعلم المستقلة', function () {
     $user = makeTeacherManagerUser();
 
@@ -47,7 +68,7 @@ it('ينشئ معلمًا من الصفحة المستقلة', function () {
     ]);
 
     $response
-        ->assertRedirect(route('admin.users.index'))
+        ->assertRedirect(route('admin.teachers.index'))
         ->assertSessionHas('success');
 
     $teacher = User::query()->where('email', 'teacher-demo@academy.test')->first();
@@ -55,5 +76,80 @@ it('ينشئ معلمًا من الصفحة المستقلة', function () {
     expect($teacher)->not->toBeNull();
     expect($teacher->branch_id)->toBe($branch->id);
     expect($teacher->hasRole('المعلم'))->toBeTrue();
+});
+
+it('يعرض بيانات datatable للمعلمين بصيغة json', function () {
+    $user = makeTeacherManagerUser();
+    makeTeacherRecord();
+
+    $this->actingAs($user)
+        ->getJson(route('admin.teachers.datatable', ['draw' => 1]))
+        ->assertOk()
+        ->assertJsonStructure([
+            'draw',
+            'recordsTotal',
+            'recordsFiltered',
+            'data',
+        ]);
+});
+
+it('يعرض صفحة عرض المعلم', function () {
+    $user = makeTeacherManagerUser();
+    $teacher = makeTeacherRecord();
+
+    $this->actingAs($user)
+        ->get(route('admin.teachers.show', $teacher))
+        ->assertOk()
+        ->assertSee($teacher->name);
+});
+
+it('يعرض صفحة تعديل المعلم', function () {
+    $user = makeTeacherManagerUser();
+    $teacher = makeTeacherRecord();
+
+    $this->actingAs($user)
+        ->get(route('admin.teachers.edit', $teacher))
+        ->assertOk()
+        ->assertSee('تعديل المعلم');
+});
+
+it('يحدّث بيانات المعلم', function () {
+    $user = makeTeacherManagerUser();
+    $teacher = makeTeacherRecord();
+    $newBranch = Branch::factory()->create();
+
+    $response = $this->actingAs($user)->put(route('admin.teachers.update', $teacher), [
+        'name' => 'معلم بعد التعديل',
+        'phone' => '0509999999',
+        'email' => 'teacher-updated@academy.test',
+        'username' => 'teacherupdated',
+        'password' => '',
+        'password_confirmation' => '',
+        'status' => 'active',
+        'branch_id' => $newBranch->id,
+    ]);
+
+    $response
+        ->assertRedirect(route('admin.teachers.show', $teacher))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('users', [
+        'id' => $teacher->id,
+        'name' => 'معلم بعد التعديل',
+        'branch_id' => $newBranch->id,
+    ]);
+});
+
+it('يحذف المعلم', function () {
+    $user = makeTeacherManagerUser();
+    $teacher = makeTeacherRecord();
+
+    $response = $this->actingAs($user)->delete(route('admin.teachers.destroy', $teacher));
+
+    $response
+        ->assertRedirect(route('admin.teachers.index'))
+        ->assertSessionHas('success');
+
+    $this->assertSoftDeleted('users', ['id' => $teacher->id]);
 });
 
