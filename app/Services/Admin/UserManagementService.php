@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Branch;
 use App\Models\Group;
 use App\Models\TeacherAttendance;
 use App\Models\TeacherPayroll;
@@ -28,6 +29,14 @@ class UserManagementService extends BaseService
         return UserStatusEnum::options();
     }
 
+    public function getBranchOptions(): array
+    {
+        return Branch::query()
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
     public function datatable(Request $request): array
     {
         $draw = (int) $request->input('draw', 1);
@@ -35,8 +44,8 @@ class UserManagementService extends BaseService
         $length = max((int) $request->input('length', 10), 1);
         $search = trim((string) data_get($request->input('search'), 'value', ''));
 
-        $baseQuery = User::query()->with('roles')->select([
-            'id', 'name', 'phone', 'email', 'status', 'created_at',
+        $baseQuery = User::query()->with(['roles', 'branch:id,name'])->select([
+            'id', 'name', 'phone', 'email', 'branch_id', 'status', 'created_at',
         ]);
 
         $recordsTotal = User::query()->count();
@@ -67,6 +76,7 @@ class UserManagementService extends BaseService
                 'name' => $user->name,
                 'phone' => $user->phone,
                 'email' => $user->email ?? '-',
+                'branch' => $user->branch?->name ?? 'بدون فرع',
                 'role' => $roleName,
                 'status' => $status,
                 'created_at' => optional($user->created_at)->format('Y-m-d'),

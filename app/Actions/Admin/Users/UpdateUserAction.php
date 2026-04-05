@@ -19,6 +19,10 @@ class UpdateUserAction extends BaseAction
             unset($data['password']);
         }
 
+        if ($role === 'المشرف العام') {
+            $data['branch_id'] = null;
+        }
+
         $user->update($data);
         $user->syncRoles([$role]);
 

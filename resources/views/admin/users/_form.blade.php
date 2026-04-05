@@ -43,6 +43,18 @@
     </div>
 
     <div class="col-md-6">
+        <label class="form-label">الفرع</label>
+        <select name="branch_id" class="form-select">
+            <option value="">بدون فرع (للمشرف العام)</option>
+            @foreach($branches as $branchId => $branchName)
+                <option value="{{ $branchId }}" @selected((string) old('branch_id', $user->branch_id ?? '') === (string) $branchId)>
+                    {{ $branchName }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-md-6">
         <label class="form-label">الحالة</label>
         <select name="status" class="form-select">
             <option value="">اختر الحالة</option>

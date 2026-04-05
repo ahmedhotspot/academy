@@ -12,6 +12,10 @@ class CreateUserAction extends BaseAction
         $role = $data['role'];
         unset($data['role']);
 
+        if ($role === 'المشرف العام') {
+            $data['branch_id'] = null;
+        }
+
         $user = User::query()->create($data);
         $user->syncRoles([$role]);
 

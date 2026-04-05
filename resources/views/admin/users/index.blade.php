@@ -31,6 +31,7 @@
                                     <th>الاسم</th>
                                     <th>الجوال</th>
                                     <th>البريد</th>
+                                    <th>الفرع</th>
                                     <th>الدور</th>
                                     <th>الحالة</th>
                                     <th>تاريخ الإنشاء</th>
@@ -63,6 +64,7 @@
                     {data: 'name'},
                     {data: 'phone'},
                     {data: 'email'},
+                    {data: 'branch'},
                     {data: 'role'},
                     {
                         data: 'status',

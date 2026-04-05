@@ -14,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, BranchScoped;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     protected $table = 'users';
 

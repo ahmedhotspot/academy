@@ -58,6 +58,7 @@ class UserManagementController extends AdminController
                 ['title' => 'إضافة مستخدم'],
             ],
             'roles' => $this->userManagementService->getRoleOptions(),
+            'branches' => $this->userManagementService->getBranchOptions(),
             'statuses' => $this->userManagementService->getStatusOptions(),
         ]);
     }
@@ -96,6 +97,7 @@ class UserManagementController extends AdminController
             ],
             'user' => $user->load('roles'),
             'roles' => $this->userManagementService->getRoleOptions(),
+            'branches' => $this->userManagementService->getBranchOptions(),
             'statuses' => $this->userManagementService->getStatusOptions(),
         ]);
     }

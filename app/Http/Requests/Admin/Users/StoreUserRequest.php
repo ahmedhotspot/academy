@@ -18,6 +18,12 @@ class StoreUserRequest extends AdminRequest
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'status' => ['required', Rule::in(array_keys(UserStatusEnum::options()))],
             'role' => ['required', Rule::in(['المشرف العام', 'السكرتيرة', 'المعلم'])],
+            'branch_id' => [
+                Rule::requiredIf(fn () => $this->input('role') !== 'المشرف العام'),
+                'nullable',
+                'integer',
+                'exists:branches,id',
+            ],
         ];
     }
 
@@ -32,6 +38,7 @@ class StoreUserRequest extends AdminRequest
             'password_confirmation' => 'تأكيد كلمة المرور',
             'status' => 'الحالة',
             'role' => 'الدور',
+            'branch_id' => 'الفرع',
         ];
     }
 }
