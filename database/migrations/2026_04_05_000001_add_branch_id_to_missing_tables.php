@@ -14,10 +14,9 @@ return new class extends Migration
         // إضافة branch_id إلى teacher_attendances
         if (!Schema::hasColumn('teacher_attendances', 'branch_id')) {
             Schema::table('teacher_attendances', function (Blueprint $table) {
-                $table->foreignId('branch_id')
-                    ->after('teacher_id')
-                    ->constrained('branches')
-                    ->cascadeOnDelete();
+                $table->unsignedBigInteger('branch_id')
+                    ->nullable()
+                    ->after('teacher_id');
                 $table->index('branch_id');
             });
         }
@@ -25,10 +24,9 @@ return new class extends Migration
         // إضافة branch_id إلى teacher_payrolls
         if (!Schema::hasColumn('teacher_payrolls', 'branch_id')) {
             Schema::table('teacher_payrolls', function (Blueprint $table) {
-                $table->foreignId('branch_id')
-                    ->after('teacher_id')
-                    ->constrained('branches')
-                    ->cascadeOnDelete();
+                $table->unsignedBigInteger('branch_id')
+                    ->nullable()
+                    ->after('teacher_id');
                 $table->index('branch_id');
             });
         }
@@ -36,10 +34,9 @@ return new class extends Migration
         // إضافة branch_id إلى assessments
         if (!Schema::hasColumn('assessments', 'branch_id')) {
             Schema::table('assessments', function (Blueprint $table) {
-                $table->foreignId('branch_id')
-                    ->after('teacher_id')
-                    ->constrained('branches')
-                    ->cascadeOnDelete();
+                $table->unsignedBigInteger('branch_id')
+                    ->nullable()
+                    ->after('teacher_id');
                 $table->index('branch_id');
             });
         }
@@ -47,10 +44,9 @@ return new class extends Migration
         // إضافة branch_id إلى student_progress_logs
         if (!Schema::hasColumn('student_progress_logs', 'branch_id')) {
             Schema::table('student_progress_logs', function (Blueprint $table) {
-                $table->foreignId('branch_id')
-                    ->after('teacher_id')
-                    ->constrained('branches')
-                    ->cascadeOnDelete();
+                $table->unsignedBigInteger('branch_id')
+                    ->nullable()
+                    ->after('teacher_id');
                 $table->index('branch_id');
             });
         }
@@ -65,25 +61,33 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('teacher_attendances', function (Blueprint $table) {
-            $table->dropForeignIdFor('branches', 'branch_id');
-            $table->dropIndex(['branch_id']);
-        });
+        if (Schema::hasColumn('teacher_attendances', 'branch_id')) {
+            Schema::table('teacher_attendances', function (Blueprint $table) {
+                $table->dropIndex(['branch_id']);
+                $table->dropColumn('branch_id');
+            });
+        }
 
-        Schema::table('teacher_payrolls', function (Blueprint $table) {
-            $table->dropForeignIdFor('branches', 'branch_id');
-            $table->dropIndex(['branch_id']);
-        });
+        if (Schema::hasColumn('teacher_payrolls', 'branch_id')) {
+            Schema::table('teacher_payrolls', function (Blueprint $table) {
+                $table->dropIndex(['branch_id']);
+                $table->dropColumn('branch_id');
+            });
+        }
 
-        Schema::table('assessments', function (Blueprint $table) {
-            $table->dropForeignIdFor('branches', 'branch_id');
-            $table->dropIndex(['branch_id']);
-        });
+        if (Schema::hasColumn('assessments', 'branch_id')) {
+            Schema::table('assessments', function (Blueprint $table) {
+                $table->dropIndex(['branch_id']);
+                $table->dropColumn('branch_id');
+            });
+        }
 
-        Schema::table('student_progress_logs', function (Blueprint $table) {
-            $table->dropForeignIdFor('branches', 'branch_id');
-            $table->dropIndex(['branch_id']);
-        });
+        if (Schema::hasColumn('student_progress_logs', 'branch_id')) {
+            Schema::table('student_progress_logs', function (Blueprint $table) {
+                $table->dropIndex(['branch_id']);
+                $table->dropColumn('branch_id');
+            });
+        }
     }
 };
 

@@ -14,10 +14,9 @@ return new class extends Migration
         // إضافة branch_id إلى student_enrollments
         if (!Schema::hasColumn('student_enrollments', 'branch_id')) {
             Schema::table('student_enrollments', function (Blueprint $table) {
-                $table->foreignId('branch_id')
-                    ->after('id')
-                    ->constrained('branches')
-                    ->cascadeOnDelete();
+                $table->unsignedBigInteger('branch_id')
+                    ->nullable()
+                    ->after('id');
                 $table->index('branch_id');
             });
         }
@@ -25,10 +24,9 @@ return new class extends Migration
         // إضافة branch_id إلى student_subscriptions
         if (!Schema::hasColumn('student_subscriptions', 'branch_id')) {
             Schema::table('student_subscriptions', function (Blueprint $table) {
-                $table->foreignId('branch_id')
-                    ->after('id')
-                    ->constrained('branches')
-                    ->cascadeOnDelete();
+                $table->unsignedBigInteger('branch_id')
+                    ->nullable()
+                    ->after('id');
                 $table->index('branch_id');
             });
         }
@@ -39,15 +37,19 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('student_enrollments', function (Blueprint $table) {
-            $table->dropForeignIdFor('branches', 'branch_id');
-            $table->dropIndex(['branch_id']);
-        });
+        if (Schema::hasColumn('student_enrollments', 'branch_id')) {
+            Schema::table('student_enrollments', function (Blueprint $table) {
+                $table->dropIndex(['branch_id']);
+                $table->dropColumn('branch_id');
+            });
+        }
 
-        Schema::table('student_subscriptions', function (Blueprint $table) {
-            $table->dropForeignIdFor('branches', 'branch_id');
-            $table->dropIndex(['branch_id']);
-        });
+        if (Schema::hasColumn('student_subscriptions', 'branch_id')) {
+            Schema::table('student_subscriptions', function (Blueprint $table) {
+                $table->dropIndex(['branch_id']);
+                $table->dropColumn('branch_id');
+            });
+        }
     }
 };
 

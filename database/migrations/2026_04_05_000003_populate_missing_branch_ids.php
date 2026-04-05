@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
@@ -13,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // الحصول على أول فرع (الفرع الرئيسي)
-        $defaultBranchId = DB::table('branches')->first()?->id;
+        // الحصول على أول فرع صالح أو إنشاء فرع افتراضي عند الحاجة
+        $defaultBranchId = DB::table('branches')->orderBy('id')->value('id');
 
         if (!$defaultBranchId) {
-            // إنشاء فرع افتراضي إذا لم يكن موجودًا
             $defaultBranchId = DB::table('branches')->insertGetId([
                 'name' => 'الفرع الرئيسي',
                 'status' => 'active',
@@ -26,13 +23,113 @@ return new class extends Migration
             ]);
         }
 
-        // ملء البيانات الموجودة بـ branch_id
-        DB::table('teacher_attendances')->whereNull('branch_id')->update(['branch_id' => $defaultBranchId]);
-        DB::table('teacher_payrolls')->whereNull('branch_id')->update(['branch_id' => $defaultBranchId]);
-        DB::table('assessments')->whereNull('branch_id')->update(['branch_id' => $defaultBranchId]);
-        DB::table('student_progress_logs')->whereNull('branch_id')->update(['branch_id' => $defaultBranchId]);
-        DB::table('student_enrollments')->whereNull('branch_id')->update(['branch_id' => $defaultBranchId]);
-        DB::table('student_subscriptions')->whereNull('branch_id')->update(['branch_id' => $defaultBranchId]);
+        $userBranchIds = DB::table('users')->pluck('branch_id', 'id');
+        $studentBranchIds = DB::table('students')->pluck('branch_id', 'id');
+        $groupBranchIds = DB::table('groups')->pluck('branch_id', 'id');
+
+        DB::table('teacher_attendances')
+            ->select('id', 'teacher_id', 'branch_id')
+            ->orderBy('id')
+            ->chunk(500, function ($rows) use ($userBranchIds, $defaultBranchId) {
+                foreach ($rows as $row) {
+                    if ($row->branch_id !== null) {
+                        continue;
+                    }
+
+                    DB::table('teacher_attendances')
+                        ->where('id', $row->id)
+                        ->update(['branch_id' => $userBranchIds[$row->teacher_id] ?? $defaultBranchId]);
+                }
+            });
+
+        DB::table('teacher_payrolls')
+            ->select('id', 'teacher_id', 'branch_id')
+            ->orderBy('id')
+            ->chunk(500, function ($rows) use ($userBranchIds, $defaultBranchId) {
+                foreach ($rows as $row) {
+                    if ($row->branch_id !== null) {
+                        continue;
+                    }
+
+                    DB::table('teacher_payrolls')
+                        ->where('id', $row->id)
+                        ->update(['branch_id' => $userBranchIds[$row->teacher_id] ?? $defaultBranchId]);
+                }
+            });
+
+        DB::table('assessments')
+            ->select('id', 'student_id', 'group_id', 'teacher_id', 'branch_id')
+            ->orderBy('id')
+            ->chunk(500, function ($rows) use ($studentBranchIds, $groupBranchIds, $userBranchIds, $defaultBranchId) {
+                foreach ($rows as $row) {
+                    if ($row->branch_id !== null) {
+                        continue;
+                    }
+
+                    $branchId = $studentBranchIds[$row->student_id]
+                        ?? ($row->group_id ? ($groupBranchIds[$row->group_id] ?? null) : null)
+                        ?? ($userBranchIds[$row->teacher_id] ?? null)
+                        ?? $defaultBranchId;
+
+                    DB::table('assessments')
+                        ->where('id', $row->id)
+                        ->update(['branch_id' => $branchId]);
+                }
+            });
+
+        DB::table('student_progress_logs')
+            ->select('id', 'student_id', 'group_id', 'teacher_id', 'branch_id')
+            ->orderBy('id')
+            ->chunk(500, function ($rows) use ($studentBranchIds, $groupBranchIds, $userBranchIds, $defaultBranchId) {
+                foreach ($rows as $row) {
+                    if ($row->branch_id !== null) {
+                        continue;
+                    }
+
+                    $branchId = $studentBranchIds[$row->student_id]
+                        ?? ($groupBranchIds[$row->group_id] ?? null)
+                        ?? ($userBranchIds[$row->teacher_id] ?? null)
+                        ?? $defaultBranchId;
+
+                    DB::table('student_progress_logs')
+                        ->where('id', $row->id)
+                        ->update(['branch_id' => $branchId]);
+                }
+            });
+
+        DB::table('student_enrollments')
+            ->select('id', 'student_id', 'group_id', 'branch_id')
+            ->orderBy('id')
+            ->chunk(500, function ($rows) use ($studentBranchIds, $groupBranchIds, $defaultBranchId) {
+                foreach ($rows as $row) {
+                    if ($row->branch_id !== null) {
+                        continue;
+                    }
+
+                    $branchId = $studentBranchIds[$row->student_id]
+                        ?? ($groupBranchIds[$row->group_id] ?? null)
+                        ?? $defaultBranchId;
+
+                    DB::table('student_enrollments')
+                        ->where('id', $row->id)
+                        ->update(['branch_id' => $branchId]);
+                }
+            });
+
+        DB::table('student_subscriptions')
+            ->select('id', 'student_id', 'branch_id')
+            ->orderBy('id')
+            ->chunk(500, function ($rows) use ($studentBranchIds, $defaultBranchId) {
+                foreach ($rows as $row) {
+                    if ($row->branch_id !== null) {
+                        continue;
+                    }
+
+                    DB::table('student_subscriptions')
+                        ->where('id', $row->id)
+                        ->update(['branch_id' => $studentBranchIds[$row->student_id] ?? $defaultBranchId]);
+                }
+            });
     }
 
     /**
