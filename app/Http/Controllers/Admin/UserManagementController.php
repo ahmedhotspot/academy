@@ -33,6 +33,13 @@ class UserManagementController extends AdminController
                 'icon' => 'ti ti-plus',
                 'class' => 'btn-primary',
             ];
+
+            $actions[] = [
+                'title' => 'إضافة معلم',
+                'url' => route('admin.teachers.create'),
+                'icon' => 'ti ti-school',
+                'class' => 'btn-outline-primary',
+            ];
         }
 
         return $this->adminView('admin.users.index', [

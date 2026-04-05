@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\FeePlanController;
 use App\Http\Controllers\Admin\StudentSubscriptionController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\TeacherPayrollController;
+use App\Http\Controllers\Admin\TeacherManagementController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\ReportController;
@@ -824,6 +825,23 @@ Route::prefix('admin')
             ->group(function () {
                 Route::get('/', [BackupController::class, 'index'])->name('index');
                 Route::post('/', [BackupController::class, 'create'])->name('create');
+            });
+
+        /*
+        |------------------------------------------------------------------
+        | إضافة المعلمين بصفحة مستقلة
+        |------------------------------------------------------------------
+        */
+        Route::prefix('teachers')
+            ->name('teachers.')
+            ->group(function () {
+                Route::get('/create', [TeacherManagementController::class, 'create'])
+                    ->middleware('permission:users.create')
+                    ->name('create');
+
+                Route::post('/', [TeacherManagementController::class, 'store'])
+                    ->middleware('permission:users.create')
+                    ->name('store');
             });
 
         /*
