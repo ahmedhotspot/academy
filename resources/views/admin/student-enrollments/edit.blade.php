@@ -2,6 +2,29 @@
 
 @section('title', 'تسجيل الطلاب في الحلقات - تعديل')
 
+@section('css')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            height: 38px;
+            border: 1px solid #d9dee3;
+            border-radius: 0.375rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+            padding-right: 12px;
+            padding-left: 28px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+            left: 8px;
+            right: auto;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="page-content-wrapper">
         <div class="content-container">
@@ -44,3 +67,20 @@
     </div>
 @endsection
 
+@section('js')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        (function () {
+            if (!window.jQuery || !jQuery.fn.select2) {
+                return;
+            }
+
+            jQuery('.js-student-select2').select2({
+                width: '100%',
+                dir: 'rtl',
+                placeholder: 'اختر الطالب',
+                allowClear: true
+            });
+        })();
+    </script>
+@endsection

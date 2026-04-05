@@ -10,7 +10,8 @@ class StoreStudentEnrollmentRequest extends AdminRequest
     public function rules(): array
     {
         return [
-            'student_id' => ['required', 'integer', 'exists:students,id'],
+            'student_ids' => ['required', 'array', 'min:1'],
+            'student_ids.*' => ['required', 'integer', 'distinct', 'exists:students,id'],
             'group_id' => ['required', 'integer', 'exists:groups,id'],
             'status' => ['required', Rule::in(['active', 'transferred', 'suspended'])],
         ];
@@ -19,7 +20,8 @@ class StoreStudentEnrollmentRequest extends AdminRequest
     public function attributes(): array
     {
         return [
-            'student_id' => 'الطالب',
+            'student_ids' => 'الطلاب',
+            'student_ids.*' => 'الطالب',
             'group_id' => 'الحلقة',
             'status' => 'حالة التسجيل',
         ];

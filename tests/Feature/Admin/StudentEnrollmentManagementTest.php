@@ -61,7 +61,7 @@ it('يسجل طالبًا في حلقة بنجاح', function () {
     $group = makeEnrollmentReadyGroup('حلقة التحفيظ الأولى');
 
     $response = $this->actingAs($user)->post(route('admin.student-enrollments.store'), [
-        'student_id' => $student->id,
+        'student_ids' => [$student->id],
         'group_id' => $group->id,
         'status' => 'active',
     ]);
@@ -72,6 +72,35 @@ it('يسجل طالبًا في حلقة بنجاح', function () {
 
     $this->assertDatabaseHas('student_enrollments', [
         'student_id' => $student->id,
+        'group_id' => $group->id,
+        'status' => 'active',
+    ]);
+});
+
+it('يسجل أكثر من طالب في نفس الحلقة دفعة واحدة', function () {
+    $user = makeStudentEnrollmentManagerUser();
+    $studentOne = Student::factory()->create();
+    $studentTwo = Student::factory()->create();
+    $group = makeEnrollmentReadyGroup('حلقة دفعية');
+
+    $response = $this->actingAs($user)->post(route('admin.student-enrollments.store'), [
+        'student_ids' => [$studentOne->id, $studentTwo->id],
+        'group_id' => $group->id,
+        'status' => 'active',
+    ]);
+
+    $response
+        ->assertRedirect(route('admin.student-enrollments.index'))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('student_enrollments', [
+        'student_id' => $studentOne->id,
+        'group_id' => $group->id,
+        'status' => 'active',
+    ]);
+
+    $this->assertDatabaseHas('student_enrollments', [
+        'student_id' => $studentTwo->id,
         'group_id' => $group->id,
         'status' => 'active',
     ]);

@@ -66,11 +66,23 @@ class StudentEnrollmentController extends AdminController
 
     public function store(StoreStudentEnrollmentRequest $request, CreateStudentEnrollmentAction $createStudentEnrollmentAction): RedirectResponse
     {
-        $createStudentEnrollmentAction->handle($request->validated());
+        $payload = $request->validated();
+        $studentIds = collect($payload['student_ids'])
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        foreach ($studentIds as $studentId) {
+            $createStudentEnrollmentAction->handle([
+                'student_id' => $studentId,
+                'group_id' => $payload['group_id'],
+                'status' => $payload['status'],
+            ]);
+        }
 
         return redirect()
             ->route('admin.student-enrollments.index')
-            ->with('success', 'تم تسجيل الطالب في الحلقة بنجاح.');
+            ->with('success', $studentIds->count() > 1 ? 'تم تسجيل الطلاب في الحلقة بنجاح.' : 'تم تسجيل الطالب في الحلقة بنجاح.');
     }
 
     public function show(Student $student): View
