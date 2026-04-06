@@ -440,6 +440,31 @@ Route::prefix('admin')
 
         /*
         |------------------------------------------------------------------
+        | إدارة حضور وغياب الطلاب
+        |------------------------------------------------------------------
+        */
+        Route::prefix('student-attendances')
+            ->name('student-attendances.')
+            ->group(function () {
+                Route::get('/', [StudentProgressLogController::class, 'attendanceIndex'])
+                    ->middleware('permission:student-attendances.view')
+                    ->name('index');
+
+                Route::get('/datatable', [StudentProgressLogController::class, 'attendanceDatatable'])
+                    ->middleware('permission:student-attendances.view')
+                    ->name('datatable');
+
+                Route::get('/create', [StudentProgressLogController::class, 'attendanceCreate'])
+                    ->middleware('permission:student-attendances.create')
+                    ->name('create');
+
+                Route::post('/', [StudentProgressLogController::class, 'attendanceStore'])
+                    ->middleware('permission:student-attendances.create')
+                    ->name('store');
+            });
+
+        /*
+        |------------------------------------------------------------------
         | المتابعة التعليمية اليومية
         |------------------------------------------------------------------
         */

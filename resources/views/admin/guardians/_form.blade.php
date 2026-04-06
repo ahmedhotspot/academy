@@ -34,14 +34,6 @@
         </select>
     </div>
 
-    <div class="col-md-3">
-        <label class="form-label">كلمة المرور (اختياري)</label>
-        <input type="password" name="portal_password" class="form-control" placeholder="اتركه فارغًا بدون تعيين">
-    </div>
 
-    <div class="col-md-3">
-        <label class="form-label">تأكيد كلمة المرور</label>
-        <input type="password" name="portal_password_confirmation" class="form-control" placeholder="أعد كتابة كلمة المرور">
-    </div>
 </div>
 

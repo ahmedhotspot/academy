@@ -10,6 +10,7 @@ use App\Models\Guardian;
 use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\Student;
+use App\Models\StudentAttendance;
 use App\Models\StudentProgressLog;
 use App\Models\StudentSubscription;
 use App\Models\TeacherAttendance;
@@ -37,11 +38,18 @@ class DashboardStatsService
         $totalGroups = Group::query()->count();
         $totalBranches = $isSuperAdmin ? Branch::query()->count() : ($branchId ? 1 : 0);
 
-        $studentsPresentToday = StudentProgressLog::query()
-            ->whereDate('progress_date', $today)
-            ->distinct('student_id')
-            ->count('student_id');
-        $studentsAbsentToday = max(0, $totalStudents - $studentsPresentToday);
+        $studentsPresentToday = StudentAttendance::query()
+            ->whereDate('attendance_date', $today)
+            ->where('status', 'حاضر')
+            ->count();
+        $studentsAbsentToday = StudentAttendance::query()
+            ->whereDate('attendance_date', $today)
+            ->where('status', 'غائب')
+            ->count();
+        $studentsTransferredToday = StudentAttendance::query()
+            ->whereDate('attendance_date', $today)
+            ->where('status', 'منقول')
+            ->count();
 
         $teachersPresentToday = TeacherAttendance::query()
             ->whereDate('attendance_date', $today)
@@ -120,8 +128,9 @@ class DashboardStatsService
                 ['title' => 'إجمالي المعلمين', 'value' => $totalTeachers, 'hint' => 'المعلمون النشطون', 'icon' => 'fa fa-user-check', 'bg' => 'soft-success'],
                 ['title' => 'إجمالي أولياء الأمور', 'value' => $totalGuardians, 'hint' => 'بيانات أولياء الأمور', 'icon' => 'fa fa-users', 'bg' => 'soft-info'],
                 ['title' => 'إجمالي الحلقات', 'value' => $totalGroups, 'hint' => 'الحلقات التعليمية', 'icon' => 'fa fa-book', 'bg' => 'soft-warning'],
-                ['title' => 'حضور الطلاب اليوم', 'value' => $studentsPresentToday, 'hint' => 'تمت متابعتهم اليوم', 'icon' => 'fa fa-thumbs-up', 'bg' => 'soft-success'],
-                ['title' => 'غياب الطلاب اليوم', 'value' => $studentsAbsentToday, 'hint' => 'بدون متابعة اليوم', 'icon' => 'fa fa-thumbs-down', 'bg' => 'soft-danger'],
+                ['title' => 'حضور الطلاب اليوم', 'value' => $studentsPresentToday, 'hint' => 'حسب كشف الحضور', 'icon' => 'fa fa-thumbs-up', 'bg' => 'soft-success'],
+                ['title' => 'غياب الطلاب اليوم', 'value' => $studentsAbsentToday, 'hint' => 'حسب كشف الحضور', 'icon' => 'fa fa-thumbs-down', 'bg' => 'soft-danger'],
+                ['title' => 'طلاب منقولون اليوم', 'value' => $studentsTransferredToday, 'hint' => 'حالة منقول في كشف اليوم', 'icon' => 'fa fa-arrow-right-arrow-left', 'bg' => 'soft-info'],
                 ['title' => 'التحصيل اليوم', 'value' => number_format($todayCollection, 2) . ' ج', 'hint' => 'مدفوعات اليوم', 'icon' => 'fa fa-coins', 'bg' => 'soft-indigo'],
                 ['title' => 'الطلاب المتأخرون', 'value' => $overdueStudentsCount, 'hint' => 'في السداد', 'icon' => 'fa fa-exclamation-circle', 'bg' => 'soft-danger'],
                 ['title' => 'حضور المعلمين اليوم', 'value' => $teachersPresentToday, 'hint' => 'معلم حاضر', 'icon' => 'fa fa-calendar-check', 'bg' => 'soft-success'],

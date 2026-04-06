@@ -29,7 +29,7 @@
                             <div class="card-body text-center">
                                 <i class="ti ti-clock-check fs-1 text-success mb-3 d-block"></i>
                                 <h6 class="fw-semibold">الحضور والغياب</h6>
-                                <p class="mb-0 text-muted small">تقرير حضور المعلمين</p>
+                                <p class="mb-0 text-muted small">تقرير حضور الطلاب</p>
                             </div>
                         </a>
                     </div>

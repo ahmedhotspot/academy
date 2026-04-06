@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Assessment;
 use App\Models\Expense;
 use App\Models\Student;
+use App\Models\StudentAttendance;
 use App\Models\StudentProgressLog;
 use App\Models\StudentSubscription;
 use App\Models\TeacherAttendance;
@@ -86,19 +87,14 @@ class ReportService extends BaseService
      */
     public function attendanceReport(Request $request): array
     {
-        $query = TeacherAttendance::query();
-
-        if ($request->filled('teacher_id')) {
-            $query->where('teacher_id', $request->input('teacher_id'));
-        }
+        $query = StudentAttendance::query();
 
         $this->applyDateRange($query, $request, 'attendance_date');
 
         $stats = [
             'present'  => (clone $query)->where('status', 'حاضر')->count(),
             'absent'   => (clone $query)->where('status', 'غائب')->count(),
-            'late'     => (clone $query)->where('status', 'متأخر')->count(),
-            'excused'  => (clone $query)->where('status', 'بعذر')->count(),
+            'transferred'  => (clone $query)->where('status', 'منقول')->count(),
         ];
 
         return ['stats' => $stats, 'records' => []];
@@ -255,11 +251,7 @@ class ReportService extends BaseService
 
     public function attendanceDatatable(Request $request): array
     {
-        $query = TeacherAttendance::query()->with('teacher');
-
-        if ($request->filled('teacher_id')) {
-            $query->where('teacher_id', $request->input('teacher_id'));
-        }
+        $query = StudentAttendance::query()->with('student');
 
         $this->applyDateRange($query, $request, 'attendance_date');
         $query->orderByDesc('attendance_date')->orderByDesc('id');
@@ -267,16 +259,16 @@ class ReportService extends BaseService
         return $this->makeDatatable(
             $request,
             $query,
-            fn (TeacherAttendance $r) => [
+            fn (StudentAttendance $r) => [
                 'id' => $r->id,
-                'teacher' => $r->teacher?->name ?? '-',
+                'student' => $r->student?->full_name ?? '-',
                 'date' => optional($r->attendance_date)->format('Y-m-d'),
                 'status' => $r->status,
             ],
             function (Builder $q, string $search): void {
                 $q->where(function (Builder $nested) use ($search) {
                     $nested->where('status', 'like', "%{$search}%")
-                        ->orWhereHas('teacher', fn (Builder $t) => $t->where('name', 'like', "%{$search}%"));
+                        ->orWhereHas('student', fn (Builder $t) => $t->where('full_name', 'like', "%{$search}%"));
                 });
             }
         );
@@ -464,15 +456,12 @@ class ReportService extends BaseService
 
     public function attendancePdfRows(Request $request): array
     {
-        $query = TeacherAttendance::query()->with('teacher');
-        if ($request->filled('teacher_id')) {
-            $query->where('teacher_id', $request->input('teacher_id'));
-        }
+        $query = StudentAttendance::query()->with('student');
         $this->applyDateRange($query, $request, 'attendance_date');
 
         return $query->orderByDesc('attendance_date')->get()
-            ->map(fn (TeacherAttendance $r) => [
-                $r->teacher?->name ?? '-',
+            ->map(fn (StudentAttendance $r) => [
+                $r->student?->full_name ?? '-',
                 optional($r->attendance_date)->format('Y-m-d'),
                 $r->status,
             ])->all();

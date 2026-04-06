@@ -55,7 +55,7 @@ class ReportController extends AdminController
             'breadcrumbs' => [
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
                 ['title' => 'التقارير', 'url' => route('admin.reports.index')],
-                ['title' => 'تقرير الحضور والغياب'],
+                ['title' => 'تقرير حضور الطلاب'],
             ],
             'report' => $report,
         ]);
@@ -69,10 +69,10 @@ class ReportController extends AdminController
     public function attendancePdf(Request $request): Response
     {
         return $this->exportPdf(
-            title: 'تقرير الحضور والغياب',
-            columns: ['المعلم', 'التاريخ', 'الحالة'],
+            title: 'تقرير حضور الطلاب',
+            columns: ['الطالب', 'التاريخ', 'الحالة'],
             rows: $this->service->attendancePdfRows($request),
-            fileName: 'attendance-report.pdf',
+            fileName: 'students-attendance-report.pdf',
         );
     }
 

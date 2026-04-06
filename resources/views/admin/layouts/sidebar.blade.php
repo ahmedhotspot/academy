@@ -32,6 +32,7 @@
                 'title' => 'المتابعة والتقييم',
                 'items' => [
                     ['title' => 'حضور المعلمين', 'route' => 'admin.teacher-attendances.index', 'route_is' => 'admin.teacher-attendances.*', 'icon' => 'fa fa-calendar-check', 'permission' => 'teacher-attendances.view'],
+                    ['title' => 'حضور الطلاب', 'route' => 'admin.student-attendances.index', 'route_is' => 'admin.student-attendances.*', 'icon' => 'fa fa-user-clock', 'permission' => 'student-attendances.view'],
                     ['title' => 'المتابعة التعليمية', 'route' => 'admin.student-progress-logs.index', 'route_is' => 'admin.student-progress-logs.*', 'icon' => 'fa fa-chart-line', 'permission' => 'student-progress-logs.view'],
                     ['title' => 'الاختبارات', 'route' => 'admin.assessments.index', 'route_is' => 'admin.assessments.*', 'icon' => 'fa fa-flask', 'permission' => 'assessments.view'],
                 ],

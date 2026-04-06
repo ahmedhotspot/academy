@@ -1,6 +1,6 @@
 @extends('admin.layouts.master')
 
-@section('title', 'تقرير الحضور والغياب')
+@section('title', 'تقرير حضور الطلاب')
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
@@ -12,7 +12,7 @@
             <div class="page-content">
 
                 @include('admin.partials.page-header', [
-                    'title'       => 'تقرير الحضور والغياب',
+                    'title'       => 'تقرير حضور الطلاب',
                     'breadcrumbs' => $breadcrumbs,
                 ])
 
@@ -37,10 +37,9 @@
                 </div>
 
                 <div class="row g-3 mb-4">
-                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">حاضر</p><h4 class="fw-bold text-success">{{ $report['stats']['present'] }}</h4></div></div></div>
-                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">غائب</p><h4 class="fw-bold text-danger">{{ $report['stats']['absent'] }}</h4></div></div></div>
-                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">متأخر</p><h4 class="fw-bold text-warning">{{ $report['stats']['late'] }}</h4></div></div></div>
-                    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">بعذر</p><h4 class="fw-bold text-info">{{ $report['stats']['excused'] }}</h4></div></div></div>
+                    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">حاضر</p><h4 class="fw-bold text-success">{{ $report['stats']['present'] }}</h4></div></div></div>
+                    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">غائب</p><h4 class="fw-bold text-danger">{{ $report['stats']['absent'] }}</h4></div></div></div>
+                    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted small">منقول</p><h4 class="fw-bold text-info">{{ $report['stats']['transferred'] }}</h4></div></div></div>
                 </div>
 
                 <div class="card border-0 shadow-sm">
@@ -53,7 +52,7 @@
                                 <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>المعلم</th>
+                                    <th>الطالب</th>
                                     <th>التاريخ</th>
                                     <th>الحالة</th>
                                 </tr>
@@ -90,7 +89,7 @@
                 },
                 columns: [
                     {data: 'id'},
-                    {data: 'teacher'},
+                    {data: 'student'},
                     {data: 'date'},
                     {data: 'status'}
                 ]

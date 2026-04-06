@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Admin\StudentProgressLogs\CreateStudentProgressLogAction;
+use App\Actions\Admin\StudentAttendances\CreateStudentAttendanceAction;
 use App\Actions\Admin\StudentProgressLogs\DeleteStudentProgressLogAction;
 use App\Actions\Admin\StudentProgressLogs\UpdateStudentProgressLogAction;
+use App\Http\Requests\Admin\StudentAttendances\StoreStudentAttendanceRequest;
 use App\Http\Requests\Admin\StudentProgressLogs\StoreStudentProgressLogRequest;
 use App\Http\Requests\Admin\StudentProgressLogs\UpdateStudentProgressLogRequest;
 use App\Models\Student;
 use App\Models\StudentProgressLog;
 use App\Services\Admin\StudentProgressLogManagementService;
+use App\Services\Admin\StudentAttendanceManagementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -150,6 +153,68 @@ class StudentProgressLogController extends AdminController
         return redirect()
             ->route('admin.student-progress-logs.index')
             ->with('success', 'تم حذف سجل المتابعة بنجاح.');
+    }
+
+    public function attendanceIndex(Request $request): View
+    {
+        $service = app(StudentAttendanceManagementService::class);
+        $actions = [];
+
+        if (auth()->user()?->can('student-attendances.create')) {
+            $actions[] = [
+                'title' => 'تسجيل حضور اليوم',
+                'url' => route('admin.student-attendances.create', ['attendance_date' => now()->toDateString()]),
+                'icon' => 'ti ti-plus',
+                'class' => 'btn-primary',
+            ];
+        }
+
+        $filters = [
+            'student_id' => $request->input('student_id'),
+            'attendance_date' => $request->input('attendance_date'),
+        ];
+
+        return $this->adminView('admin.student-attendances.index', [
+            'breadcrumbs' => [
+                ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
+                ['title' => 'إدارة حضور وغياب الطلاب'],
+            ],
+            'actions' => $actions,
+            'studentOptions' => $service->getStudentOptions(),
+            'reportSummary' => $service->reportSummary($filters),
+        ]);
+    }
+
+    public function attendanceDatatable(Request $request): JsonResponse
+    {
+        $service = app(StudentAttendanceManagementService::class);
+
+        return response()->json($service->datatable($request));
+    }
+
+    public function attendanceCreate(Request $request): View
+    {
+        $service = app(StudentAttendanceManagementService::class);
+        $attendanceDate = $request->input('attendance_date', now()->toDateString());
+        $dailySheet = $service->getDailyAttendanceSheet($attendanceDate);
+
+        return $this->adminView('admin.student-attendances.create', [
+            'breadcrumbs' => [
+                ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
+                ['title' => 'إدارة حضور وغياب الطلاب', 'url' => route('admin.student-attendances.index')],
+                ['title' => 'تسجيل حضور الطلاب'],
+            ],
+            'dailySheet' => $dailySheet,
+        ]);
+    }
+
+    public function attendanceStore(StoreStudentAttendanceRequest $request, CreateStudentAttendanceAction $action): RedirectResponse
+    {
+        $result = $action->handle($request->validated());
+
+        return redirect()
+            ->route('admin.student-attendances.index')
+            ->with('success', "تم حفظ كشف حضور الطلاب بنجاح بعدد {$result['processed']} سجل.");
     }
 }
 
