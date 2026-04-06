@@ -4,6 +4,7 @@ namespace App\Actions\Admin\Users;
 
 use App\Actions\BaseAction;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class CreateUserAction extends BaseAction
 {
@@ -14,6 +15,10 @@ class CreateUserAction extends BaseAction
 
         if ($role === 'المشرف العام') {
             $data['branch_id'] = null;
+        }
+
+        if (empty($data['password'])) {
+            $data['password'] = Str::random(12);
         }
 
         $user = User::query()->create($data);

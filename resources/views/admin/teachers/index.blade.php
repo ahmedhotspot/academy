@@ -30,7 +30,7 @@
                                     <th>الرقم</th>
                                     <th>الاسم</th>
                                     <th>الجوال</th>
-                                    <th>البريد</th>
+                                    <th>الواتساب</th>
                                     <th>الفرع</th>
                                     <th>الحالة</th>
                                     <th>تاريخ الإنشاء</th>
@@ -62,7 +62,7 @@
                     {data: 'id'},
                     {data: 'name'},
                     {data: 'phone'},
-                    {data: 'email'},
+                    {data: 'whatsapp'},
                     {data: 'branch'},
                     {
                         data: 'status',

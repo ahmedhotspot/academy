@@ -10,8 +10,8 @@
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">البريد الإلكتروني</label>
-        <input type="email" name="email" class="form-control" value="{{ old('email', $teacher->email ?? '') }}" placeholder="teacher@email.com">
+        <label class="form-label">رقم الواتساب</label>
+        <input type="text" name="whatsapp" class="form-control" value="{{ old('whatsapp', $teacher->whatsapp ?? '') }}" placeholder="05xxxxxxxx">
     </div>
 
     <div class="col-md-6">

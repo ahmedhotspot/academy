@@ -21,13 +21,13 @@ class TeacherManagementService
         $baseQuery = User::query()
             ->role('المعلم')
             ->with(['branch:id,name'])
-            ->select(['id', 'name', 'phone', 'email', 'branch_id', 'status', 'created_at']);
+            ->select(['id', 'name', 'phone', 'whatsapp', 'branch_id', 'status', 'created_at']);
 
         if ($search !== '') {
             $baseQuery->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('whatsapp', 'like', "%{$search}%")
                     ->orWhere('username', 'like', "%{$search}%");
             });
         }
@@ -41,7 +41,7 @@ class TeacherManagementService
             'id' => $teacher->id,
             'name' => $teacher->name,
             'phone' => $teacher->phone,
-            'email' => $teacher->email ?? '-',
+            'whatsapp' => $teacher->whatsapp ?? '-',
             'branch' => $teacher->branch?->name ?? 'بدون فرع',
             'status' => $teacher->status?->label() ?? 'غير محدد',
             'created_at' => optional($teacher->created_at)->format('Y-m-d'),

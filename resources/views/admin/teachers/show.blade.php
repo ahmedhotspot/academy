@@ -61,8 +61,8 @@
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <p class="text-muted small mb-1">البريد الإلكتروني</p>
-                                        <p class="fw-semibold mb-0">{{ $info['email'] ?? '-' }}</p>
+                                        <p class="text-muted small mb-1">رقم الواتساب</p>
+                                        <p class="fw-semibold mb-0">{{ $info['whatsapp'] ?? '-' }}</p>
                                     </div>
                                     <div class="col-md-6">
                                         <p class="text-muted small mb-1">اسم المستخدم</p>

@@ -180,6 +180,7 @@ class UserManagementService extends BaseService
             'info' => [
                 'name' => $user->name,
                 'phone' => $user->phone,
+                'whatsapp' => $user->whatsapp ?? '-',
                 'email' => $user->email ?? '-',
                 'username' => $user->username ?? '-',
                 'branch' => $user->branch?->name ?? 'بدون فرع',

@@ -59,10 +59,10 @@ it('ينشئ معلمًا من الصفحة المستقلة', function () {
     $response = $this->actingAs($user)->post(route('admin.teachers.store'), [
         'name' => 'معلم تجريبي',
         'phone' => '0507654321',
-        'email' => 'teacher-demo@academy.test',
+        'whatsapp' => '0507654321',
         'username' => 'teacherdemo',
-        'password' => 'password123',
-        'password_confirmation' => 'password123',
+        'password' => '',
+        'password_confirmation' => '',
         'status' => 'active',
         'branch_id' => $branch->id,
     ]);
@@ -71,10 +71,11 @@ it('ينشئ معلمًا من الصفحة المستقلة', function () {
         ->assertRedirect(route('admin.teachers.index'))
         ->assertSessionHas('success');
 
-    $teacher = User::query()->where('email', 'teacher-demo@academy.test')->first();
+    $teacher = User::query()->where('username', 'teacherdemo')->first();
 
     expect($teacher)->not->toBeNull();
     expect($teacher->branch_id)->toBe($branch->id);
+    expect($teacher->whatsapp)->toBe('0507654321');
     expect($teacher->hasRole('المعلم'))->toBeTrue();
 });
 
@@ -121,7 +122,7 @@ it('يحدّث بيانات المعلم', function () {
     $response = $this->actingAs($user)->put(route('admin.teachers.update', $teacher), [
         'name' => 'معلم بعد التعديل',
         'phone' => '0509999999',
-        'email' => 'teacher-updated@academy.test',
+        'whatsapp' => '0509999999',
         'username' => 'teacherupdated',
         'password' => '',
         'password_confirmation' => '',
@@ -136,6 +137,7 @@ it('يحدّث بيانات المعلم', function () {
     $this->assertDatabaseHas('users', [
         'id' => $teacher->id,
         'name' => 'معلم بعد التعديل',
+        'whatsapp' => '0509999999',
         'branch_id' => $newBranch->id,
     ]);
 });

@@ -13,9 +13,9 @@ class StoreTeacherRequest extends AdminRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
-            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
+            'whatsapp' => ['required', 'string', 'max:20'],
             'username' => ['nullable', 'string', 'max:50', 'unique:users,username'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'status' => ['required', Rule::in(array_keys(UserStatusEnum::options()))],
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
         ];
@@ -26,7 +26,7 @@ class StoreTeacherRequest extends AdminRequest
         return [
             'name' => 'الاسم',
             'phone' => 'رقم الجوال',
-            'email' => 'البريد الإلكتروني',
+            'whatsapp' => 'رقم الواتساب',
             'username' => 'اسم المستخدم',
             'password' => 'كلمة المرور',
             'password_confirmation' => 'تأكيد كلمة المرور',

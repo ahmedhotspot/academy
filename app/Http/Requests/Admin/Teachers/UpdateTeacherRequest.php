@@ -15,7 +15,7 @@ class UpdateTeacherRequest extends AdminRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
-            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($teacherId)],
+            'whatsapp' => ['required', 'string', 'max:20'],
             'username' => ['nullable', 'string', 'max:50', Rule::unique('users', 'username')->ignore($teacherId)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'status' => ['required', Rule::in(array_keys(UserStatusEnum::options()))],
@@ -28,7 +28,7 @@ class UpdateTeacherRequest extends AdminRequest
         return [
             'name' => 'الاسم',
             'phone' => 'رقم الجوال',
-            'email' => 'البريد الإلكتروني',
+            'whatsapp' => 'رقم الواتساب',
             'username' => 'اسم المستخدم',
             'password' => 'كلمة المرور',
             'password_confirmation' => 'تأكيد كلمة المرور',
