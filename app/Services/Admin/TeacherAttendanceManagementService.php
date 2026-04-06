@@ -20,11 +20,16 @@ class TeacherAttendanceManagementService extends BaseService
      */
     public function getTeacherOptions(): array
     {
-        return User::query()
+        $query = User::query()
             ->role('المعلم')
-            ->orderBy('name')
-            ->pluck('name', 'id')
-            ->toArray();
+            ->orderBy('name');
+
+        $user = auth()->user();
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        return $query->pluck('name', 'id')->toArray();
     }
 
     /**
@@ -34,11 +39,17 @@ class TeacherAttendanceManagementService extends BaseService
     {
         $attendanceDate = $date ?: now()->toDateString();
 
-        $teachers = User::query()
+        $teachersQuery = User::query()
             ->role('المعلم')
             ->with('branch:id,name')
-            ->orderBy('name')
-            ->get();
+            ->orderBy('name');
+
+        $user = auth()->user();
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $teachersQuery->where('branch_id', $user->branch_id);
+        }
+
+        $teachers = $teachersQuery->get();
 
         $existingAttendances = TeacherAttendance::query()
             ->whereDate('attendance_date', $attendanceDate)
@@ -199,6 +210,11 @@ class TeacherAttendanceManagementService extends BaseService
 
     public function getTeacherAttendanceProfile(User $teacher): array
     {
+        $user = auth()->user();
+        if ($user && ! $user->isSuperAdmin()) {
+            abort_unless((int) $teacher->branch_id === (int) $user->branch_id, 403);
+        }
+
         $today = Carbon::today();
         $monthStart = Carbon::now()->startOfMonth();
         $monthEnd = Carbon::now()->endOfMonth();
