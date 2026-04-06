@@ -23,7 +23,7 @@
 
     <div class="col-md-3">
         <label class="form-label">رقم الواتساب</label>
-        <input type="text" name="whatsapp" class="form-control" value="{{ old('whatsapp', $guardian->whatsapp ?? '') }}" placeholder="اختياري">
+        <input type="text" name="whatsapp" class="form-control" value="{{ old('whatsapp', $guardian->whatsapp ?? '') }}" placeholder="05xxxxxxxx">
     </div>
 
     <div class="col-md-3">
@@ -32,6 +32,16 @@
             <option value="active" @selected(old('status', $guardian->status ?? 'active') === 'active')>نشط</option>
             <option value="inactive" @selected(old('status', $guardian->status ?? 'active') === 'inactive')>غير نشط</option>
         </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">كلمة المرور (اختياري)</label>
+        <input type="password" name="portal_password" class="form-control" placeholder="اتركه فارغًا بدون تعيين">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">تأكيد كلمة المرور</label>
+        <input type="password" name="portal_password_confirmation" class="form-control" placeholder="أعد كتابة كلمة المرور">
     </div>
 </div>
 

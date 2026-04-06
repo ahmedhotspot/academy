@@ -64,7 +64,9 @@ class GuardianController extends AdminController
 
     public function store(StoreGuardianRequest $request, CreateGuardianAction $createGuardianAction): RedirectResponse
     {
-        $createGuardianAction->handle($this->normalizeBranchPayload($request->validated()));
+        $payload = $this->prepareGuardianPayload($request->validated());
+
+        $createGuardianAction->handle($this->normalizeBranchPayload($payload));
 
         return redirect()
             ->route('admin.guardians.index')
@@ -107,7 +109,7 @@ class GuardianController extends AdminController
     {
         $this->authorizeGuardianAccess($guardian);
 
-        $payload = $this->normalizeBranchPayload($request->validated());
+        $payload = $this->normalizeBranchPayload($this->prepareGuardianPayload($request->validated()));
         $payload['guardian'] = $guardian;
 
         $updateGuardianAction->handle($payload);
@@ -171,6 +173,17 @@ class GuardianController extends AdminController
         if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
             $payload['branch_id'] = (int) $user->branch_id;
         }
+
+        return $payload;
+    }
+
+    private function prepareGuardianPayload(array $payload): array
+    {
+        if (! empty($payload['portal_password'])) {
+            $payload['password'] = Hash::make($payload['portal_password']);
+        }
+
+        unset($payload['portal_password'], $payload['portal_password_confirmation']);
 
         return $payload;
     }

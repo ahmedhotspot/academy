@@ -23,14 +23,19 @@ class DashboardStatsService
     {
         $now = now();
         $today = Carbon::today();
+        $isSuperAdmin = $authUser?->isSuperAdmin() ?? false;
+        $branchId = $authUser?->branch_id;
 
         $totalStudents = Student::query()->count();
         $totalTeachers = User::query()
             ->whereHas('roles', fn ($q) => $q->where('name', 'المعلم'))
+            ->when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->count();
-        $totalGuardians = Guardian::query()->count();
+        $totalGuardians = Guardian::query()
+            ->when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->count();
         $totalGroups = Group::query()->count();
-        $totalBranches = Branch::query()->count();
+        $totalBranches = $isSuperAdmin ? Branch::query()->count() : ($branchId ? 1 : 0);
 
         $studentsPresentToday = StudentProgressLog::query()
             ->whereDate('progress_date', $today)

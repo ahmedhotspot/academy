@@ -13,8 +13,9 @@ class StoreGuardianRequest extends AdminRequest
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
             'full_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
-            'whatsapp' => ['nullable', 'string', 'max:20'],
+            'whatsapp' => ['required', 'string', 'max:20'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
+            'portal_password' => ['nullable', 'string', 'min:6', 'confirmed'],
         ];
     }
 
@@ -26,6 +27,8 @@ class StoreGuardianRequest extends AdminRequest
             'phone' => 'رقم الهاتف',
             'whatsapp' => 'رقم الواتساب',
             'status' => 'الحالة',
+            'portal_password' => 'كلمة المرور',
+            'portal_password_confirmation' => 'تأكيد كلمة المرور',
         ];
     }
 }
