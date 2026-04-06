@@ -5,9 +5,9 @@
 <div class="row g-3 mb-3">
 
     <div class="col-md-6">
-        <label class="form-label fw-semibold">الفرع (اختياري)</label>
-        <select name="branch_id" class="form-select">
-            <option value="">— عام —</option>
+        <label class="form-label fw-semibold">الفرع <span class="text-danger">*</span></label>
+        <select name="branch_id" class="form-select" required>
+            <option value="">— اختر الفرع —</option>
             @foreach($branches as $branch)
                 <option value="{{ $branch->id }}"
                     @selected(old('branch_id', $expense->branch_id ?? '') == $branch->id)>

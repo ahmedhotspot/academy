@@ -41,7 +41,7 @@ class ExpenseController extends AdminController
                 ['title' => 'إدارة المصروفات'],
             ],
             'actions'       => $actions,
-            'branches'      => Branch::all(),
+            'branches'      => $this->availableBranches(),
             'reportSummary' => $this->service->reportSummary(),
         ]);
     }
@@ -59,7 +59,7 @@ class ExpenseController extends AdminController
                 ['title' => 'إدارة المصروفات', 'url' => route('admin.expenses.index')],
                 ['title' => 'إضافة مصروف'],
             ],
-            'branches' => Branch::all(),
+            'branches' => $this->availableBranches(),
         ]);
     }
 
@@ -67,7 +67,7 @@ class ExpenseController extends AdminController
         StoreExpenseRequest $request,
         CreateExpenseAction $action
     ): RedirectResponse {
-        $expense = $action->handle($request->validated());
+        $expense = $action->handle($this->normalizeBranchPayload($request->validated()));
 
         return redirect()
             ->route('admin.expenses.show', $expense)
@@ -100,7 +100,7 @@ class ExpenseController extends AdminController
                 ['title' => 'تعديل المصروف'],
             ],
             'expense'  => $expense,
-            'branches' => Branch::all(),
+            'branches' => $this->availableBranches(),
         ]);
     }
 
@@ -109,7 +109,7 @@ class ExpenseController extends AdminController
         Expense $expense,
         UpdateExpenseAction $action
     ): RedirectResponse {
-        $payload = $request->validated();
+        $payload = $this->normalizeBranchPayload($request->validated());
         $payload['expense'] = $expense;
 
         $updated = $action->handle($payload);
@@ -128,6 +128,30 @@ class ExpenseController extends AdminController
         return redirect()
             ->route('admin.expenses.index')
             ->with('success', 'تم حذف المصروف بنجاح.');
+    }
+
+    private function availableBranches()
+    {
+        $user = auth()->user();
+
+        $query = Branch::query()->orderBy('name');
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $query->where('id', $user->branch_id);
+        }
+
+        return $query->get();
+    }
+
+    private function normalizeBranchPayload(array $payload): array
+    {
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $payload['branch_id'] = (int) $user->branch_id;
+        }
+
+        return $payload;
     }
 }
 
