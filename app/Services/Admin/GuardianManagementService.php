@@ -9,16 +9,23 @@ use App\Models\Student;
 use App\Models\StudentSubscription;
 use App\Services\BaseService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class GuardianManagementService extends BaseService
 {
     public function getBranchOptions(): array
     {
-        return Branch::query()
-            ->orderBy('name')
-            ->pluck('name', 'id')
-            ->toArray();
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            return Branch::query()
+                ->where('id', $user->branch_id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        return Branch::query()->orderBy('name')->pluck('name', 'id')->toArray();
     }
 
     public function datatable(Request $request): array
@@ -28,12 +35,12 @@ class GuardianManagementService extends BaseService
         $length = max((int) $request->input('length', 10), 1);
         $search = trim((string) data_get($request->input('search'), 'value', ''));
 
-        $baseQuery = Guardian::query()
+        $baseQuery = $this->applyBranchScope(Guardian::query())
             ->with('branch:id,name')
             ->withCount('students')
             ->select(['id', 'branch_id', 'full_name', 'phone', 'whatsapp', 'status', 'created_at']);
 
-        $recordsTotal = Guardian::query()->count();
+        $recordsTotal = (clone $baseQuery)->count();
 
         if ($search !== '') {
             $baseQuery->where(function ($query) use ($search) {
@@ -70,6 +77,17 @@ class GuardianManagementService extends BaseService
             'recordsFiltered' => $recordsFiltered,
             'data' => $data,
         ];
+    }
+
+    private function applyBranchScope(Builder $query): Builder
+    {
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        return $query;
     }
 
     public function getGuardianProfile(Guardian $guardian): array

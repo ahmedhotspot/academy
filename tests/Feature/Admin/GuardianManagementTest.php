@@ -74,3 +74,26 @@ it('يعيد بيانات datatable لأولياء الأمور بصيغة json'
         ]);
 });
 
+it('يعرض للسكرتيرة أولياء أمور فرعها فقط', function () {
+    $branchA = Branch::factory()->create();
+    $branchB = Branch::factory()->create();
+
+    $role = Role::findOrCreate('السكرتيرة', 'web');
+    Permission::findOrCreate('guardians.view', 'web');
+    $role->syncPermissions(['guardians.view']);
+
+    $secretary = User::factory()->create(['branch_id' => $branchA->id]);
+    $secretary->assignRole('السكرتيرة');
+
+    $visibleGuardian = Guardian::factory()->create(['branch_id' => $branchA->id]);
+    Guardian::factory()->create(['branch_id' => $branchB->id]);
+
+    $response = $this->actingAs($secretary)
+        ->getJson(route('admin.guardians.datatable', ['draw' => 1]))
+        ->assertOk();
+
+    $response->assertJsonPath('recordsTotal', 1);
+    $response->assertJsonCount(1, 'data');
+    $response->assertJsonPath('data.0.id', $visibleGuardian->id);
+});
+

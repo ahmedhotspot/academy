@@ -64,7 +64,7 @@ class GuardianController extends AdminController
 
     public function store(StoreGuardianRequest $request, CreateGuardianAction $createGuardianAction): RedirectResponse
     {
-        $createGuardianAction->handle($request->validated());
+        $createGuardianAction->handle($this->normalizeBranchPayload($request->validated()));
 
         return redirect()
             ->route('admin.guardians.index')
@@ -73,6 +73,8 @@ class GuardianController extends AdminController
 
     public function show(Guardian $guardian): View
     {
+        $this->authorizeGuardianAccess($guardian);
+
         $profile = $this->guardianManagementService->getGuardianProfile($guardian);
 
         return $this->adminView('admin.guardians.show', [
@@ -88,6 +90,8 @@ class GuardianController extends AdminController
 
     public function edit(Guardian $guardian): View
     {
+        $this->authorizeGuardianAccess($guardian);
+
         return $this->adminView('admin.guardians.edit', [
             'breadcrumbs' => [
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
@@ -101,7 +105,9 @@ class GuardianController extends AdminController
 
     public function update(UpdateGuardianRequest $request, Guardian $guardian, UpdateGuardianAction $updateGuardianAction): RedirectResponse
     {
-        $payload = $request->validated();
+        $this->authorizeGuardianAccess($guardian);
+
+        $payload = $this->normalizeBranchPayload($request->validated());
         $payload['guardian'] = $guardian;
 
         $updateGuardianAction->handle($payload);
@@ -113,6 +119,8 @@ class GuardianController extends AdminController
 
     public function destroy(Guardian $guardian, DeleteGuardianAction $deleteGuardianAction): RedirectResponse
     {
+        $this->authorizeGuardianAccess($guardian);
+
         $deleted = $deleteGuardianAction->handle(['guardian' => $guardian]);
 
         if (! $deleted) {
@@ -128,6 +136,8 @@ class GuardianController extends AdminController
 
     public function setPortalPassword(Request $request, Guardian $guardian): RedirectResponse
     {
+        $this->authorizeGuardianAccess($guardian);
+
         $request->validate([
             'portal_password' => ['required', 'string', 'min:6', 'confirmed'],
         ], [
@@ -141,6 +151,28 @@ class GuardianController extends AdminController
         return redirect()
             ->route('admin.guardians.show', $guardian)
             ->with('success', 'تم تعيين كلمة مرور البوابة بنجاح.');
+    }
+
+    private function authorizeGuardianAccess(Guardian $guardian): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->isSuperAdmin()) {
+            return;
+        }
+
+        abort_unless((int) $guardian->branch_id === (int) $user->branch_id, 403);
+    }
+
+    private function normalizeBranchPayload(array $payload): array
+    {
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $payload['branch_id'] = (int) $user->branch_id;
+        }
+
+        return $payload;
     }
 }
 
