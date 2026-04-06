@@ -13,7 +13,7 @@
 
                 @include('admin.partials.alerts')
 
-                <form action="{{ route('admin.teachers.store') }}" method="POST">
+                <form action="{{ route('admin.teachers.store') }}" method="POST" autocomplete="off">
                     @csrf
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">

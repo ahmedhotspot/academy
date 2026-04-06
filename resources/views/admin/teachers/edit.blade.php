@@ -13,7 +13,7 @@
 
                 @include('admin.partials.alerts')
 
-                <form action="{{ route('admin.teachers.update', $teacher) }}" method="POST">
+                <form action="{{ route('admin.teachers.update', $teacher) }}" method="POST" autocomplete="off">
                     @csrf
                     @method('PUT')
                     <div class="card border-0 shadow-sm">
