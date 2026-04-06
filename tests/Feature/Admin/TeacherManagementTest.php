@@ -9,11 +9,11 @@ function makeTeacherManagerUser(): User
 {
     $role = Role::findOrCreate('المشرف العام', 'web');
 
-    foreach (['users.view', 'users.create', 'users.update', 'users.delete'] as $permissionName) {
+    foreach (['teachers.view', 'teachers.create', 'teachers.update', 'teachers.delete'] as $permissionName) {
         Permission::findOrCreate($permissionName, 'web');
     }
 
-    $role->syncPermissions(['users.view', 'users.create', 'users.update', 'users.delete']);
+    $role->syncPermissions(['teachers.view', 'teachers.create', 'teachers.update', 'teachers.delete']);
     Role::findOrCreate('المعلم', 'web');
 
     $user = User::factory()->create();
@@ -151,5 +151,22 @@ it('يحذف المعلم', function () {
         ->assertSessionHas('success');
 
     $this->assertSoftDeleted('users', ['id' => $teacher->id]);
+});
+
+it('يسمح للسكرتيرة بالوصول إلى إدارة المعلمين', function () {
+    $role = Role::findOrCreate('السكرتيرة', 'web');
+
+    foreach (['teachers.view'] as $permissionName) {
+        Permission::findOrCreate($permissionName, 'web');
+    }
+
+    $role->syncPermissions(['teachers.view']);
+
+    $secretary = User::factory()->create();
+    $secretary->assignRole('السكرتيرة');
+
+    $this->actingAs($secretary)
+        ->get(route('admin.teachers.index'))
+        ->assertOk();
 });
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Branch;
 use App\Models\Guardian;
 use App\Models\Payment;
 use App\Models\Student;
@@ -12,6 +13,14 @@ use Illuminate\Http\Request;
 
 class GuardianManagementService extends BaseService
 {
+    public function getBranchOptions(): array
+    {
+        return Branch::query()
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
+    }
+
     public function datatable(Request $request): array
     {
         $draw = (int) $request->input('draw', 1);
@@ -20,8 +29,9 @@ class GuardianManagementService extends BaseService
         $search = trim((string) data_get($request->input('search'), 'value', ''));
 
         $baseQuery = Guardian::query()
+            ->with('branch:id,name')
             ->withCount('students')
-            ->select(['id', 'full_name', 'phone', 'whatsapp', 'status', 'created_at']);
+            ->select(['id', 'branch_id', 'full_name', 'phone', 'whatsapp', 'status', 'created_at']);
 
         $recordsTotal = Guardian::query()->count();
 
@@ -47,6 +57,7 @@ class GuardianManagementService extends BaseService
                 'full_name' => $guardian->full_name,
                 'phone' => $guardian->phone,
                 'whatsapp' => $guardian->whatsapp ?: '-',
+                'branch' => $guardian->branch?->name ?? '-',
                 'status' => $guardian->status_label,
                 'status_badge' => $guardian->status_badge_class,
                 'students_count' => $guardian->students_count,

@@ -10,6 +10,7 @@ class StoreGuardianRequest extends AdminRequest
     public function rules(): array
     {
         return [
+            'branch_id' => ['required', 'integer', 'exists:branches,id'],
             'full_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
@@ -20,6 +21,7 @@ class StoreGuardianRequest extends AdminRequest
     public function attributes(): array
     {
         return [
+            'branch_id' => 'الفرع',
             'full_name' => 'الاسم الكامل',
             'phone' => 'رقم الهاتف',
             'whatsapp' => 'رقم الواتساب',

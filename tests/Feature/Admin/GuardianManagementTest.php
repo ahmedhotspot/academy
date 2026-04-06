@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Guardian;
+use App\Models\Branch;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -35,8 +36,10 @@ it('يعرض صفحة فهرس أولياء الأمور للمستخدم الم
 
 it('ينشئ ولي أمر جديدًا بنجاح', function () {
     $user = makeGuardianManager();
+    $branch = Branch::factory()->create();
 
     $response = $this->actingAs($user)->post(route('admin.guardians.store'), [
+        'branch_id' => $branch->id,
         'full_name' => 'عبد الله أحمد',
         'phone' => '0508887776',
         'whatsapp' => '0508887776',
@@ -50,6 +53,7 @@ it('ينشئ ولي أمر جديدًا بنجاح', function () {
     $this->assertDatabaseHas('guardians', [
         'full_name' => 'عبد الله أحمد',
         'phone' => '0508887776',
+        'branch_id' => $branch->id,
     ]);
 });
 
@@ -65,7 +69,7 @@ it('يعيد بيانات datatable لأولياء الأمور بصيغة json'
             'recordsTotal',
             'recordsFiltered',
             'data' => [
-                ['full_name', 'phone', 'whatsapp', 'students_count', 'status'],
+                ['branch', 'full_name', 'phone', 'whatsapp', 'students_count', 'status'],
             ],
         ]);
 });

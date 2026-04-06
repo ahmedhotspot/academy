@@ -836,35 +836,35 @@ Route::prefix('admin')
             ->name('teachers.')
             ->group(function () {
                 Route::get('/', [TeacherManagementController::class, 'index'])
-                    ->middleware('permission:users.view')
+                    ->middleware('permission:teachers.view')
                     ->name('index');
 
                 Route::get('/datatable', [TeacherManagementController::class, 'datatable'])
-                    ->middleware('permission:users.view')
+                    ->middleware('permission:teachers.view')
                     ->name('datatable');
 
                 Route::get('/create', [TeacherManagementController::class, 'create'])
-                    ->middleware('permission:users.create')
+                    ->middleware('permission:teachers.create')
                     ->name('create');
 
                 Route::post('/', [TeacherManagementController::class, 'store'])
-                    ->middleware('permission:users.create')
+                    ->middleware('permission:teachers.create')
                     ->name('store');
 
                 Route::get('/{teacher}', [TeacherManagementController::class, 'show'])
-                    ->middleware('permission:users.view')
+                    ->middleware('permission:teachers.view')
                     ->name('show');
 
                 Route::get('/{teacher}/edit', [TeacherManagementController::class, 'edit'])
-                    ->middleware('permission:users.update')
+                    ->middleware('permission:teachers.update')
                     ->name('edit');
 
                 Route::put('/{teacher}', [TeacherManagementController::class, 'update'])
-                    ->middleware('permission:users.update')
+                    ->middleware('permission:teachers.update')
                     ->name('update');
 
                 Route::delete('/{teacher}', [TeacherManagementController::class, 'destroy'])
-                    ->middleware('permission:users.delete')
+                    ->middleware('permission:teachers.delete')
                     ->name('destroy');
             });
 

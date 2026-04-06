@@ -34,6 +34,7 @@
                                 <h4 class="fw-bold mb-1">{{ $guardian->full_name }}</h4>
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                     <span class="badge {{ $guardian->status_badge_class }}">{{ $guardian->status_label }}</span>
+                                    <span class="badge bg-light text-dark border">الفرع: {{ $guardian->branch?->name ?? '-' }}</span>
                                     <span class="badge bg-light text-dark border">الهاتف: {{ $guardian->phone }}</span>
                                     <span class="badge bg-light text-dark border">واتساب: {{ $guardian->whatsapp ?: '-' }}</span>
                                 </div>

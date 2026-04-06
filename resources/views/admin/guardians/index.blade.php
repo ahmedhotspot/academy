@@ -27,6 +27,7 @@
                             <table id="guardians-table" class="table table-striped table-hover align-middle w-100">
                                 <thead>
                                 <tr>
+                                    <th>الفرع</th>
                                     <th>الاسم</th>
                                     <th>الهاتف</th>
                                     <th>الواتساب</th>
@@ -57,6 +58,7 @@
                     processing: 'جاري التحميل...'
                 },
                 columns: [
+                    {data: 'branch'},
                     {data: 'full_name'},
                     {data: 'phone'},
                     {data: 'whatsapp'},

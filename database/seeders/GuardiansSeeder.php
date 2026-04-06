@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Branch;
 use App\Models\Guardian;
 use Faker\Factory as FakerFactory;
 use Illuminate\Database\Seeder;
@@ -10,6 +11,14 @@ class GuardiansSeeder extends Seeder
 {
     public function run(): void
     {
+        $branchIds = Branch::query()->pluck('id')->values()->all();
+
+        if ($branchIds === []) {
+            $this->command->warn('لا توجد فروع، تم تخطي إنشاء أولياء الأمور.');
+
+            return;
+        }
+
         $faker = FakerFactory::create('ar_EG');
 
         $firstNames = ['أحمد', 'محمد', 'علي', 'يوسف', 'عبد الله', 'محمود', 'عمر', 'خالد', 'حسن', 'مصطفى', 'طارق', 'بلال'];
@@ -33,6 +42,7 @@ class GuardiansSeeder extends Seeder
             Guardian::query()->updateOrCreate(
                 ['phone' => $data['phone']],
                 [
+                    'branch_id' => $faker->randomElement($branchIds),
                     'full_name' => $data['full_name'],
                     'whatsapp'  => $data['whatsapp'],
                     'status'    => 'active',

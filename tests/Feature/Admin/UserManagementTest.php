@@ -74,3 +74,14 @@ it('يعيد datatable المستخدمين بصيغة json', function () {
         ]);
 });
 
+it('يمنع السكرتيرة من الوصول إلى إدارة المستخدمين', function () {
+    Role::findOrCreate('السكرتيرة', 'web');
+
+    $secretary = User::factory()->create();
+    $secretary->assignRole('السكرتيرة');
+
+    $this->actingAs($secretary)
+        ->get(route('admin.users.index'))
+        ->assertForbidden();
+});
+

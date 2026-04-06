@@ -82,6 +82,9 @@ class RolePermissionSeeder extends Seeder
             'expenses.update',
             'expenses.delete',
             'teachers.view',
+            'teachers.create',
+            'teachers.update',
+            'teachers.delete',
             'attendance.manage',
             'progress.manage',
             'assessments.manage',
@@ -105,45 +108,12 @@ class RolePermissionSeeder extends Seeder
 
         $superAdminRole->syncPermissions(Permission::all());
 
-        $secretaryRole->syncPermissions([
-            'branches.view',
-            'students.view',
-            'students.create',
-            'students.update',
-            'guardians.view',
-            'guardians.create',
-            'guardians.update',
-            'study-levels.view',
-            'study-tracks.view',
-            'groups.view',
-            'group-schedules.view',
-            'student-enrollments.view',
-            'student-enrollments.create',
-            'student-enrollments.update',
-            'teacher-attendances.view',
-            'teacher-attendances.create',
-            'teacher-attendances.update',
-            'student-progress-logs.view',
-            'assessments.view',
-            'fee-plans.view',
-            'student-subscriptions.view',
-            'student-subscriptions.create',
-            'student-subscriptions.update',
-            'payments.view',
-            'payments.create',
-            'payments.update',
-            'teacher-payrolls.view',
-            'teacher-payrolls.create',
-            'teacher-payrolls.update',
-            'expenses.view',
-            'expenses.create',
-            'expenses.update',
-            'attendance.manage',
-            'receipts.view',
-            'receipts.create',
-            'attendance.manage',
-            'reports.view',
-        ]);
+        $secretaryRole->syncPermissions(
+            Permission::query()
+                ->whereNotIn('name', ['users.view', 'users.create', 'users.update', 'users.delete'])
+                ->pluck('name')
+                ->all()
+        );
 
         $teacherRole->syncPermissions([
             'students.view',

@@ -58,6 +58,7 @@ class GuardianController extends AdminController
                 ['title' => 'إدارة أولياء الأمور', 'url' => route('admin.guardians.index')],
                 ['title' => 'إضافة ولي أمر'],
             ],
+            'branches' => $this->guardianManagementService->getBranchOptions(),
         ]);
     }
 
@@ -94,6 +95,7 @@ class GuardianController extends AdminController
                 ['title' => 'تعديل ولي الأمر'],
             ],
             'guardian' => $guardian,
+            'branches' => $this->guardianManagementService->getBranchOptions(),
         ]);
     }
 

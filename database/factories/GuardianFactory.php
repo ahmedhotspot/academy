@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Branch;
 use App\Models\Guardian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -15,6 +16,7 @@ class GuardianFactory extends Factory
     public function definition(): array
     {
         return [
+            'branch_id' => Branch::factory(),
             'full_name' => $this->faker->name(),
             'phone' => '05' . $this->faker->numerify('########'),
             'whatsapp' => null,

@@ -54,6 +54,14 @@ class Branch extends Model
     }
 
     /**
+     * أولياء الأمور المرتبطون بهذا الفرع
+     */
+    public function guardians(): HasMany
+    {
+        return $this->hasMany(Guardian::class);
+    }
+
+    /**
      * الحلقات المرتبطة بهذا الفرع
      */
     public function groups(): HasMany

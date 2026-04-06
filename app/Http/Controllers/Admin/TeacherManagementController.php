@@ -26,7 +26,7 @@ class TeacherManagementController extends AdminController
     {
         $actions = [];
 
-        if (auth()->user()?->can('users.create')) {
+        if (auth()->user()?->can('teachers.create')) {
             $actions[] = [
                 'title' => 'إضافة معلم',
                 'url' => route('admin.teachers.create'),
