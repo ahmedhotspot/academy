@@ -132,5 +132,29 @@ class PaymentController extends AdminController
             ->route('admin.payments.index')
             ->with('success', 'تم حذف الدفعة بنجاح.');
     }
+
+    public function subscriptionBalance(Request $request): JsonResponse
+    {
+        $subscriptionId = (int) $request->input('student_subscription_id');
+        $studentId = (int) $request->input('student_id');
+
+        $subscription = StudentSubscription::query()->find($subscriptionId);
+
+        if (! $subscription) {
+            return response()->json(['message' => 'الاشتراك غير موجود.'], 404);
+        }
+
+        if ($studentId > 0 && (int) $subscription->student_id !== $studentId) {
+            return response()->json(['message' => 'الاشتراك لا يتبع الطالب المحدد.'], 422);
+        }
+
+        return response()->json([
+            'subscription_id' => $subscription->id,
+            'student_id' => $subscription->student_id,
+            'remaining_amount' => (float) $subscription->remaining_amount,
+            'formatted_remaining_amount' => $subscription->formatted_remaining_amount,
+            'can_pay' => (float) $subscription->remaining_amount > 0,
+        ]);
+    }
 }
 

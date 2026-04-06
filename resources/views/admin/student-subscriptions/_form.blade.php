@@ -50,10 +50,11 @@
         <label class="form-label fw-semibold">
             المبلغ الأساسي (ج) <span class="text-danger">*</span>
         </label>
-        <input type="number" name="amount" class="form-control"
+        <input type="number" id="amount" name="amount" class="form-control"
                step="0.01" min="0" max="999999.99"
                placeholder="0.00"
                value="{{ old('amount', $subscription->amount ?? '') }}">
+        <small class="text-muted">يتم تعبئة المبلغ تلقائيًا من خطة الرسوم.</small>
     </div>
 
     {{-- الخصم --}}
@@ -103,12 +104,14 @@
 
 <script>
     (function () {
+        const feePlanSelect = document.getElementById('fee_plan_id');
         const amountInput = document.querySelector('input[name="amount"]');
         const discountInput = document.querySelector('input[name="discount_amount"]');
         const paidInput = document.querySelector('input[name="paid_amount"]');
         const remainingInput = document.getElementById('remaining_amount_preview');
+        const feePlanAmountApi = "{{ route('admin.fee-plan-amount') }}";
 
-        if (!amountInput || !discountInput || !paidInput || !remainingInput) {
+        if (!feePlanSelect || !amountInput || !discountInput || !paidInput || !remainingInput) {
             return;
         }
 
@@ -128,6 +131,40 @@
         amountInput.addEventListener('input', updateRemaining);
         discountInput.addEventListener('input', updateRemaining);
         paidInput.addEventListener('input', updateRemaining);
+
+        function loadFeePlanAmount(feePlanId) {
+            if (!feePlanId) {
+                return;
+            }
+
+            fetch(feePlanAmountApi + '?fee_plan_id=' + encodeURIComponent(feePlanId), {
+                headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'},
+                credentials: 'same-origin'
+            })
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error('Failed to fetch fee plan amount');
+                    }
+
+                    return r.json();
+                })
+                .then(data => {
+                    amountInput.value = Number(data.amount || 0).toFixed(2);
+                    updateRemaining();
+                })
+                .catch(() => {
+                    // keep current value if endpoint fails
+                });
+        }
+
+        feePlanSelect.addEventListener('change', function () {
+            loadFeePlanAmount(this.value);
+        });
+
+        if (feePlanSelect.value && !amountInput.value) {
+            loadFeePlanAmount(feePlanSelect.value);
+        }
+
         updateRemaining();
     })();
 </script>

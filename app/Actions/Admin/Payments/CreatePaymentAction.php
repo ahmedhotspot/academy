@@ -5,13 +5,35 @@ namespace App\Actions\Admin\Payments;
 use App\Actions\BaseAction;
 use App\Models\Payment;
 use App\Models\StudentSubscription;
+use Illuminate\Validation\ValidationException;
 
 class CreatePaymentAction extends BaseAction
 {
     public function handle(array $data): Payment
     {
         /** @var StudentSubscription $subscription */
-        $subscription = StudentSubscription::find($data['student_subscription_id']);
+        $subscription = StudentSubscription::query()->findOrFail($data['student_subscription_id']);
+
+        if ((int) $subscription->student_id !== (int) $data['student_id']) {
+            throw ValidationException::withMessages([
+                'student_subscription_id' => 'الاشتراك المختار لا يتبع الطالب المحدد.',
+            ]);
+        }
+
+        $remainingAmount = (float) $subscription->remaining_amount;
+        $paymentAmount = (float) $data['amount'];
+
+        if ($remainingAmount <= 0) {
+            throw ValidationException::withMessages([
+                'student_subscription_id' => 'هذا الاشتراك مكتمل السداد ولا يمكن إضافة دفعة جديدة.',
+            ]);
+        }
+
+        if ($paymentAmount > $remainingAmount) {
+            throw ValidationException::withMessages([
+                'amount' => 'المبلغ المدخل أكبر من المتبقي على الاشتراك.',
+            ]);
+        }
 
         // إنشاء الدفعة
         $payment = Payment::query()->create([

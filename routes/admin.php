@@ -941,7 +941,13 @@ Route::prefix('admin')
         | API Routes للبيانات الديناميكية
         |------------------------------------------------------------------
         */
-        Route::prefix('api')->middleware(['auth', 'verified'])->group(function () {
+        Route::prefix('api')->middleware(['auth'])->group(function () {
+            Route::get('/fee-plan-amount', [StudentSubscriptionController::class, 'feePlanAmount'])
+                ->name('fee-plan-amount');
+
+            Route::get('/subscription-balance', [PaymentController::class, 'subscription-balance'])
+                ->name('subscription-balance');
+
             Route::get('/student-subscriptions', function (\Illuminate\Http\Request $request) {
                 $studentId = $request->input('student_id');
                 $subscriptions = \App\Models\StudentSubscription::query()
@@ -952,6 +958,7 @@ Route::prefix('admin')
                         'id'        => $sub->id,
                         'plan_name' => $sub->feePlan?->name ?? '-',
                         'remaining' => $sub->formatted_remaining_amount,
+                        'remaining_amount' => (float) $sub->remaining_amount,
                     ]);
 
                 return response()->json($subscriptions);

@@ -7,6 +7,7 @@ use App\Actions\Admin\StudentSubscriptions\DeleteStudentSubscriptionAction;
 use App\Actions\Admin\StudentSubscriptions\UpdateStudentSubscriptionAction;
 use App\Http\Requests\Admin\StudentSubscriptions\StoreStudentSubscriptionRequest;
 use App\Http\Requests\Admin\StudentSubscriptions\UpdateStudentSubscriptionRequest;
+use App\Models\FeePlan;
 use App\Models\StudentSubscription;
 use App\Services\Admin\StudentSubscriptionManagementService;
 use Illuminate\Http\JsonResponse;
@@ -141,6 +142,22 @@ class StudentSubscriptionController extends AdminController
         return redirect()
             ->route('admin.student-subscriptions.index')
             ->with('success', 'تم حذف الاشتراك بنجاح.');
+    }
+
+    public function feePlanAmount(Request $request): JsonResponse
+    {
+        $feePlanId = (int) $request->input('fee_plan_id');
+        $feePlan = FeePlan::query()->find($feePlanId);
+
+        if (! $feePlan) {
+            return response()->json(['message' => 'خطة الرسوم غير موجودة.'], 404);
+        }
+
+        return response()->json([
+            'id' => $feePlan->id,
+            'amount' => (float) $feePlan->amount,
+            'formatted_amount' => $feePlan->formatted_amount,
+        ]);
     }
 }
 

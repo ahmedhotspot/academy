@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Admin\StudentSubscriptions;
 
 use App\Http\Requests\Admin\AdminRequest;
+use App\Models\FeePlan;
 use App\Models\StudentSubscription;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreStudentSubscriptionRequest extends AdminRequest
 {
@@ -30,6 +32,23 @@ class StoreStudentSubscriptionRequest extends AdminRequest
             'paid_amount'      => 'المبلغ المدفوع',
             'status'           => 'الحالة',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $feePlanId = (int) $this->input('fee_plan_id');
+            $amount = (float) $this->input('amount');
+
+            $feePlan = FeePlan::query()->find($feePlanId);
+            if (! $feePlan) {
+                return;
+            }
+
+            if (abs((float) $feePlan->amount - $amount) > 0.0001) {
+                $validator->errors()->add('amount', 'المبلغ الأساسي يجب أن يطابق مبلغ خطة الرسوم المختارة.');
+            }
+        });
     }
 }
 

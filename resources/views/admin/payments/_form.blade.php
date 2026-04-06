@@ -57,21 +57,26 @@
         <label class="form-label fw-semibold">
             المبلغ (ج) <span class="text-danger">*</span>
         </label>
-        <input type="number" name="amount" class="form-control"
+        <input type="number" id="amount" name="amount" class="form-control"
                step="0.01" min="0.01" max="999999.99"
                placeholder="0.00"
                value="{{ old('amount', $payment->amount ?? '') }}">
     </div>
 
-    {{-- المتبقي (قراءة فقط) --}}
-    @if(isset($payment) && $payment->subscription)
-        <div class="col-md-4">
-            <label class="form-label fw-semibold">المتبقي</label>
-            <input type="text" class="form-control bg-light" readonly
-                   value="{{ $payment->subscription->formatted_remaining_amount }}">
-        </div>
-    @endif
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">المتبقي</label>
+        <input type="text" id="remaining_amount_preview" class="form-control bg-light" readonly
+               value="{{ isset($payment) && $payment->subscription ? $payment->subscription->formatted_remaining_amount : '-' }}">
+    </div>
 
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div id="payment-lock-alert" class="alert alert-warning d-none mb-0">
+            لا يمكن حفظ دفعة جديدة لأن هذا الاشتراك لا يحتوي على مبلغ متبق.
+        </div>
+    </div>
 </div>
 
 <div class="row g-3">
@@ -85,13 +90,33 @@
 {{-- Ajax: تحميل الاشتراكات عند اختيار الطالب --}}
 <script>
     (function () {
+        const form = document.querySelector('#student_id')?.closest('form');
         const studentSelect = document.getElementById('student_id');
         const subscriptionSelect = document.getElementById('student_subscription_id');
         const apiUrl = "{{ route('admin.student-subscriptions') }}";
+        const balanceApiUrl = "{{ route('admin.subscription-balance') }}";
+        const amountInput = document.getElementById('amount');
+        const remainingInput = document.getElementById('remaining_amount_preview');
+        const lockAlert = document.getElementById('payment-lock-alert');
+        const submitButton = form ? form.querySelector('button[type="submit"]') : null;
+
+        function setPaymentLocked(locked) {
+            if (submitButton) {
+                submitButton.disabled = locked;
+            }
+
+            if (lockAlert) {
+                lockAlert.classList.toggle('d-none', !locked);
+            }
+        }
 
         function loadSubscriptions(studentId) {
             if (!studentId) {
                 subscriptionSelect.innerHTML = '<option value="">— اختر الاشتراك —</option>';
+                if (remainingInput) {
+                    remainingInput.value = '-';
+                }
+                setPaymentLocked(false);
                 return;
             }
 
@@ -120,24 +145,81 @@
                         const opt = document.createElement('option');
                         opt.value = sub.id;
                         opt.textContent = sub.plan_name + ' (متبقي: ' + sub.remaining + ')';
+                        opt.dataset.remainingAmount = sub.remaining_amount ?? 0;
                         subscriptionSelect.appendChild(opt);
                     });
                 } else {
                     subscriptionSelect.innerHTML = '<option value="">لا توجد اشتراكات متاحة</option>';
+                    setPaymentLocked(true);
                 }
             })
             .catch(error => {
                 console.error('خطأ:', error);
                 subscriptionSelect.innerHTML = '<option value="">تعذّر تحميل الاشتراكات</option>';
+                setPaymentLocked(true);
             });
+        }
+
+        function loadSubscriptionBalance() {
+            const subscriptionId = subscriptionSelect.value;
+            const studentId = studentSelect.value;
+
+            if (!subscriptionId || !studentId) {
+                if (remainingInput) {
+                    remainingInput.value = '-';
+                }
+                setPaymentLocked(false);
+                return;
+            }
+
+            fetch(balanceApiUrl + '?student_id=' + encodeURIComponent(studentId) + '&student_subscription_id=' + encodeURIComponent(subscriptionId), {
+                headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'},
+                credentials: 'same-origin'
+            })
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error('Failed to fetch subscription balance');
+                    }
+
+                    return r.json();
+                })
+                .then(data => {
+                    const remaining = Number(data.remaining_amount || 0);
+                    if (remainingInput) {
+                        remainingInput.value = data.formatted_remaining_amount || remaining.toFixed(2);
+                    }
+
+                    if (amountInput && !amountInput.value) {
+                        amountInput.value = remaining > 0 ? remaining.toFixed(2) : '';
+                    }
+
+                    setPaymentLocked(remaining <= 0);
+                })
+                .catch(() => {
+                    if (remainingInput) {
+                        remainingInput.value = '-';
+                    }
+                    setPaymentLocked(true);
+                });
         }
 
         studentSelect.addEventListener('change', function () {
             loadSubscriptions(this.value);
         });
 
+        subscriptionSelect.addEventListener('change', function () {
+            if (amountInput) {
+                amountInput.value = '';
+            }
+            loadSubscriptionBalance();
+        });
+
         if (studentSelect.value) {
             loadSubscriptions(studentSelect.value);
+        }
+
+        if (subscriptionSelect.value) {
+            loadSubscriptionBalance();
         }
     })();
 </script>
