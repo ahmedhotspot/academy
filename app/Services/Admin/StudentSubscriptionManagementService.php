@@ -162,6 +162,7 @@ class StudentSubscriptionManagementService extends BaseService
                 'payment_progress'    => $subscription->payment_progress,
                 'is_overdue'          => $subscription->is_overdue,
                 'is_expired'          => $subscription->is_expired,
+                'is_approaching'      => $subscription->days_until_due !== null && $subscription->days_until_due >= 0 && $subscription->days_until_due <= 2 && $subscription->remaining_amount > 0,
                 'start_date'          => $subscription->start_date?->format('Y-m-d'),
                 'due_date'            => $subscription->due_date?->format('Y-m-d'),
                 'remaining_due_date'  => $subscription->remaining_due_date?->format('Y-m-d'),
@@ -254,7 +255,22 @@ class StudentSubscriptionManagementService extends BaseService
             ->distinct('student_id')
             ->count('student_id');
 
-        return compact('total', 'active', 'overdue', 'complete', 'suspended', 'overdueStudents');
+        // عدد الاشتراكات القريبة الانتهاء (خلال يومين)
+        $approachingExpiry = (clone $query)->approachingExpiry()->count();
+
+        // عدد الاشتراكات المنتهية (تاريخ الاستحقاق في الماضي)
+        $expiredSubscriptions = (clone $query)->hasExpiredDueDate()->count();
+
+        return compact(
+            'total',
+            'active',
+            'overdue',
+            'complete',
+            'suspended',
+            'overdueStudents',
+            'approachingExpiry',
+            'expiredSubscriptions'
+        );
     }
 
 }

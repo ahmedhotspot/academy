@@ -91,6 +91,36 @@ class StudentSubscription extends Model
             });
     }
 
+    /**
+     * Subscriptions approaching expiry (within 2 days).
+     * Due date is not passed yet but very close.
+     */
+    public function scopeApproachingExpiry(Builder $query): Builder
+    {
+        $today = now()->startOfDay();
+        $inTwoDays = $today->copy()->addDays(2)->endOfDay();
+
+        return $query
+            ->where('remaining_amount', '>', 0)
+            ->where('status', '!=', 'موقوف')
+            ->whereNotNull('due_date')
+            ->whereBetween('due_date', [$today, $inTwoDays]);
+    }
+
+    /**
+     * Subscriptions with expired due dates.
+     */
+    public function scopeHasExpiredDueDate(Builder $query): Builder
+    {
+        $today = now()->startOfDay();
+
+        return $query
+            ->where('remaining_amount', '>', 0)
+            ->where('status', '!=', 'موقوف')
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', $today);
+    }
+
     // =====================================================
     // حساب تاريخ الاستحقاق بناءً على دورة الدفع
     // =====================================================

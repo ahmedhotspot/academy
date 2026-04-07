@@ -14,3 +14,7 @@ Schedule::command('subscriptions:send-reminders')->dailyAt('08:00');
 // مزامنة حالات الاشتراكات (تصحيح "نشط" → "متأخر") كل يوم منتصف الليل
 Schedule::command('subscriptions:sync-statuses')->dailyAt('00:00');
 
+// إرسال إشعارات الاشتراكات القريبة والمنتهية (كل يوم الساعة 9 صباحاً و 3 مساءً)
+Schedule::command('subscriptions:notify-expiry --all')->dailyAt('09:00');
+Schedule::command('subscriptions:notify-expiry --all')->dailyAt('15:00');
+

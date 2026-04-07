@@ -75,6 +75,49 @@
                     </div>
                 </div>
 
+                {{-- تنبيهات الاشتراكات القريبة والمنتهية --}}
+                @if($reportSummary['approachingExpiry'] > 0 || $reportSummary['expiredSubscriptions'] > 0)
+                    <div class="row g-3 mb-4">
+                        @if($reportSummary['approachingExpiry'] > 0)
+                            <div class="col-md-6">
+                                <div class="card border-0 border-start border-4 border-warning bg-warning bg-opacity-10 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="text-muted small mb-1"><i class="ti ti-clock-exclamation me-1"></i> قريبة الانتهاء</p>
+                                                <h5 class="fw-bold text-warning mb-0">{{ $reportSummary['approachingExpiry'] }} اشتراك</h5>
+                                                <small class="text-muted">خلال يومين</small>
+                                            </div>
+                                            <div class="text-warning opacity-50">
+                                                <i class="ti ti-alert-triangle" style="font-size: 40px;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($reportSummary['expiredSubscriptions'] > 0)
+                            <div class="col-md-6">
+                                <div class="card border-0 border-start border-4 border-danger bg-danger bg-opacity-10 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="text-muted small mb-1"><i class="ti ti-alert-octagon me-1"></i> منتهية</p>
+                                                <h5 class="fw-bold text-danger mb-0">{{ $reportSummary['expiredSubscriptions'] }} اشتراك</h5>
+                                                <small class="text-muted">تاريخ الاستحقاق مضى</small>
+                                            </div>
+                                            <div class="text-danger opacity-50">
+                                                <i class="ti ti-alert-octagon" style="font-size: 40px;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 {{-- قائمة الطلاب المتأخرين (DataTable Ajax) --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-warning bg-opacity-10 border-bottom d-flex align-items-center justify-content-between">
@@ -228,7 +271,8 @@
                             if (!val) return '-';
                             let cls = row.is_expired ? 'text-danger fw-semibold' : 'text-dark';
                             let expired = row.is_expired ? ' <span class="badge bg-danger">منتهي</span>' : '';
-                            return '<span class="' + cls + ' small">' + val + '</span>' + expired;
+                            let approaching = row.is_approaching ? ' <span class="badge bg-warning text-dark">قريب!</span>' : '';
+                            return '<span class="' + cls + ' small">' + val + '</span>' + expired + approaching;
                         }
                     },
                     {

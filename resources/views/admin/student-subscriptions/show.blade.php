@@ -14,6 +14,33 @@
 
                 @include('admin.partials.alerts')
 
+                {{-- تنبيهات خاصة للاشتراكات القريبة والمنتهية --}}
+                @if($subscription->is_expired)
+                    <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-alert-octagon me-2 fs-5"></i>
+                            <div>
+                                <strong>⚠️ اشتراك منتهي!</strong>
+                                <p class="mb-0 small mt-1">تاريخ الاستحقاق: <span class="fw-bold">{{ optional($subscription->due_date)->format('Y-m-d') }}</span>
+                                    @php $daysOverdue = now()->startOfDay()->diffInDays($subscription->due_date->startOfDay()); @endphp
+                                    <br>المتبقي: <span class="fw-bold text-danger">{{ $daysOverdue }} يوم{{ $daysOverdue > 1 ? 's' : '' }} مضت</span></p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                    </div>
+                @elseif($subscription->days_until_due !== null && $subscription->days_until_due >= 0 && $subscription->days_until_due <= 2 && $subscription->remaining_amount > 0)
+                    <div class="alert alert-warning alert-dismissible fade show border-0 rounded-3 shadow-sm" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-clock-exclamation me-2 fs-5"></i>
+                            <div>
+                                <strong>⏰ اشتراك قريب الانتهاء!</strong>
+                                <p class="mb-0 small mt-1">سينتهي في: <span class="fw-bold">{{ $subscription->days_until_due }} يوم{{ $subscription->days_until_due != 1 ? 's' : '' }}</span></p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                    </div>
+                @endif
+
                 {{-- بطاقة الطالب والخطة --}}
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body">
