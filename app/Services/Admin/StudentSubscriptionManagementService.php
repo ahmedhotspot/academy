@@ -181,6 +181,7 @@ class StudentSubscriptionManagementService extends BaseService
 
     /**
      * بيانات DataTable Ajax للطلاب المتأخرين فقط
+     * بناءً على تاريخ الاستحقاق (بدون الاشتراط على المبلغ المتبقي)
      */
     public function overdueDatatable(Request $request): array
     {
@@ -189,9 +190,12 @@ class StudentSubscriptionManagementService extends BaseService
         $length = max((int) $request->input('length', 10), 1);
         $search = trim((string) data_get($request->input('search'), 'value', ''));
 
+        // الاشتراكات التي انتهى تاريخ استحقاقها (بدون الاشتراط على المبلغ)
         $baseQuery = StudentSubscription::query()
             ->with(['student', 'feePlan'])
-            ->financiallyOverdue();
+            ->where('status', '!=', 'موقوف')
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', now()->startOfDay());
 
         $recordsTotal = (clone $baseQuery)->count();
 
@@ -206,8 +210,8 @@ class StudentSubscriptionManagementService extends BaseService
         $recordsFiltered = (clone $baseQuery)->count();
 
         $rows = $baseQuery
+            ->orderByDesc('due_date')
             ->orderByDesc('remaining_amount')
-            ->orderByDesc('id')
             ->skip($start)
             ->take($length)
             ->get();
@@ -219,8 +223,9 @@ class StudentSubscriptionManagementService extends BaseService
                 'student_phone' => $subscription->student?->phone ?? '-',
                 'fee_plan_name' => $subscription->feePlan?->name ?? '-',
                 'formatted_remaining' => $subscription->formatted_remaining_amount,
-                'status' => $subscription->is_overdue ? 'متأخر' : $subscription->status,
-                'status_badge' => $subscription->is_overdue ? 'bg-warning text-dark' : $subscription->status_badge_class,
+                'due_date' => $subscription->due_date?->format('Y-m-d') ?? '-',
+                'status' => 'متأخر',
+                'status_badge' => 'bg-danger',
             ];
         })->values()->all();
 
@@ -249,9 +254,11 @@ class StudentSubscriptionManagementService extends BaseService
         $complete    = (clone $query)->where('status', 'مكتمل')->count();
         $suspended   = (clone $query)->where('status', 'موقوف')->count();
 
-        // عدد الطلاب (المميزين) الذين لديهم اشتراك متأخر مالياً
+        // عدد الطلاب المتأخرين بناءً على تاريخ الاستحقاق فقط (بدون الاشتراط على المبلغ)
         $overdueStudents = (clone $query)
-            ->financiallyOverdue()
+            ->where('status', '!=', 'موقوف')
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', now()->startOfDay())
             ->distinct('student_id')
             ->count('student_id');
 

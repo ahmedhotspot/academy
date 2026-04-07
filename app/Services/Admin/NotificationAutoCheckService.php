@@ -16,6 +16,7 @@ class NotificationAutoCheckService
 {
     /**
      * فحص الاشتراكات التي تقترب مواعيدها وإنشاء الإشعارات المطلوبة
+     * بناءً على تاريخ الاستحقاق بدون الاشتراط على المبلغ المتبقي
      */
     public function checkAndCreateDueReminders(): void
     {
@@ -30,14 +31,13 @@ class NotificationAutoCheckService
             $today   = Carbon::today();
             $twoDays = $today->copy()->addDays(2);
 
-            // الاشتراكات التي تاريخ استحقاقها متأخر أو خلال يومين + لا تزال لها باقي
+            // الاشتراكات التي تاريخ استحقاقها متأخر أو خلال يومين (بدون اشتراط المبلغ المتبقي)
             // نستخدم withoutGlobalScopes لأننا نريد كل الفروع هنا
             $subscriptions = StudentSubscription::query()
                 ->withoutGlobalScopes()
                 ->with(['student'])
                 ->whereNotNull('due_date')
                 ->whereDate('due_date', '<=', $twoDays)
-                ->where('remaining_amount', '>', 0)
                 ->where('status', '!=', 'موقوف')
                 ->get();
 
@@ -46,7 +46,7 @@ class NotificationAutoCheckService
                 $studentName = $subscription->student?->full_name ?? 'طالب';
                 $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
                 $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
-                $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lte($today));
+                $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lt($today));
 
                 // المستخدمون الذين يجب إرسال الإشعار إليهم
                 $users = User::query()
@@ -82,8 +82,8 @@ class NotificationAutoCheckService
                         'type'      => 'financial',
                         'title'     => $isOverdue ? "متأخرات مالية: {$studentName}" : "تنبيه سداد: {$studentName}",
                         'message'   => $isOverdue
-                            ? "الطالب {$studentName} لديه مبلغ متبقي {$remaining} وكان تاريخ الاستحقاق {$dueDate}."
-                            : "الطالب {$studentName} لديه مبلغ متبقي {$remaining} يستحق السداد بتاريخ {$dueDate}.",
+                            ? "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (متأخر)"
+                            : "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (قريب)",
                         'data'      => [
                             'subscription_id' => $subscription->id,
                             'student_id'      => $subscription->student_id,
@@ -106,17 +106,19 @@ class NotificationAutoCheckService
     }
 
     /**
-     * إنشاء إشعار فوري لاشتراك واحد بعد التعديل (بدون انتظار cache الساعة).
+     * إنشاء إشعار فوري لاشتراك واحد بعد التعديل (بدون انتظار cache الساعة)
+     * بناءً على تاريخ الاستحقاق بدون الاشتراط على المبلغ المتبقي
      */
     public function checkAndCreateDueReminderForSubscription(StudentSubscription $subscription): void
     {
         try {
             $today = Carbon::today();
 
-            if (! $subscription->due_date || $subscription->remaining_amount <= 0 || $subscription->status === 'موقوف') {
+            if (! $subscription->due_date || $subscription->status === 'موقوف') {
                 return;
             }
 
+            // بناءً على التاريخ فقط (بدون الاشتراط على المبلغ)
             if ($subscription->due_date->startOfDay()->gt($today->copy()->addDays(2))) {
                 return;
             }
@@ -127,7 +129,7 @@ class NotificationAutoCheckService
             $studentName = $subscription->student?->full_name ?? 'طالب';
             $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
             $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
-            $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lte($today));
+            $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lt($today));
 
             $users = User::query()
                 ->withoutGlobalScopes()
@@ -160,8 +162,8 @@ class NotificationAutoCheckService
                     'type'      => 'financial',
                     'title'     => $isOverdue ? "متأخرات مالية: {$studentName}" : "تنبيه سداد: {$studentName}",
                     'message'   => $isOverdue
-                        ? "الطالب {$studentName} لديه مبلغ متبقي {$remaining} وكان تاريخ الاستحقاق {$dueDate}."
-                        : "الطالب {$studentName} لديه مبلغ متبقي {$remaining} يستحق السداد بتاريخ {$dueDate}.",
+                        ? "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (متأخر)"
+                        : "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (قريب)",
                     'data'      => [
                         'subscription_id' => $subscription->id,
                         'student_id'      => $subscription->student_id,

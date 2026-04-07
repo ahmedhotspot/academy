@@ -123,7 +123,7 @@
                     <div class="card-header bg-warning bg-opacity-10 border-bottom d-flex align-items-center justify-content-between">
                         <h6 class="mb-0 fw-semibold text-warning-emphasis">
                             <i class="ti ti-alert-triangle me-1"></i>
-                            ⚠️ تنبيه: طلاب متأخرون
+                            ⚠️ تنبيه: طلاب متأخرون (بناءً على تاريخ الاستحقاق)
                         </h6>
                         <span class="badge bg-warning text-dark rounded-pill">{{ $reportSummary['overdueStudents'] }} طالب</span>
                     </div>
@@ -136,6 +136,7 @@
                                     <th>الطالب</th>
                                     <th>رقم الهاتف</th>
                                     <th>الخطة</th>
+                                    <th>تاريخ الاستحقاق</th>
                                     <th>المبلغ المتبقي</th>
                                     <th>الحالة</th>
                                     <th>العمليات</th>
@@ -367,6 +368,15 @@
                         }
                     },
                     {data: 'fee_plan_name'},
+                    {
+                        data: 'due_date',
+                        render: function (val, t, row) {
+                            if (!val) return '-';
+                            let days = Math.floor((new Date(val) - new Date()) / (1000 * 60 * 60 * 24));
+                            let icon = days < 0 ? '<i class="ti ti-alert-octagon text-danger me-1"></i>' : '<i class="ti ti-clock-exclamation text-warning me-1"></i>';
+                            return icon + '<span class="text-dark small">' + val + '</span>';
+                        }
+                    },
                     {
                         data: 'formatted_remaining',
                         render: function (val) {
