@@ -6,6 +6,7 @@ use App\Actions\BaseAction;
 use App\Models\FeePlan;
 use App\Models\Payment;
 use App\Models\StudentSubscription;
+use App\Services\Admin\NotificationAutoCheckService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
@@ -81,6 +82,10 @@ class UpdateStudentSubscriptionAction extends BaseAction
 
         // إعادة فحص الإشعارات فوراً بعد التعديل بدلاً من انتظار cache الساعة
         Cache::forget('subscription_reminders_checked_' . now()->format('Y-m-d-H'));
+
+        // إنشاء إشعار فوري للاشتراك المعدّل إذا أصبح مستحقاً/متأخراً
+        app(NotificationAutoCheckService::class)
+            ->checkAndCreateDueReminderForSubscription($subscription->fresh(['student']));
 
         return $subscription->fresh();
     }

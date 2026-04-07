@@ -106,6 +106,79 @@ class NotificationAutoCheckService
     }
 
     /**
+     * إنشاء إشعار فوري لاشتراك واحد بعد التعديل (بدون انتظار cache الساعة).
+     */
+    public function checkAndCreateDueReminderForSubscription(StudentSubscription $subscription): void
+    {
+        try {
+            $today = Carbon::today();
+
+            if (! $subscription->due_date || $subscription->remaining_amount <= 0 || $subscription->status === 'موقوف') {
+                return;
+            }
+
+            if ($subscription->due_date->startOfDay()->gt($today->copy()->addDays(2))) {
+                return;
+            }
+
+            $subscription->loadMissing('student');
+
+            $branchId    = $subscription->branch_id;
+            $studentName = $subscription->student?->full_name ?? 'طالب';
+            $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
+            $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
+            $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lte($today));
+
+            $users = User::query()
+                ->withoutGlobalScopes()
+                ->whereNull('deleted_at')
+                ->when($branchId, function ($q) use ($branchId) {
+                    $q->where(function ($inner) use ($branchId) {
+                        $inner->where('branch_id', $branchId)
+                            ->orWhereNull('branch_id');
+                    });
+                }, function ($q) {
+                    $q->whereNull('branch_id');
+                })
+                ->get();
+
+            foreach ($users as $user) {
+                $alreadySent = Notification::query()
+                    ->where('user_id', $user->id)
+                    ->where('type', 'financial')
+                    ->whereJsonContains('data->subscription_id', $subscription->id)
+                    ->whereDate('created_at', $today)
+                    ->exists();
+
+                if ($alreadySent) {
+                    continue;
+                }
+
+                Notification::query()->create([
+                    'user_id'   => $user->id,
+                    'branch_id' => $branchId,
+                    'type'      => 'financial',
+                    'title'     => $isOverdue ? "متأخرات مالية: {$studentName}" : "تنبيه سداد: {$studentName}",
+                    'message'   => $isOverdue
+                        ? "الطالب {$studentName} لديه مبلغ متبقي {$remaining} وكان تاريخ الاستحقاق {$dueDate}."
+                        : "الطالب {$studentName} لديه مبلغ متبقي {$remaining} يستحق السداد بتاريخ {$dueDate}.",
+                    'data'      => [
+                        'subscription_id' => $subscription->id,
+                        'student_id'      => $subscription->student_id,
+                        'student_name'    => $studentName,
+                        'remaining'       => $remaining,
+                        'due_date'        => $dueDate,
+                        'is_overdue'      => $isOverdue,
+                    ],
+                    'is_read' => false,
+                ]);
+            }
+        } catch (\Throwable) {
+            // لا تكسر الطلب إذا فشل إنشاء الإشعار
+        }
+    }
+
+    /**
      * عدد الإشعارات غير المقروءة للمستخدم الحالي
      */
     public function getUnreadCount(User $user): int
