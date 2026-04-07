@@ -14,7 +14,7 @@
         <label class="form-label fw-semibold">
             الطالب <span class="text-danger">*</span>
         </label>
-        <select name="student_id" class="form-select">
+        <select name="student_id" class="form-select js-student-select2" data-placeholder="ابحث واختر الطالب">
             <option value="">— اختر الطالب —</option>
             @foreach($studentOptions as $sId => $sName)
                 <option value="{{ $sId }}"
@@ -216,9 +216,9 @@
             fetch(feePlanAmountApi + '?fee_plan_id=' + encodeURIComponent(feePlanId), {
                 headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'},
                 credentials: 'same-origin'
-            })
-            .then(r => r.ok ? r.json() : Promise.reject())
-            .then(data => {
+            }).then(function (r) {
+                return r.ok ? r.json() : Promise.reject();
+            }).then(function (data) {
                 amountInput.value = Number(data.amount || 0).toFixed(2);
                 updateRemaining();
 
@@ -232,8 +232,9 @@
                 } else {
                     cycleBadge.style.display = 'none';
                 }
-            })
-            .catch(() => { cycleBadge.style.display = 'none'; });
+            }).catch(function () {
+                cycleBadge.style.display = 'none';
+            });
         }
 
         feePlanSelect.addEventListener('change', function () {
