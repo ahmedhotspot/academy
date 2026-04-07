@@ -195,7 +195,7 @@ class StudentSubscriptionManagementService extends BaseService
             ->with(['student', 'feePlan'])
             ->where('status', '!=', 'موقوف')
             ->whereNotNull('due_date')
-            ->whereDate('due_date', '<', now()->startOfDay());
+            ->whereDate('due_date', '<=', now()->startOfDay());
 
         $recordsTotal = (clone $baseQuery)->count();
 
@@ -258,7 +258,7 @@ class StudentSubscriptionManagementService extends BaseService
         $overdueStudents = (clone $query)
             ->where('status', '!=', 'موقوف')
             ->whereNotNull('due_date')
-            ->whereDate('due_date', '<', now()->startOfDay())
+            ->whereDate('due_date', '<=', now()->startOfDay())
             ->distinct('student_id')
             ->count('student_id');
 
