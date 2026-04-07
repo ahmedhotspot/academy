@@ -4,6 +4,7 @@ namespace App\Actions\Admin\Payments;
 
 use App\Actions\BaseAction;
 use App\Models\Payment;
+use App\Models\StudentSubscription;
 
 class UpdatePaymentAction extends BaseAction
 {
@@ -31,7 +32,10 @@ class UpdatePaymentAction extends BaseAction
         $subscription->update([
             'paid_amount'      => $newPaidAmount,
             'remaining_amount' => $newRemainingAmount,
-            'status'           => $newRemainingAmount > 0 ? 'نشط' : 'مكتمل',
+            'status'           => StudentSubscription::resolveFinancialStatus(
+                (float) $newRemainingAmount,
+                $subscription->remaining_due_date
+            ),
         ]);
 
         return $payment->fresh();

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\BranchScoped;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -47,6 +48,46 @@ class StudentSubscription extends Model
     // =====================================================
 
     public const STATUSES = ['نشط', 'متأخر', 'مكتمل', 'موقوف'];
+
+    /**
+     * Resolve financial status from remaining amount and due date.
+     */
+    public static function resolveFinancialStatus(float $remainingAmount, Carbon|string|null $remainingDueDate = null): string
+    {
+        if ($remainingAmount <= 0) {
+            return 'مكتمل';
+        }
+
+        if ($remainingDueDate) {
+            $due = $remainingDueDate instanceof Carbon
+                ? $remainingDueDate->copy()->startOfDay()
+                : Carbon::parse($remainingDueDate)->startOfDay();
+
+            if ($due->isPast()) {
+                return 'متأخر';
+            }
+        }
+
+        return 'نشط';
+    }
+
+    /**
+     * Subscriptions that are financially overdue.
+     */
+    public function scopeFinanciallyOverdue(Builder $query): Builder
+    {
+        $today = now()->startOfDay()->toDateString();
+
+        return $query
+            ->where('remaining_amount', '>', 0)
+            ->where(function (Builder $q) use ($today) {
+                $q->where('status', 'متأخر')
+                    ->orWhere(function (Builder $dateQuery) use ($today) {
+                        $dateQuery->whereNotNull('remaining_due_date')
+                            ->whereDate('remaining_due_date', '<', $today);
+                    });
+            });
+    }
 
     // =====================================================
     // حساب تاريخ الاستحقاق بناءً على دورة الدفع
@@ -129,7 +170,15 @@ class StudentSubscription extends Model
 
     public function getIsOverdueAttribute(): bool
     {
-        return $this->status === 'متأخر' && $this->remaining_amount > 0;
+        if ($this->remaining_amount <= 0) {
+            return false;
+        }
+
+        if ($this->status === 'متأخر') {
+            return true;
+        }
+
+        return (bool) ($this->remaining_due_date?->isPast());
     }
 
     public function getIsCompleteAttribute(): bool

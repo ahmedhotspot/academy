@@ -52,7 +52,10 @@ class CreatePaymentAction extends BaseAction
         $subscription->update([
             'paid_amount'      => $newPaidAmount,
             'remaining_amount' => $newRemainingAmount,
-            'status'           => $newRemainingAmount > 0 ? 'نشط' : 'مكتمل',
+            'status'           => StudentSubscription::resolveFinancialStatus(
+                (float) $newRemainingAmount,
+                $subscription->remaining_due_date
+            ),
         ]);
 
         return $payment->fresh();

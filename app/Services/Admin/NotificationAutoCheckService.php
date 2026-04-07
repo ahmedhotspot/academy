@@ -19,8 +19,8 @@ class NotificationAutoCheckService
      */
     public function checkAndCreateDueReminders(): void
     {
-        // نستخدم Cache لتجنب تكرار الفحص في نفس اليوم (مفتاح لكل يوم)
-        $cacheKey = 'subscription_reminders_checked_' . now()->format('Y-m-d');
+        // نستخدم Cache لتجنب التكرار الكثيف (مفتاح لكل ساعة)
+        $cacheKey = 'subscription_reminders_checked_' . now()->format('Y-m-d-H');
 
         if (Cache::has($cacheKey)) {
             return;
@@ -30,13 +30,13 @@ class NotificationAutoCheckService
             $today   = Carbon::today();
             $twoDays = $today->copy()->addDays(2);
 
-            // الاشتراكات التي تاريخ سداد الباقي خلال يومين + لا تزال لها باقي
+            // الاشتراكات التي تاريخ سداد الباقي متأخر أو خلال يومين + لا تزال لها باقي
             // نستخدم withoutGlobalScopes لأننا نريد كل الفروع هنا
             $subscriptions = StudentSubscription::query()
                 ->withoutGlobalScopes()
                 ->with(['student'])
+                ->whereNotNull('remaining_due_date')
                 ->whereDate('remaining_due_date', '<=', $twoDays)
-                ->whereDate('remaining_due_date', '>=', $today)
                 ->where('remaining_amount', '>', 0)
                 ->get();
 
@@ -45,6 +45,7 @@ class NotificationAutoCheckService
                 $studentName = $subscription->student?->full_name ?? 'طالب';
                 $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
                 $dueDate     = $subscription->remaining_due_date?->format('Y-m-d') ?? '-';
+                $isOverdue   = $subscription->remaining_due_date?->isPast() ?? false;
 
                 // المستخدمون الذين يجب إرسال الإشعار إليهم
                 $users = User::query()
@@ -78,22 +79,25 @@ class NotificationAutoCheckService
                         'user_id'   => $user->id,
                         'branch_id' => $branchId,
                         'type'      => 'financial',
-                        'title'     => "تنبيه سداد: {$studentName}",
-                        'message'   => "الطالب {$studentName} لديه مبلغ متبقي {$remaining} يستحق السداد بتاريخ {$dueDate}.",
+                        'title'     => $isOverdue ? "متأخرات مالية: {$studentName}" : "تنبيه سداد: {$studentName}",
+                        'message'   => $isOverdue
+                            ? "الطالب {$studentName} لديه مبلغ متبقي {$remaining} وكان تاريخ الاستحقاق {$dueDate}."
+                            : "الطالب {$studentName} لديه مبلغ متبقي {$remaining} يستحق السداد بتاريخ {$dueDate}.",
                         'data'      => [
                             'subscription_id' => $subscription->id,
                             'student_id'      => $subscription->student_id,
                             'student_name'    => $studentName,
                             'remaining'       => $remaining,
                             'due_date'        => $dueDate,
+                            'is_overdue'      => $isOverdue,
                         ],
                         'is_read' => false,
                     ]);
                 }
             }
 
-            // احفظ في Cache حتى نهاية اليوم لتجنب إعادة الفحص
-            Cache::put($cacheKey, true, now()->endOfDay());
+            // احفظ في Cache حتى نهاية الساعة لتقليل الحمل وتحديث التنبيهات بشكل أسرع
+            Cache::put($cacheKey, true, now()->endOfHour());
 
         } catch (\Throwable) {
             // لا تكسر الصفحة إذا حدث خطأ في الفحص

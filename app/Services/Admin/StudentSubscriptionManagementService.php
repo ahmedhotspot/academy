@@ -130,8 +130,7 @@ class StudentSubscriptionManagementService extends BaseService
 
         $baseQuery = StudentSubscription::query()
             ->with(['student', 'feePlan'])
-            ->where('status', 'متأخر')
-            ->where('remaining_amount', '>', 0);
+            ->financiallyOverdue();
 
         $recordsTotal = (clone $baseQuery)->count();
 
@@ -185,12 +184,15 @@ class StudentSubscriptionManagementService extends BaseService
 
         $total       = (clone $query)->count();
         $active      = (clone $query)->where('status', 'نشط')->count();
-        $overdue     = (clone $query)->where('status', 'متأخر')->count();
+        $overdue     = (clone $query)->financiallyOverdue()->count();
         $complete    = (clone $query)->where('status', 'مكتمل')->count();
         $suspended   = (clone $query)->where('status', 'موقوف')->count();
 
-        // الطلاب المتأخرين (remaining_amount > 0 و status = متأخر)
-        $overdueStudents = (clone $query)->where('status', 'متأخر')->where('remaining_amount', '>', 0)->count();
+        // عدد الطلاب (المميزين) الذين لديهم اشتراك متأخر مالياً
+        $overdueStudents = (clone $query)
+            ->financiallyOverdue()
+            ->distinct('student_id')
+            ->count('student_id');
 
         return compact('total', 'active', 'overdue', 'complete', 'suspended', 'overdueStudents');
     }

@@ -67,8 +67,7 @@ class DashboardStatsService
         $totalRemaining = StudentSubscription::query()->sum('remaining_amount');
 
         $overdueStudentsCount = StudentSubscription::query()
-            ->where('status', 'متأخر')
-            ->where('remaining_amount', '>', 0)
+            ->financiallyOverdue()
             ->distinct('student_id')
             ->count('student_id');
 
@@ -235,8 +234,7 @@ class DashboardStatsService
 
         $overdueSubs = StudentSubscription::query()
             ->with('student:id,full_name')
-            ->where('status', 'متأخر')
-            ->where('remaining_amount', '>', 0)
+            ->financiallyOverdue()
             ->orderByDesc('remaining_amount')
             ->limit(3)
             ->get();
