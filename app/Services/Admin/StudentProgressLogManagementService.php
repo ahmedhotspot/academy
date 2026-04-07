@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Group;
 use App\Models\Student;
 use App\Models\StudentProgressLog;
+use App\Models\User;
 use App\Services\BaseService;
 use Illuminate\Http\Request;
 
@@ -49,6 +50,24 @@ class StudentProgressLogManagementService extends BaseService
             ->sortBy('name')
             ->values()
             ->toArray();
+    }
+
+    /**
+     * قائمة المعلمين للقوائم المنسدلة
+     * يعيد: [id => name]
+     */
+    public function getTeacherOptions(): array
+    {
+        $query = User::query()
+            ->role('المعلم')
+            ->orderBy('name');
+
+        $user = auth()->user();
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        return $query->pluck('name', 'id')->toArray();
     }
 
     /**

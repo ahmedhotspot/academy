@@ -79,6 +79,7 @@ class StudentProgressLogController extends AdminController
                 ['title' => 'تسجيل متابعة جديدة'],
             ],
             'groupOptions'    => $this->service->getGroupOptions(),
+            'teacherOptions'  => $this->service->getTeacherOptions(),
             'evaluationLevels' => StudentProgressLog::EVALUATION_LEVELS,
             'commitmentStatuses' => StudentProgressLog::COMMITMENT_STATUSES,
         ]);
@@ -122,6 +123,7 @@ class StudentProgressLogController extends AdminController
             ],
             'log'                => $studentProgressLog,
             'groupOptions'       => $this->service->getGroupOptions(),
+            'teacherOptions'     => $this->service->getTeacherOptions(),
             'evaluationLevels'   => StudentProgressLog::EVALUATION_LEVELS,
             'commitmentStatuses' => StudentProgressLog::COMMITMENT_STATUSES,
             'currentStudents'    => $this->service->getStudentsByGroup($studentProgressLog->group_id),

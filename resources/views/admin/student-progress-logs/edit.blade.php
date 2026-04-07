@@ -35,6 +35,7 @@
                             @include('admin.student-progress-logs._form', [
                                 'log'                => $log,
                                 'groupOptions'       => $groupOptions,
+                                'teacherOptions'     => $teacherOptions,
                                 'evaluationLevels'   => $evaluationLevels,
                                 'commitmentStatuses' => $commitmentStatuses,
                                 'currentStudents'    => $currentStudents,

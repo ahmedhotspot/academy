@@ -3,6 +3,7 @@
      يُستخدم في create و edit
      المتغيرات المتاحة:
        $groupOptions        — قائمة الحلقات
+       $teacherOptions      — قائمة المعلمين حسب الفرع
        $evaluationLevels    — مستويات التقييم
        $commitmentStatuses  — حالات الالتزام
        $log (اختياري)       — سجل موجود عند التعديل
@@ -40,10 +41,17 @@
         <label class="form-label fw-semibold">
             المعلم <span class="text-danger">*</span>
         </label>
-        <input type="hidden" name="teacher_id"
-               value="{{ old('teacher_id', $log->teacher_id ?? auth()->id()) }}">
-        <input type="text" class="form-control bg-light" readonly
-               value="{{ $log->teacher->name ?? auth()->user()->name }}">
+        <select name="teacher_id" class="form-select @error('teacher_id') is-invalid @enderror">
+            <option value="">— اختر المعلم —</option>
+            @foreach($teacherOptions as $teacherId => $teacherName)
+                <option value="{{ $teacherId }}" @selected((string) old('teacher_id', $log->teacher_id ?? '') === (string) $teacherId)>
+                    {{ $teacherName }}
+                </option>
+            @endforeach
+        </select>
+        @error('teacher_id')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
 
 </div>
@@ -169,7 +177,7 @@
 
 </div>
 
-{{-- ── الملاحظات ── --}}
+{{-- ── الملاحظات ─ـ --}}
 <div class="row g-3">
     <div class="col-12">
         <label class="form-label fw-semibold">ملاحظات إضافية</label>
