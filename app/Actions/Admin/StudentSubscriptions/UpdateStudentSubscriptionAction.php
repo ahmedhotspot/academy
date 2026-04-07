@@ -39,7 +39,10 @@ class UpdateStudentSubscriptionAction extends BaseAction
             'final_amount'       => $finalAmount,
             'paid_amount'        => $paidAmount,
             'remaining_amount'   => $remainingAmount,
-            'status'             => $data['status'] ?? 'نشط',
+            'status'             => $data['status'] ?? StudentSubscription::resolveFinancialStatus(
+                (float) $remainingAmount,
+                $remainingDueDate
+            ),
             'start_date'         => $startDate,
             'due_date'           => $dueDate,
             'remaining_due_date' => $remainingDueDate,

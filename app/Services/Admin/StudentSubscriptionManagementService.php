@@ -158,8 +158,8 @@ class StudentSubscriptionManagementService extends BaseService
                 'student_phone' => $subscription->student?->phone ?? '-',
                 'fee_plan_name' => $subscription->feePlan?->name ?? '-',
                 'formatted_remaining' => $subscription->formatted_remaining_amount,
-                'status' => $subscription->status,
-                'status_badge' => $subscription->status_badge_class,
+                'status' => $subscription->is_overdue ? 'متأخر' : $subscription->status,
+                'status_badge' => $subscription->is_overdue ? 'bg-warning text-dark' : $subscription->status_badge_class,
             ];
         })->values()->all();
 
