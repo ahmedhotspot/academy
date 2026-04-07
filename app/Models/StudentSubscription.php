@@ -63,7 +63,7 @@ class StudentSubscription extends Model
                 ? $dueDate->copy()->startOfDay()
                 : Carbon::parse($dueDate)->startOfDay();
 
-            if ($due->isPast()) {
+            if ($due->lte(now()->startOfDay())) {
                 return 'متأخر';
             }
         }
@@ -86,7 +86,7 @@ class StudentSubscription extends Model
                 $q->where('status', 'متأخر')
                     ->orWhere(function (Builder $dateQuery) use ($today) {
                         $dateQuery->whereNotNull('due_date')
-                            ->whereDate('due_date', '<', $today);
+                            ->whereDate('due_date', '<=', $today);
                     });
             });
     }
@@ -184,7 +184,7 @@ class StudentSubscription extends Model
             return true;
         }
 
-        return (bool) ($this->due_date?->isPast());
+        return (bool) ($this->due_date && $this->due_date->startOfDay()->lte(now()->startOfDay()));
     }
 
     public function getIsCompleteAttribute(): bool

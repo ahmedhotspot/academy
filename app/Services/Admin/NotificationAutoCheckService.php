@@ -46,7 +46,7 @@ class NotificationAutoCheckService
                 $studentName = $subscription->student?->full_name ?? 'طالب';
                 $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
                 $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
-                $isOverdue   = $subscription->due_date?->isPast() ?? false;
+                $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lte($today));
 
                 // المستخدمون الذين يجب إرسال الإشعار إليهم
                 $users = User::query()

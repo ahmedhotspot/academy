@@ -7,6 +7,7 @@ use App\Models\FeePlan;
 use App\Models\Payment;
 use App\Models\StudentSubscription;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 class UpdateStudentSubscriptionAction extends BaseAction
@@ -77,6 +78,9 @@ class UpdateStudentSubscriptionAction extends BaseAction
             'due_date'           => $dueDate,
             'remaining_due_date' => $remainingDueDate,
         ]);
+
+        // إعادة فحص الإشعارات فوراً بعد التعديل بدلاً من انتظار cache الساعة
+        Cache::forget('subscription_reminders_checked_' . now()->format('Y-m-d-H'));
 
         return $subscription->fresh();
     }
