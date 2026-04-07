@@ -211,7 +211,7 @@ class StudentSubscriptionManagementService extends BaseService
 
         $rows = $baseQuery
             ->orderByDesc('due_date')
-           
+            ->orderByDesc('remaining_amount')
             ->skip($start)
             ->take($length)
             ->get();
