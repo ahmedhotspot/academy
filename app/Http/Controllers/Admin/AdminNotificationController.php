@@ -18,11 +18,23 @@ class AdminNotificationController extends AdminController
 
     public function index(): View
     {
-        $unreadCount = auth()->user()->notifications()
+        $user = auth()->user();
+
+        // المشرف العام يرى كل الإشعارات، غيره يرى إشعارات فرعه فقط
+        $notificationsQuery = $user->notifications();
+
+        if (! $user->isSuperAdmin() && $user->branch_id) {
+            $notificationsQuery = \App\Models\Notification::query()
+                ->where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
+        }
+
+        $unreadCount = (clone $notificationsQuery)
             ->where('is_read', false)
             ->count();
 
-        $notifications = auth()->user()->notifications()
+        $notifications = (clone $notificationsQuery)
             ->orderByDesc('created_at')
             ->paginate(20);
 
@@ -82,6 +94,5 @@ class AdminNotificationController extends AdminController
             ->count();
 
         return response()->json(['count' => $count]);
-    }
-}
+    }}
 

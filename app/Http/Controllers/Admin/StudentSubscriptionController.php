@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Admin\StudentSubscriptions\CreateStudentSubscriptionAction;
 use App\Actions\Admin\StudentSubscriptions\DeleteStudentSubscriptionAction;
+use App\Actions\Admin\StudentSubscriptions\RenewStudentSubscriptionAction;
 use App\Actions\Admin\StudentSubscriptions\UpdateStudentSubscriptionAction;
 use App\Http\Requests\Admin\StudentSubscriptions\StoreStudentSubscriptionRequest;
 use App\Http\Requests\Admin\StudentSubscriptions\UpdateStudentSubscriptionRequest;
@@ -144,6 +145,17 @@ class StudentSubscriptionController extends AdminController
             ->with('success', 'تم حذف الاشتراك بنجاح.');
     }
 
+    public function renew(
+        StudentSubscription $studentSubscription,
+        RenewStudentSubscriptionAction $action
+    ): RedirectResponse {
+        $newSubscription = $action->handle(['subscription' => $studentSubscription]);
+
+        return redirect()
+            ->route('admin.student-subscriptions.show', $newSubscription)
+            ->with('success', 'تم تجديد الاشتراك بنجاح. تم إنشاء اشتراك جديد.');
+    }
+
     public function feePlanAmount(Request $request): JsonResponse
     {
         $feePlanId = (int) $request->input('fee_plan_id');
@@ -154,9 +166,10 @@ class StudentSubscriptionController extends AdminController
         }
 
         return response()->json([
-            'id' => $feePlan->id,
-            'amount' => (float) $feePlan->amount,
+            'id'               => $feePlan->id,
+            'amount'           => (float) $feePlan->amount,
             'formatted_amount' => $feePlan->formatted_amount,
+            'payment_cycle'    => $feePlan->payment_cycle,
         ]);
     }
 }

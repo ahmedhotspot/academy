@@ -148,19 +148,20 @@
                             <table id="subscriptions-table"
                                    class="table table-hover align-middle mb-0 w-100">
                                 <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>الطالب</th>
-                                    <th>الخطة</th>
-                                    <th>المبلغ</th>
-                                    <th>الخصم</th>
-                                    <th>النهائي</th>
-                                    <th>المدفوع</th>
-                                    <th>المتبقي</th>
-                                    <th>التقدم</th>
-                                    <th>الحالة</th>
-                                    <th>العمليات</th>
-                                </tr>
+                             <tr>
+                                     <th>#</th>
+                                     <th>الطالب</th>
+                                     <th>الخطة / الدورة</th>
+                                     <th>المبلغ</th>
+                                     <th>المدفوع</th>
+                                     <th>المتبقي</th>
+                                     <th>تاريخ البداية</th>
+                                     <th>تاريخ الاستحقاق</th>
+                                     <th>موعد الباقي</th>
+                                     <th>التقدم</th>
+                                     <th>الحالة</th>
+                                     <th>العمليات</th>
+                                 </tr>
                                 </thead>
                             </table>
                         </div>
@@ -199,17 +200,52 @@
                 columns: [
                     {data: 'id', width: '50px'},
                     {data: 'student_name'},
-                    {data: 'fee_plan_name'},
+                    {
+                        data: 'fee_plan_name',
+                        render: function (val, t, row) {
+                            let cycle = row.payment_cycle ? '<br><span class="badge bg-info text-dark small">' + row.payment_cycle + '</span>' : '';
+                            return val + cycle;
+                        }
+                    },
                     {data: 'formatted_amount'},
-                    {data: 'formatted_discount'},
-                    {data: 'formatted_final'},
                     {data: 'formatted_paid'},
-                    {data: 'formatted_remaining'},
+                    {
+                        data: 'formatted_remaining',
+                        render: function (val, t, row) {
+                            let cls = row.remaining_amount > 0 ? 'text-danger fw-semibold' : 'text-success';
+                            return '<span class="' + cls + '">' + val + '</span>';
+                        }
+                    },
+                    {
+                        data: 'start_date',
+                        render: function (val) { return val ? '<span class="text-muted small">' + val + '</span>' : '-'; }
+                    },
+                    {
+                        data: 'due_date',
+                        render: function (val, t, row) {
+                            if (!val) return '-';
+                            let cls = row.is_expired ? 'text-danger fw-semibold' : 'text-dark';
+                            let expired = row.is_expired ? ' <span class="badge bg-danger">منتهي</span>' : '';
+                            return '<span class="' + cls + ' small">' + val + '</span>' + expired;
+                        }
+                    },
+                    {
+                        data: 'remaining_due_date',
+                        render: function (val, t, row) {
+                            if (!val) return '-';
+                            let days = row.days_until_due;
+                            let badge = '';
+                            if (days !== null && days <= 2 && days >= 0 && row.remaining_amount > 0) {
+                                badge = ' <span class="badge bg-warning text-dark">قريباً</span>';
+                            }
+                            return '<span class="small">' + val + '</span>' + badge;
+                        }
+                    },
                     {
                         data: 'payment_progress',
                         render: function (val) {
                             const color = val >= 100 ? 'success' : (val >= 50 ? 'warning' : 'danger');
-                            return '<div class="progress" style="height:20px;"><div class="progress-bar bg-' + color + '" style="width:' + val + '%">' + val + '%</div></div>';
+                            return '<div class="progress" style="height:18px;min-width:80px"><div class="progress-bar bg-' + color + '" style="width:' + val + '%">' + val + '%</div></div>';
                         }
                     },
                     {
@@ -223,15 +259,26 @@
                         searchable: false,
                         orderable:  false,
                         render: function (id, t, row) {
-                            const showUrl   = '{{ route('admin.student-subscriptions.show', ['studentSubscription' => '__ID__']) }}'.replace('__ID__', id);
-                            const editUrl   = '{{ route('admin.student-subscriptions.edit', ['studentSubscription' => '__ID__']) }}'.replace('__ID__', id);
-                            const deleteUrl = '{{ route('admin.student-subscriptions.destroy', ['studentSubscription' => '__ID__']) }}'.replace('__ID__', id);
+                            const showUrl    = '{{ route('admin.student-subscriptions.show', ['studentSubscription' => '__ID__']) }}'.replace('__ID__', id);
+                            const editUrl    = '{{ route('admin.student-subscriptions.edit', ['studentSubscription' => '__ID__']) }}'.replace('__ID__', id);
+                            const deleteUrl  = '{{ route('admin.student-subscriptions.destroy', ['studentSubscription' => '__ID__']) }}'.replace('__ID__', id);
+                            const renewUrl   = row.renewal_url;
+                            const csrfToken  = '{{ csrf_token() }}';
+
+                            let renewBtn = '';
+                            @can('student-subscriptions.create')
+                            renewBtn = '<form method="POST" action="' + renewUrl + '" onsubmit="return confirm(\'تجديد الاشتراك؟ سيتم إنشاء اشتراك جديد.\')" class="d-inline">'
+                                + '<input type="hidden" name="_token" value="' + csrfToken + '">'
+                                + '<button type="submit" class="btn btn-sm btn-outline-success" title="تجديد الاشتراك"><i class="ti ti-refresh"></i></button>'
+                                + '</form>';
+                            @endcan
 
                             return '<div class="d-flex gap-1 flex-nowrap">'
                                 + '<a class="btn btn-sm btn-outline-info" href="' + showUrl + '" title="عرض"><i class="ti ti-eye"></i></a>'
                                 + '<a class="btn btn-sm btn-outline-primary" href="' + editUrl + '" title="تعديل"><i class="ti ti-pencil"></i></a>'
+                                + renewBtn
                                 + '<form method="POST" action="' + deleteUrl + '" onsubmit="return confirm(\'هل تريد حذف هذا الاشتراك؟\')" class="d-inline">'
-                                + '<input type="hidden" name="_token" value="{{ csrf_token() }}">'
+                                + '<input type="hidden" name="_token" value="' + csrfToken + '">'
                                 + '<input type="hidden" name="_method" value="DELETE">'
                                 + '<button type="submit" class="btn btn-sm btn-outline-danger" title="حذف"><i class="ti ti-trash"></i></button>'
                                 + '</form></div>';

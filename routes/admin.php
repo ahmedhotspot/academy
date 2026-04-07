@@ -637,6 +637,10 @@ Route::prefix('admin')
                 Route::delete('/{studentSubscription}', [StudentSubscriptionController::class, 'destroy'])
                     ->middleware('permission:student-subscriptions.delete')
                     ->name('destroy');
+
+                Route::post('/{studentSubscription}/renew', [StudentSubscriptionController::class, 'renew'])
+                    ->middleware('permission:student-subscriptions.create')
+                    ->name('renew');
             });
 
         /*

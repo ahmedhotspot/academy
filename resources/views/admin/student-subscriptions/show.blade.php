@@ -169,7 +169,7 @@
                                 </tr>
                                 <tr class="border-bottom">
                                     <td class="text-muted fw-semibold">خطة الرسوم</td>
-                                    <td>{{ $subscription->feePlan?->name ?? '-' }} <span class="badge bg-light text-dark">{{ $subscription->feePlan?->payment_cycle ?? '-' }}</span></td>
+                                    <td>{{ $subscription->feePlan?->name ?? '-' }} <span class="badge bg-info text-dark ms-1">{{ $subscription->feePlan?->payment_cycle ?? '-' }}</span></td>
                                 </tr>
                                 <tr class="border-bottom">
                                     <td class="text-muted fw-semibold">المبلغ الأساسي</td>
@@ -195,6 +195,38 @@
                                     <td class="text-muted fw-semibold">الحالة</td>
                                     <td><span class="badge {{ $subscription->status_badge_class }}">{{ $subscription->status }}</span></td>
                                 </tr>
+                                <tr class="border-bottom">
+                                    <td class="text-muted fw-semibold">تاريخ البداية</td>
+                                    <td>{{ optional($subscription->start_date)->format('Y-m-d') ?? '-' }}</td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <td class="text-muted fw-semibold">تاريخ الاستحقاق</td>
+                                    <td>
+                                        {{ optional($subscription->due_date)->format('Y-m-d') ?? '-' }}
+                                        @if($subscription->is_expired)
+                                            <span class="badge bg-danger ms-1">منتهي</span>
+                                        @elseif($subscription->due_date)
+                                            @php $days = $subscription->days_until_due; @endphp
+                                            @if($days !== null && $days >= 0)
+                                                <span class="badge bg-success ms-1">{{ $days }} يوم متبقي</span>
+                                            @endif
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <td class="text-muted fw-semibold">موعد سداد الباقي</td>
+                                    <td>
+                                        {{ optional($subscription->remaining_due_date)->format('Y-m-d') ?? '-' }}
+                                        @if($subscription->remaining_amount > 0 && $subscription->remaining_due_date)
+                                            @php $rDays = $subscription->days_until_remaining_due; @endphp
+                                            @if($rDays !== null && $rDays <= 2 && $rDays >= 0)
+                                                <span class="badge bg-warning text-dark ms-1">قريباً ({{ $rDays }} يوم)</span>
+                                            @elseif($rDays !== null && $rDays < 0)
+                                                <span class="badge bg-danger ms-1">متأخر</span>
+                                            @endif
+                                        @endif
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td class="text-muted fw-semibold">تاريخ الإنشاء</td>
                                     <td>{{ optional($subscription->created_at)->format('Y-m-d H:i:s') }}</td>
@@ -214,6 +246,17 @@
                             <a href="{{ route('admin.student-subscriptions.edit', $subscription) }}" class="btn btn-primary btn-sm">
                                 <i class="ti ti-pencil me-1"></i> تعديل
                             </a>
+                        @endcan
+                        @can('student-subscriptions.create')
+                            <form method="POST"
+                                  action="{{ route('admin.student-subscriptions.renew', $subscription) }}"
+                                  onsubmit="return confirm('هل تريد تجديد هذا الاشتراك؟ سيتم إنشاء اشتراك جديد.')"
+                                  class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="ti ti-refresh me-1"></i> تجديد الاشتراك
+                                </button>
+                            </form>
                         @endcan
                         @can('student-subscriptions.delete')
                             <form method="POST"

@@ -11,24 +11,30 @@ class UpdateStudentSubscriptionRequest extends AdminRequest
     public function rules(): array
     {
         return [
-            'student_id'       => ['required', 'integer', 'exists:students,id'],
-            'fee_plan_id'      => ['required', 'integer', 'exists:fee_plans,id'],
-            'amount'           => ['required', 'numeric', 'min:0', 'max:999999.99'],
-            'discount_amount'  => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
-            'paid_amount'      => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
-            'status'           => ['required', Rule::in(StudentSubscription::STATUSES)],
+            'student_id'         => ['required', 'integer', 'exists:students,id'],
+            'fee_plan_id'        => ['required', 'integer', 'exists:fee_plans,id'],
+            'amount'             => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'discount_amount'    => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
+            'paid_amount'        => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
+            'status'             => ['required', Rule::in(StudentSubscription::STATUSES)],
+            'start_date'         => ['required', 'date'],
+            'due_date'           => ['nullable', 'date', 'after_or_equal:start_date'],
+            'remaining_due_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'student_id'       => 'الطالب',
-            'fee_plan_id'      => 'خطة الرسوم',
-            'amount'           => 'المبلغ الأساسي',
-            'discount_amount'  => 'مبلغ الخصم',
-            'paid_amount'      => 'المبلغ المدفوع',
-            'status'           => 'الحالة',
+            'student_id'         => 'الطالب',
+            'fee_plan_id'        => 'خطة الرسوم',
+            'amount'             => 'المبلغ الأساسي',
+            'discount_amount'    => 'مبلغ الخصم',
+            'paid_amount'        => 'المبلغ المدفوع',
+            'status'             => 'الحالة',
+            'start_date'         => 'تاريخ البداية',
+            'due_date'           => 'تاريخ الاستحقاق',
+            'remaining_due_date' => 'تاريخ استحقاق الباقي',
         ];
     }
 
@@ -41,13 +47,13 @@ class UpdateStudentSubscriptionRequest extends AdminRequest
                 return;
             }
 
-            $amount = (float) $this->input('amount', 0);
+            $amount         = (float) $this->input('amount', 0);
             $discountAmount = (float) $this->input('discount_amount', 0);
-            $paidAmount = (float) $this->input('paid_amount', 0);
+            $paidAmount     = (float) $this->input('paid_amount', 0);
             $remainingAmount = max(0, $amount - $discountAmount - $paidAmount);
 
             $currentStatus = (string) $subscription->status;
-            $newStatus = (string) $this->input('status', $currentStatus);
+            $newStatus     = (string) $this->input('status', $currentStatus);
 
             if ($newStatus !== $currentStatus && $remainingAmount > 0) {
                 $validator->errors()->add(
@@ -58,4 +64,3 @@ class UpdateStudentSubscriptionRequest extends AdminRequest
         });
     }
 }
-

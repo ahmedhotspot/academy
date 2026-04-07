@@ -11,6 +11,7 @@ class Notification extends Model
 
     protected $fillable = [
         'user_id',
+        'branch_id',
         'type',
         'title',
         'message',
@@ -39,6 +40,11 @@ class Notification extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     // =====================================================

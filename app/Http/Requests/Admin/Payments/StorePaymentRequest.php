@@ -49,6 +49,16 @@ class StorePaymentRequest extends AdminRequest
                 return;
             }
 
+            // التحقق من انتهاء مدة الاشتراك
+            if ($subscription->is_expired) {
+                $validator->errors()->add(
+                    'student_subscription_id',
+                    'انتهت مدة هذا الاشتراك (تاريخ الاستحقاق: ' . $subscription->due_date->format('Y-m-d') . '). يرجى تجديد الاشتراك أولاً.'
+                );
+
+                return;
+            }
+
             $remaining = (float) $subscription->remaining_amount;
 
             if ($remaining <= 0) {
