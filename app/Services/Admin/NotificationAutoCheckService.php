@@ -47,6 +47,7 @@ class NotificationAutoCheckService
                 $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
                 $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
                 $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lt($today));
+                $isFullyPaid = $subscription->remaining_amount <= 0;
 
                 // المستخدمون الذين يجب إرسال الإشعار إليهم
                 $users = User::query()
@@ -76,14 +77,27 @@ class NotificationAutoCheckService
                         continue;
                     }
 
+                    // حدد نوع الإشعار بناءً على الحالة
+                    if ($isFullyPaid && $isOverdue) {
+                        // تاريخ الاستحقاق مضى ولا يوجد متبقي → تجديد الاشتراك
+                        $notificationTitle = "تاريخ تجديد: {$studentName}";
+                        $notificationMessage = "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (يتطلب تجديد الاشتراك)";
+                    } elseif ($isOverdue) {
+                        // تاريخ الاستحقاق مضى وعليه متبقي → متأخرات مالية
+                        $notificationTitle = "متأخرات مالية: {$studentName}";
+                        $notificationMessage = "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (متأخر)";
+                    } else {
+                        // تاريخ الاستحقاق قريب → تنبيه سداد
+                        $notificationTitle = "تنبيه سداد: {$studentName}";
+                        $notificationMessage = "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (قريب)";
+                    }
+
                     Notification::query()->create([
                         'user_id'   => $user->id,
                         'branch_id' => $branchId,
                         'type'      => 'financial',
-                        'title'     => $isOverdue ? "متأخرات مالية: {$studentName}" : "تنبيه سداد: {$studentName}",
-                        'message'   => $isOverdue
-                            ? "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (متأخر)"
-                            : "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (قريب)",
+                        'title'     => $notificationTitle,
+                        'message'   => $notificationMessage,
                         'data'      => [
                             'subscription_id' => $subscription->id,
                             'student_id'      => $subscription->student_id,
@@ -91,6 +105,7 @@ class NotificationAutoCheckService
                             'remaining'       => $remaining,
                             'due_date'        => $dueDate,
                             'is_overdue'      => $isOverdue,
+                            'is_fully_paid'   => $isFullyPaid,
                         ],
                         'is_read' => false,
                     ]);
@@ -130,6 +145,7 @@ class NotificationAutoCheckService
             $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
             $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
             $isOverdue   = (bool) ($subscription->due_date && $subscription->due_date->startOfDay()->lt($today));
+            $isFullyPaid = $subscription->remaining_amount <= 0;
 
             $users = User::query()
                 ->withoutGlobalScopes()
@@ -156,14 +172,27 @@ class NotificationAutoCheckService
                     continue;
                 }
 
+                // حدد نوع الإشعار بناءً على الحالة
+                if ($isFullyPaid && $isOverdue) {
+                    // تاريخ الاستحقاق مضى ولا يوجد متبقي → تجديد الاشتراك
+                    $notificationTitle = "تاريخ تجديد: {$studentName}";
+                    $notificationMessage = "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (يتطلب تجديد الاشتراك)";
+                } elseif ($isOverdue) {
+                    // تاريخ الاستحقاق مضى وعليه متبقي → متأخرات مالية
+                    $notificationTitle = "متأخرات مالية: {$studentName}";
+                    $notificationMessage = "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (متأخر)";
+                } else {
+                    // تاريخ الاستحقاق قريب → تنبيه سداد
+                    $notificationTitle = "تنبيه سداد: {$studentName}";
+                    $notificationMessage = "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (قريب)";
+                }
+
                 Notification::query()->create([
                     'user_id'   => $user->id,
                     'branch_id' => $branchId,
                     'type'      => 'financial',
-                    'title'     => $isOverdue ? "متأخرات مالية: {$studentName}" : "تنبيه سداد: {$studentName}",
-                    'message'   => $isOverdue
-                        ? "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (متأخر)"
-                        : "الطالب {$studentName} - تاريخ الاستحقاق {$dueDate} (قريب)",
+                    'title'     => $notificationTitle,
+                    'message'   => $notificationMessage,
                     'data'      => [
                         'subscription_id' => $subscription->id,
                         'student_id'      => $subscription->student_id,
@@ -171,6 +200,7 @@ class NotificationAutoCheckService
                         'remaining'       => $remaining,
                         'due_date'        => $dueDate,
                         'is_overdue'      => $isOverdue,
+                        'is_fully_paid'   => $isFullyPaid,
                     ],
                     'is_read' => false,
                 ]);
