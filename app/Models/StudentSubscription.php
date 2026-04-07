@@ -73,6 +73,7 @@ class StudentSubscription extends Model
 
     /**
      * Subscriptions that are financially overdue.
+     * Excludes 'موقوف' (renewed/suspended) subscriptions.
      */
     public function scopeFinanciallyOverdue(Builder $query): Builder
     {
@@ -80,6 +81,7 @@ class StudentSubscription extends Model
 
         return $query
             ->where('remaining_amount', '>', 0)
+            ->where('status', '!=', 'موقوف')
             ->where(function (Builder $q) use ($today) {
                 $q->where('status', 'متأخر')
                     ->orWhere(function (Builder $dateQuery) use ($today) {
@@ -174,6 +176,10 @@ class StudentSubscription extends Model
             return false;
         }
 
+        if ($this->status === 'موقوف') {
+            return false;
+        }
+
         if ($this->status === 'متأخر') {
             return true;
         }
@@ -188,9 +194,14 @@ class StudentSubscription extends Model
 
     /**
      * هل انتهت مدة الاشتراك؟ (تاريخ الاستحقاق في الماضي)
+     * لا تُعدّ "منتهية" إن كانت الحالة موقوف (أي تم تجديدها)
      */
     public function getIsExpiredAttribute(): bool
     {
+        if ($this->status === 'موقوف') {
+            return false;
+        }
+
         return $this->due_date && $this->due_date->isPast();
     }
 

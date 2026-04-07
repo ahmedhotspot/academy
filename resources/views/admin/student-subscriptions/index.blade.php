@@ -111,12 +111,14 @@
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-4">
-                                <label class="form-label small text-muted">الحالة</label>
+                                <label class="form-label small text-muted">حالة الاشتراك</label>
                                 <select id="filter_status" class="form-select form-select-sm">
                                     <option value="">كل الحالات</option>
-                                    @foreach($statuses as $status)
-                                        <option value="{{ $status }}">{{ $status }}</option>
-                                    @endforeach
+                                    <option value="نشط">نشط — لم يتجاوز تاريخ الاستحقاق</option>
+                                    <option value="متأخر">متأخر — تجاوز التاريخ ولديه متبقي</option>
+                                    <option value="منتهي">منتهي — تجاوز تاريخ الاستحقاق</option>
+                                    <option value="مكتمل">مكتمل — تم السداد بالكامل</option>
+                                    <option value="موقوف">موقوف — تم التجديد أو الإيقاف</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
@@ -155,12 +157,12 @@
                                      <th>المبلغ</th>
                                      <th>المدفوع</th>
                                      <th>المتبقي</th>
-                                     <th>تاريخ البداية</th>
-                                     <th>تاريخ الاستحقاق</th>
-                                     <th>موعد الباقي</th>
-                                     <th>التقدم</th>
-                                     <th>الحالة</th>
-                                     <th>العمليات</th>
+                                      <th>تاريخ البداية</th>
+                                      <th>تاريخ الاستحقاق</th>
+                                      <th>موعد الباقي</th>
+                                      <th>التقدم</th>
+                                      <th>حالة الطالب</th>
+                                      <th>العمليات</th>
                                  </tr>
                                 </thead>
                             </table>
@@ -249,9 +251,12 @@
                         }
                     },
                     {
-                        data: 'status',
-                        render: function (val, t, row) {
-                            return '<span class="badge ' + row.status_badge + '">' + val + '</span>';
+                        data: 'student_status',
+                        render: function (val) {
+                            const isActive = val === 'active';
+                            const label    = isActive ? 'نشط' : 'غير نشط';
+                            const cls      = isActive ? 'bg-success' : 'bg-secondary';
+                            return '<span class="badge ' + cls + '">' + label + '</span>';
                         }
                     },
                     {

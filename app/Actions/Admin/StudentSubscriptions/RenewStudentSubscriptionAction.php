@@ -39,6 +39,9 @@ class RenewStudentSubscriptionAction extends BaseAction
             'remaining_due_date' => $newDueDate,
         ]);
 
+        // أوقف الاشتراك القديم حتى لا يظهر كمتأخر أو منتهي
+        $old->update(['status' => 'موقوف']);
+
         return $subscription;
     }
 }

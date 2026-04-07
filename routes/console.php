@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 // إرسال تنبيهات الاشتراكات التي يقترب موعد سدادها (كل يوم الساعة 8 صباحاً)
 Schedule::command('subscriptions:send-reminders')->dailyAt('08:00');
 
+// مزامنة حالات الاشتراكات (تصحيح "نشط" → "متأخر") كل يوم منتصف الليل
+Schedule::command('subscriptions:sync-statuses')->dailyAt('00:00');
+

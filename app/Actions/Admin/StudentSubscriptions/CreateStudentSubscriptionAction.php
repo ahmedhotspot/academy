@@ -4,6 +4,7 @@ namespace App\Actions\Admin\StudentSubscriptions;
 
 use App\Actions\BaseAction;
 use App\Models\FeePlan;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentSubscription;
 use Carbon\Carbon;
@@ -29,7 +30,7 @@ class CreateStudentSubscriptionAction extends BaseAction
             ? Carbon::parse($data['remaining_due_date'])
             : $dueDate;
 
-        return StudentSubscription::query()->create([
+        $subscription = StudentSubscription::query()->create([
             'branch_id'          => $student?->branch_id ?? auth()->user()?->branch_id,
             'student_id'         => $data['student_id'],
             'fee_plan_id'        => $data['fee_plan_id'],
@@ -46,6 +47,21 @@ class CreateStudentSubscriptionAction extends BaseAction
             'due_date'           => $dueDate,
             'remaining_due_date' => $remainingDueDate,
         ]);
+
+        // إنشاء سجل دفعة لأي مبلغ مدفوع عند إنشاء الاشتراك
+        // حتى يظهر في التقارير المالية والرسم البياني في لوحة التحكم
+        if (($data['paid_amount'] ?? 0) > 0) {
+            Payment::query()->create([
+                'student_id'              => $data['student_id'],
+                'student_subscription_id' => $subscription->id,
+                'payment_date'            => $startDate->toDateString(),
+                'amount'                  => $data['paid_amount'],
+                'receipt_number'          => now()->format('YmdHis') . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT),
+                'notes'                   => 'دفعة عند إنشاء الاشتراك',
+            ]);
+        }
+
+        return $subscription;
     }
 
     private function resolveDueDate(int $feePlanId, Carbon $startDate): ?Carbon

@@ -114,8 +114,8 @@ class StudentSubscriptionController extends AdminController
                 ['title' => 'تعديل الاشتراك'],
             ],
             'subscription'     => $studentSubscription,
-            'studentOptions'   => $this->service->getStudentOptions(),
-            'studentStatuses'  => $this->service->getStudentStatuses(),
+            'studentOptions'   => $this->service->getStudentOptions($studentSubscription->student_id),
+            'studentStatuses'  => $this->service->getStudentStatuses($studentSubscription->student_id),
             'feePlanOptions'   => $this->service->getFeePlanOptions(),
             'statuses'         => $this->service->getStatuses(),
         ]);

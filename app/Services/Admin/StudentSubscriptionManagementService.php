@@ -11,27 +11,50 @@ use Illuminate\Http\Request;
 class StudentSubscriptionManagementService extends BaseService
 {
     /**
-     * قائمة الطلاب النشطين
+     * قائمة الطلاب النشطين.
+     * إذا تم تمرير $includeStudentId، يُدرج ذلك الطالب حتى لو كان غير نشط
+     * (مفيد في صفحة تعديل الاشتراك إذا أصبح الطالب غير نشط لاحقاً).
      */
-    public function getStudentOptions(): array
+    public function getStudentOptions(?int $includeStudentId = null): array
     {
-        return Student::query()
+        $options = Student::query()
             ->where('status', 'active')
             ->orderBy('full_name')
             ->pluck('full_name', 'id')
             ->toArray();
+
+        // أضف الطالب المُحدَّد إن لم يكن موجوداً في القائمة (طالب غير نشط)
+        if ($includeStudentId && ! isset($options[$includeStudentId])) {
+            $student = Student::query()->find($includeStudentId);
+            if ($student) {
+                $options[$includeStudentId] = $student->full_name . ' (غير نشط)';
+            }
+        }
+
+        return $options;
     }
 
     /**
-     * حالة كل طالب نشط [id => status] — للتحقق الديناميكي في الفورم
+     * حالة كل طالب نشط [id => status] — للتحقق الديناميكي في الفورم.
+     * إذا تم تمرير $includeStudentId، يُدرج حالته حتى لو كان غير نشط.
      */
-    public function getStudentStatuses(): array
+    public function getStudentStatuses(?int $includeStudentId = null): array
     {
-        return Student::query()
+        $statuses = Student::query()
             ->where('status', 'active')
             ->orderBy('full_name')
             ->pluck('status', 'id')
             ->toArray();
+
+        // أضف الطالب المُحدَّد إن لم يكن موجوداً (طالب غير نشط)
+        if ($includeStudentId && ! isset($statuses[$includeStudentId])) {
+            $student = Student::query()->find($includeStudentId);
+            if ($student) {
+                $statuses[$includeStudentId] = $student->status;
+            }
+        }
+
+        return $statuses;
     }
 
     /**
@@ -68,7 +91,31 @@ class StudentSubscriptionManagementService extends BaseService
             ->with(['student', 'feePlan']);
 
         if ($request->filled('status')) {
-            $baseQuery->where('status', $request->input('status'));
+            $filterStatus = $request->input('status');
+            $today        = now()->startOfDay()->toDateString();
+
+            if ($filterStatus === 'متأخر') {
+                // overdue: remaining > 0 AND due_date passed (excludes موقوف)
+                $baseQuery->financiallyOverdue();
+            } elseif ($filterStatus === 'منتهي') {
+                // expired due date regardless of payment status
+                $baseQuery->whereNotNull('due_date')
+                    ->whereDate('due_date', '<', $today);
+            } elseif ($filterStatus === 'مكتمل') {
+                $baseQuery->where('remaining_amount', '<=', 0);
+            } elseif ($filterStatus === 'موقوف') {
+                $baseQuery->where('status', 'موقوف');
+            } elseif ($filterStatus === 'نشط') {
+                $baseQuery
+                    ->where('remaining_amount', '>', 0)
+                    ->where('status', '!=', 'موقوف')
+                    ->where(function ($q) use ($today) {
+                        $q->whereNull('due_date')
+                            ->orWhereDate('due_date', '>=', $today);
+                    });
+            } else {
+                $baseQuery->where('status', $filterStatus);
+            }
         }
 
         if ($request->filled('fee_plan_id')) {

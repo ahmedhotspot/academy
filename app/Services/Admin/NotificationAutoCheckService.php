@@ -38,6 +38,7 @@ class NotificationAutoCheckService
                 ->whereNotNull('due_date')
                 ->whereDate('due_date', '<=', $twoDays)
                 ->where('remaining_amount', '>', 0)
+                ->where('status', '!=', 'موقوف')
                 ->get();
 
             foreach ($subscriptions as $subscription) {
