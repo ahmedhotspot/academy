@@ -14,6 +14,18 @@
 
                 @include('admin.partials.alerts')
 
+                @if(!empty($prefillStudentId))
+                    <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <i class="ti ti-info-circle me-1"></i>
+                            يتم إضافة المتابعة الآن للطالب المحدد تلقائيًا. يمكنك التعديل قبل الحفظ إذا أردت.
+                        </div>
+                        <a href="{{ route('admin.student-progress-logs.show', $prefillStudentId) }}" class="btn btn-sm btn-outline-info">
+                            <i class="ti ti-history me-1"></i> عرض سجل الطالب
+                        </a>
+                    </div>
+                @endif
+
                 <form action="{{ route('admin.student-progress-logs.store') }}" method="POST"
                       autocomplete="off">
                     @csrf
@@ -27,6 +39,8 @@
                             @include('admin.student-progress-logs._form', [
                                 'groupOptions'       => $groupOptions,
                                 'teacherOptions'     => $teacherOptions,
+                                'prefillStudentId'   => $prefillStudentId ?? null,
+                                'prefillGroupId'     => $prefillGroupId ?? null,
                                 'evaluationLevels'   => $evaluationLevels,
                                 'commitmentStatuses' => $commitmentStatuses,
                             ])

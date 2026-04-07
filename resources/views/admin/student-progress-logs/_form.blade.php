@@ -10,6 +10,11 @@
        $currentStudents     — طلاب الحلقة الحالية (edit فقط)
 ====================================================== --}}
 
+@php
+    $selectedGroupId = old('group_id', $log->group_id ?? ($prefillGroupId ?? ''));
+    $selectedStudentId = old('student_id', $log->student_id ?? ($prefillStudentId ?? ''));
+@endphp
+
 {{-- ── الصف الأول: الحلقة + التاريخ ── --}}
 <div class="row g-3 mb-3">
 
@@ -21,7 +26,7 @@
             <option value="">— اختر الحلقة —</option>
             @foreach($groupOptions as $gId => $gName)
                 <option value="{{ $gId }}"
-                    @selected(old('group_id', $log->group_id ?? '') == $gId)>
+                    @selected((string) $selectedGroupId === (string) $gId)>
                     {{ $gName }}
                 </option>
             @endforeach
@@ -69,12 +74,11 @@
 
         <select id="student_id" name="student_id" class="form-select">
             <option value="">— اختر الطالب —</option>
-            {{-- في وضع التعديل: أضف الطالب الحالي مسبقًا --}}
-            @isset($log)
-                <option value="{{ $log->student_id }}" selected>
+            @if(!empty($selectedStudentId) && isset($log))
+                <option value="{{ $selectedStudentId }}" selected>
                     {{ $log->student->full_name }}
                 </option>
-            @endisset
+            @endif
         </select>
     </div>
 </div>
@@ -193,7 +197,7 @@
         const studentSelect = document.getElementById('student_id');
         const loadingEl     = document.getElementById('student_loading');
         const ajaxUrl       = '{{ route('admin.student-progress-logs.students-by-group') }}';
-        const preSelected   = '{{ old('student_id', $log->student_id ?? '') }}';
+        const preSelected   = '{{ $selectedStudentId }}';
 
         function loadStudents(groupId, preserveSelected) {
             if (!groupId) {

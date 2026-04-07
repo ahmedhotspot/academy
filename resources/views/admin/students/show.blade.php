@@ -8,6 +8,11 @@
         $guardian = $profile['guardian'] ?? [];
         $financial = $profile['financial'] ?? [];
         $learning = $profile['learning'] ?? [];
+        $currentEnrollment = $student->currentEnrollment();
+        $progressQuickAddParams = array_filter([
+            'student_id' => $student->id,
+            'group_id' => $currentEnrollment?->group_id,
+        ]);
     @endphp
 
     <div class="page-content-wrapper">
@@ -231,8 +236,20 @@
                 <div class="row g-3 mb-4">
                     <div class="col-xl-6">
                         <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-white border-bottom">
+                            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-progress me-1"></i> آخر المتابعات التعليمية</h6>
+                                <div class="d-flex gap-2">
+                                    @can('student-progress-logs.view')
+                                        <a href="{{ route('admin.student-progress-logs.show', $student) }}" class="btn btn-sm btn-light border">
+                                            <i class="ti ti-history me-1"></i> السجل الكامل
+                                        </a>
+                                    @endcan
+                                    @can('student-progress-logs.create')
+                                        <a href="{{ route('admin.student-progress-logs.create', $progressQuickAddParams) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="ti ti-plus me-1"></i> إضافة متابعة
+                                        </a>
+                                    @endcan
+                                </div>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
@@ -309,6 +326,11 @@
                         </a>
 
                         <div class="d-flex gap-2">
+                            @can('student-progress-logs.create')
+                                <a href="{{ route('admin.student-progress-logs.create', $progressQuickAddParams) }}" class="btn btn-outline-primary">
+                                    <i class="ti ti-plus me-1"></i> إضافة متابعة تعليمية
+                                </a>
+                            @endcan
                             @can('students.update')
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#portalPasswordModal">
                                     <i class="ti ti-key me-1"></i> تعيين كلمة مرور البوابة
@@ -377,6 +399,4 @@
 </div>
 @endsection
 @endcan
-
-
 

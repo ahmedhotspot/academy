@@ -70,8 +70,30 @@ class StudentProgressLogController extends AdminController
         return response()->json($this->service->getStudentsByGroup($groupId));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        $prefillStudentId = null;
+        $prefillGroupId = null;
+
+        if ($request->filled('student_id')) {
+            $candidateStudentId = (int) $request->query('student_id');
+            $student = Student::query()->select(['id'])->find($candidateStudentId);
+
+            if ($student) {
+                $prefillStudentId = $student->id;
+                $prefillGroupId = $student->currentEnrollment()?->group_id;
+            }
+        }
+
+        if ($request->filled('group_id')) {
+            $candidateGroupId = (int) $request->query('group_id');
+            $groupExistsInScope = array_key_exists($candidateGroupId, $this->service->getGroupOptions());
+
+            if ($groupExistsInScope) {
+                $prefillGroupId = $candidateGroupId;
+            }
+        }
+
         return $this->adminView('admin.student-progress-logs.create', [
             'breadcrumbs' => [
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
@@ -80,6 +102,8 @@ class StudentProgressLogController extends AdminController
             ],
             'groupOptions'    => $this->service->getGroupOptions(),
             'teacherOptions'  => $this->service->getTeacherOptions(),
+            'prefillStudentId' => $prefillStudentId,
+            'prefillGroupId' => $prefillGroupId,
             'evaluationLevels' => StudentProgressLog::EVALUATION_LEVELS,
             'commitmentStatuses' => StudentProgressLog::COMMITMENT_STATUSES,
         ]);

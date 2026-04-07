@@ -3,6 +3,13 @@
 @section('title', 'سجل المتابعة التعليمية — ' . $student->full_name)
 
 @section('content')
+    @php
+        $quickAddParams = ['student_id' => $student->id];
+        if (!empty($report['lastLog']?->group_id)) {
+            $quickAddParams['group_id'] = $report['lastLog']->group_id;
+        }
+    @endphp
+
     <div class="page-content-wrapper">
         <div class="content-container">
             <div class="page-content">
@@ -10,6 +17,20 @@
                 @include('admin.partials.page-header', [
                     'title'       => 'تقرير المتابعة التعليمية للطالب',
                     'breadcrumbs' => $breadcrumbs,
+                    'actions' => array_values(array_filter([
+                        auth()->user()?->can('student-progress-logs.create') ? [
+                            'title' => 'تسجيل جلسة جديدة',
+                            'url' => route('admin.student-progress-logs.create', $quickAddParams),
+                            'icon' => 'ti ti-plus',
+                            'class' => 'btn-primary',
+                        ] : null,
+                        auth()->user()?->can('students.view') ? [
+                            'title' => 'ملف الطالب',
+                            'url' => route('admin.students.show', $student),
+                            'icon' => 'ti ti-user',
+                            'class' => 'btn-outline-secondary',
+                        ] : null,
+                    ])),
                 ])
 
                 @include('admin.partials.alerts')
@@ -45,12 +66,19 @@
                                 </div>
                             </div>
                             <div class="col-auto">
-                                @can('student-progress-logs.create')
-                                    <a href="{{ route('admin.student-progress-logs.create') }}"
-                                       class="btn btn-primary btn-sm">
-                                        <i class="ti ti-plus me-1"></i> تسجيل جلسة جديدة
-                                    </a>
-                                @endcan
+                                <div class="d-flex gap-2">
+                                    @can('students.view')
+                                        <a href="{{ route('admin.students.show', $student) }}" class="btn btn-light btn-sm">
+                                            <i class="ti ti-user me-1"></i> ملف الطالب
+                                        </a>
+                                    @endcan
+                                    @can('student-progress-logs.create')
+                                        <a href="{{ route('admin.student-progress-logs.create', $quickAddParams) }}"
+                                           class="btn btn-primary btn-sm">
+                                            <i class="ti ti-plus me-1"></i> تسجيل جلسة جديدة
+                                        </a>
+                                    @endcan
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -156,7 +184,14 @@
                             <i class="ti ti-history me-1 text-primary"></i>
                             السجل الكامل للمتابعة التعليمية
                         </h6>
-                        <span class="badge bg-secondary rounded-pill">{{ $report['total'] }} سجل</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary rounded-pill">{{ $report['total'] }} سجل</span>
+                            @can('student-progress-logs.create')
+                                <a href="{{ route('admin.student-progress-logs.create', $quickAddParams) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="ti ti-plus me-1"></i> إضافة متابعة
+                                </a>
+                            @endcan
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         @if($report['logs']->isEmpty())
