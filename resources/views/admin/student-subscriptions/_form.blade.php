@@ -1,11 +1,17 @@
 {{-- ======================================================
      _form: حقول اشتراك الطالب
      المتغيرات:
-       $studentOptions   — قائمة الطلاب
-       $feePlanOptions   — قائمة خطط الرسوم
-       $statuses         — حالات الاشتراك
-       $subscription     — (للتعديل اختياري)
+       $studentOptions       — قائمة الطلاب  [id => name]
+       $studentStatuses      — حالة كل طالب  [id => 'active'|'inactive'] (اختياري)
+       $feePlanOptions       — قائمة خطط الرسوم
+       $statuses             — حالات الاشتراك
+       $subscription         — (للتعديل اختياري)
 ====================================================== --}}
+
+{{-- ─── حالات الطلاب مُمرَّرة للـ JS ───────────────────── --}}
+<script>
+    window._studentStatuses = @json($studentStatuses ?? []);
+</script>
 
 <div class="row g-3 mb-3">
 
@@ -14,7 +20,7 @@
         <label class="form-label fw-semibold">
             الطالب <span class="text-danger">*</span>
         </label>
-        <select name="student_id" class="form-select js-student-select2" data-placeholder="ابحث واختر الطالب">
+        <select id="js-student-select" name="student_id" class="form-select js-student-select2" data-placeholder="ابحث واختر الطالب">
             <option value="">— اختر الطالب —</option>
             @foreach($studentOptions as $sId => $sName)
                 <option value="{{ $sId }}"
@@ -127,13 +133,18 @@
 
     {{-- تاريخ الاستحقاق --}}
     <div class="col-md-4">
-        <label class="form-label fw-semibold">تاريخ الاستحقاق</label>
-        <input type="date" id="due_date" name="due_date" class="form-control @error('due_date') is-invalid @enderror"
+        <label class="form-label fw-semibold" id="due_date_label">
+            تاريخ الاستحقاق
+            <span class="text-danger" id="due_date_required_star" style="display:none;">*</span>
+        </label>
+        <input type="date" id="due_date" name="due_date"
+               class="form-control @error('due_date') is-invalid @enderror"
                value="{{ old('due_date', optional($subscription->due_date ?? null)->format('Y-m-d') ?? '') }}">
         @error('due_date')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
-        <small class="text-muted">يُحسب تلقائيًا من دورة الدفع. لا يُقبل دفع جديد بعد هذا التاريخ.</small>
+        <small class="text-muted" id="due_date_hint">يُحسب تلقائيًا من دورة الدفع. لا يُقبل دفع جديد بعد هذا التاريخ.</small>
+        <small class="text-danger d-none" id="due_date_active_hint">مطلوب — الطالب نشط ويجب تحديد تاريخ الاستحقاق لتجديد اشتراكه.</small>
     </div>
 
     {{-- تاريخ استحقاق الباقي --}}
@@ -162,6 +173,30 @@
         const cycleBadge       = document.getElementById('payment_cycle_badge');
         const cycleLabel       = document.getElementById('payment_cycle_label');
         const feePlanAmountApi = "{{ route('admin.fee-plan-amount') }}";
+
+        // ─── due_date required indicator ─────────────────────────────
+        const dueDateStar      = document.getElementById('due_date_required_star');
+        const dueDateHint      = document.getElementById('due_date_hint');
+        const dueDateActiveHint = document.getElementById('due_date_active_hint');
+        const studentSelect    = document.getElementById('js-student-select');
+        const studentStatuses  = window._studentStatuses || {};
+
+        function applyStudentActiveState(studentId) {
+            const isActive = studentStatuses[studentId] === 'active';
+            if (dueDateStar) dueDateStar.style.display = isActive ? '' : 'none';
+            if (dueDateInput) dueDateInput.required = isActive;
+            if (dueDateHint) dueDateHint.classList.toggle('d-none', isActive);
+            if (dueDateActiveHint) dueDateActiveHint.classList.toggle('d-none', !isActive);
+        }
+
+        if (studentSelect) {
+            studentSelect.addEventListener('change', function () {
+                applyStudentActiveState(this.value);
+            });
+            // تطبيق الحالة عند تحميل الصفحة (للتعديل)
+            applyStudentActiveState(studentSelect.value);
+        }
+        // ─────────────────────────────────────────────────────────────
 
         if (!feePlanSelect || !amountInput) return;
 

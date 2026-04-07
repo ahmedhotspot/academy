@@ -23,6 +23,18 @@ class StudentSubscriptionManagementService extends BaseService
     }
 
     /**
+     * حالة كل طالب نشط [id => status] — للتحقق الديناميكي في الفورم
+     */
+    public function getStudentStatuses(): array
+    {
+        return Student::query()
+            ->where('status', 'active')
+            ->orderBy('full_name')
+            ->pluck('status', 'id')
+            ->toArray();
+    }
+
+    /**
      * قائمة خطط الرسوم النشطة
      */
     public function getFeePlanOptions(): array
@@ -85,6 +97,7 @@ class StudentSubscriptionManagementService extends BaseService
                 'id'                  => $subscription->id,
                 'student_id'          => $subscription->student_id,
                 'student_name'        => $subscription->student?->full_name ?? '-',
+                'student_status'      => $subscription->student?->status ?? 'inactive',
                 'fee_plan_name'       => $subscription->feePlan?->name ?? '-',
                 'payment_cycle'       => $subscription->feePlan?->payment_cycle ?? '-',
                 'amount'              => $subscription->amount,

@@ -72,6 +72,7 @@ class StudentSubscriptionController extends AdminController
                 ['title' => 'إضافة اشتراك جديد'],
             ],
             'studentOptions'  => $this->service->getStudentOptions(),
+            'studentStatuses' => $this->service->getStudentStatuses(),
             'feePlanOptions'  => $this->service->getFeePlanOptions(),
             'statuses'        => $this->service->getStatuses(),
         ]);
@@ -114,6 +115,7 @@ class StudentSubscriptionController extends AdminController
             ],
             'subscription'     => $studentSubscription,
             'studentOptions'   => $this->service->getStudentOptions(),
+            'studentStatuses'  => $this->service->getStudentStatuses(),
             'feePlanOptions'   => $this->service->getFeePlanOptions(),
             'statuses'         => $this->service->getStatuses(),
         ]);

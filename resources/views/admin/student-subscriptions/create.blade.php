@@ -48,6 +48,7 @@
                         <div class="card-body">
                             @include('admin.student-subscriptions._form', [
                                 'studentOptions'  => $studentOptions,
+                                'studentStatuses' => $studentStatuses,
                                 'feePlanOptions'  => $feePlanOptions,
                                 'statuses'        => $statuses,
                             ])
@@ -89,6 +90,12 @@
                     dir: 'rtl',
                     allowClear: true,
                     placeholder: $el.data('placeholder') || 'ابحث واختر الطالب'
+                });
+
+                // إعادة إطلاق applyStudentActiveState عند تغيّر الطالب عبر Select2
+                $el.on('change.select2', function () {
+                    const event = new Event('change', { bubbles: true });
+                    this.dispatchEvent(event);
                 });
             });
         })();

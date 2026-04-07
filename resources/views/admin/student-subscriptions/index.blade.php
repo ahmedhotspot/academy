@@ -267,10 +267,12 @@
 
                             let renewBtn = '';
                             @can('student-subscriptions.create')
-                            renewBtn = '<form method="POST" action="' + renewUrl + '" onsubmit="return confirm(\'تجديد الاشتراك؟ سيتم إنشاء اشتراك جديد.\')" class="d-inline">'
-                                + '<input type="hidden" name="_token" value="' + csrfToken + '">'
-                                + '<button type="submit" class="btn btn-sm btn-outline-success" title="تجديد الاشتراك"><i class="ti ti-refresh"></i></button>'
-                                + '</form>';
+                            if (row.student_status === 'active') {
+                                renewBtn = '<form method="POST" action="' + renewUrl + '" onsubmit="return confirm(\'تجديد الاشتراك؟ سيتم إنشاء اشتراك جديد.\')" class="d-inline">'
+                                    + '<input type="hidden" name="_token" value="' + csrfToken + '">'
+                                    + '<button type="submit" class="btn btn-sm btn-outline-success" title="تجديد الاشتراك"><i class="ti ti-refresh"></i></button>'
+                                    + '</form>';
+                            }
                             @endcan
 
                             return '<div class="d-flex gap-1 flex-nowrap">'

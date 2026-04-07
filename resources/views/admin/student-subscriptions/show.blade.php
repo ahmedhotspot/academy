@@ -248,15 +248,21 @@
                             </a>
                         @endcan
                         @can('student-subscriptions.create')
-                            <form method="POST"
-                                  action="{{ route('admin.student-subscriptions.renew', $subscription) }}"
-                                  onsubmit="return confirm('هل تريد تجديد هذا الاشتراك؟ سيتم إنشاء اشتراك جديد.')"
-                                  class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-sm">
+                            @if(($subscription->student?->status ?? '') === 'active')
+                                <form method="POST"
+                                      action="{{ route('admin.student-subscriptions.renew', $subscription) }}"
+                                      onsubmit="return confirm('هل تريد تجديد هذا الاشتراك؟ سيتم إنشاء اشتراك جديد.')"
+                                      class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="ti ti-refresh me-1"></i> تجديد الاشتراك
+                                    </button>
+                                </form>
+                            @else
+                                <button type="button" class="btn btn-secondary btn-sm" disabled title="الطالب غير نشط — لا يمكن التجديد">
                                     <i class="ti ti-refresh me-1"></i> تجديد الاشتراك
                                 </button>
-                            </form>
+                            @endif
                         @endcan
                         @can('student-subscriptions.delete')
                             <form method="POST"

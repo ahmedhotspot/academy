@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\StudentSubscriptions;
 
 use App\Http\Requests\Admin\AdminRequest;
+use App\Models\Student;
 use App\Models\StudentSubscription;
 use Illuminate\Validation\Rule;
 
@@ -10,6 +11,10 @@ class UpdateStudentSubscriptionRequest extends AdminRequest
 {
     public function rules(): array
     {
+        $studentId = (int) $this->input('student_id');
+        $student   = $studentId ? Student::query()->find($studentId) : null;
+        $isActive  = $student && $student->status === 'active';
+
         return [
             'student_id'         => ['required', 'integer', 'exists:students,id'],
             'fee_plan_id'        => ['required', 'integer', 'exists:fee_plans,id'],
@@ -18,7 +23,7 @@ class UpdateStudentSubscriptionRequest extends AdminRequest
             'paid_amount'        => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'status'             => ['required', Rule::in(StudentSubscription::STATUSES)],
             'start_date'         => ['required', 'date'],
-            'due_date'           => ['nullable', 'date', 'after_or_equal:start_date'],
+            'due_date'           => [$isActive ? 'required' : 'nullable', 'date', 'after_or_equal:start_date'],
             'remaining_due_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
     }
@@ -35,6 +40,13 @@ class UpdateStudentSubscriptionRequest extends AdminRequest
             'start_date'         => 'تاريخ البداية',
             'due_date'           => 'تاريخ الاستحقاق',
             'remaining_due_date' => 'تاريخ استحقاق الباقي',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'due_date.required' => 'تاريخ الاستحقاق مطلوب للطلاب النشطين.',
         ];
     }
 
