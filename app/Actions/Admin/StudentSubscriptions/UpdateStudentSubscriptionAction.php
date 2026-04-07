@@ -4,8 +4,10 @@ namespace App\Actions\Admin\StudentSubscriptions;
 
 use App\Actions\BaseAction;
 use App\Models\FeePlan;
+use App\Models\Payment;
 use App\Models\StudentSubscription;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class UpdateStudentSubscriptionAction extends BaseAction
 {
@@ -14,9 +16,37 @@ class UpdateStudentSubscriptionAction extends BaseAction
         /** @var StudentSubscription $subscription */
         $subscription = $data['subscription'];
 
+        // إجمالي المدفوع الفعلي من جدول الدفعات
+        $recordedPaidAmount = (float) Payment::query()
+            ->where('student_subscription_id', $subscription->id)
+            ->sum('amount');
+
         $discountAmount  = $data['discount_amount'] ?? 0;
         $finalAmount     = $data['amount'] - $discountAmount;
-        $paidAmount      = $data['paid_amount'] ?? 0;
+        $paidAmount      = (float) ($data['paid_amount'] ?? 0);
+
+        // لا تسمح بأن يصبح المدفوع أقل من الدفعات المسجلة فعلياً
+        if ($paidAmount + 0.0001 < $recordedPaidAmount) {
+            throw ValidationException::withMessages([
+                'paid_amount' => 'لا يمكن تقليل المدفوع عن إجمالي الدفعات المسجلة بالفعل.',
+            ]);
+        }
+
+        // أي زيادة في paid_amount تُسجل كدفعة جديدة تلقائياً
+        $newPaymentAmount = max(0, $paidAmount - $recordedPaidAmount);
+        if ($newPaymentAmount > 0) {
+            Payment::query()->create([
+                'student_id'              => $subscription->student_id,
+                'student_subscription_id' => $subscription->id,
+                'payment_date'            => now()->toDateString(),
+                'amount'                  => $newPaymentAmount,
+                'receipt_number'          => now()->format('YmdHis') . str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT),
+                'notes'                   => 'دفعة مسجلة تلقائياً من تعديل الاشتراك',
+            ]);
+        }
+
+        // استخدم الإجمالي بعد إضافة أي دفعة جديدة لضمان تطابق الاشتراك مع دفتر الدفعات
+        $paidAmount = $recordedPaidAmount + $newPaymentAmount;
         $remainingAmount = max(0, $finalAmount - $paidAmount);
 
         $startDate = isset($data['start_date'])
