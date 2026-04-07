@@ -20,10 +20,13 @@ use Carbon\CarbonInterface;
 
 class DashboardStatsService
 {
-    public function buildDashboardData(?User $authUser): array
+    private const FINANCIAL_RANGE_OPTIONS = [1, 2, 3, 4, 6, 12];
+
+    public function buildDashboardData(?User $authUser, int $monthsRange = 6): array
     {
         $now = now();
         $today = Carbon::today();
+        $monthsRange = $this->sanitizeMonthsRange($monthsRange);
         $isSuperAdmin = $authUser?->isSuperAdmin() ?? false;
         $branchId = $authUser?->branch_id;
 
@@ -87,7 +90,7 @@ class DashboardStatsService
             ->sum('amount');
 
         $studentStatusStats = $this->buildStudentStatusStats($totalStudents);
-        $financialStats = $this->buildMonthlyFinancialStats();
+        $financialStats = $this->buildMonthlyFinancialStats($monthsRange);
         $systemCollectionTotal = array_sum($financialStats['collections']);
         $systemExpensesTotal = array_sum($financialStats['expenses']);
 
@@ -148,6 +151,11 @@ class DashboardStatsService
                 'system_collection' => $systemCollectionTotal,
                 'system_expenses' => $systemExpensesTotal,
             ],
+            'financialRange' => [
+                'selected' => $monthsRange,
+                'options' => self::FINANCIAL_RANGE_OPTIONS,
+                'label' => $this->resolveFinancialRangeLabel($monthsRange),
+            ],
             'charts' => [
                 'studentsByStatus' => $studentStatusStats,
                 'financialByMonth' => $financialStats,
@@ -189,13 +197,13 @@ class DashboardStatsService
         ];
     }
 
-    private function buildMonthlyFinancialStats(): array
+    private function buildMonthlyFinancialStats(int $monthsRange): array
     {
         $labels = [];
         $collections = [];
         $expenses = [];
 
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = $monthsRange - 1; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $labels[] = $date->translatedFormat('M Y');
 
@@ -217,6 +225,26 @@ class DashboardStatsService
             'collections' => $collections,
             'expenses' => $expenses,
         ];
+    }
+
+    private function sanitizeMonthsRange(int $monthsRange): int
+    {
+        return in_array($monthsRange, self::FINANCIAL_RANGE_OPTIONS, true)
+            ? $monthsRange
+            : 6;
+    }
+
+    private function resolveFinancialRangeLabel(int $monthsRange): string
+    {
+        return match ($monthsRange) {
+            1 => 'آخر شهر',
+            2 => 'آخر شهرين',
+            3 => 'آخر 3 شهور',
+            4 => 'آخر 4 شهور',
+            6 => 'آخر 6 شهور',
+            12 => 'آخر سنة',
+            default => "آخر {$monthsRange} شهر",
+        };
     }
 
     private function buildImportantAlerts(Carbon $today): array

@@ -106,8 +106,20 @@
                     <div class="col-xl-7">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-header bg-white border-bottom">
-                                <h6 class="mb-1 fw-semibold">التحصيل مقابل المصروفات الشهرية</h6>
-                                <p class="mb-2 text-muted small">مقارنة آخر 6 أشهر بين التحصيل والمصروفات على مستوى النظام.</p>
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-1">
+                                    <h6 class="mb-0 fw-semibold">التحصيل مقابل المصروفات الشهرية</h6>
+                                    <form method="GET" action="{{ route('admin.dashboard') }}" class="d-flex align-items-center gap-2">
+                                        <label for="months_range" class="small text-muted mb-0">الفترة</label>
+                                        <select id="months_range" name="months" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            @foreach(($financialRange['options'] ?? [1,2,3,4,6,12]) as $months)
+                                                <option value="{{ $months }}" @selected(($financialRange['selected'] ?? 6) == $months)>
+                                                    {{ $months === 1 ? 'شهر واحد' : ($months === 2 ? 'شهرين' : ($months === 12 ? 'سنة كاملة' : $months . ' شهور')) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </form>
+                                </div>
+                                <p class="mb-2 text-muted small">مقارنة {{ $financialRange['label'] ?? 'آخر 6 شهور' }} بين التحصيل والمصروفات على مستوى النظام.</p>
                                 <div class="d-flex flex-wrap gap-2 small">
                                     <span class="badge bg-success-subtle text-success border border-success-subtle">
                                         إجمالي التحصيل (النظام): {{ number_format($financialSummary['system_collection'] ?? 0, 2) }} ج
