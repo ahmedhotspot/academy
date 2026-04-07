@@ -5,6 +5,7 @@
 @section('content')
     @php
         $stats = $profile['stats'] ?? [];
+        $groupScheduleCreateUrl = route('admin.group-schedules.create', ['group_id' => $group->id]);
     @endphp
 
     <div class="page-content-wrapper">
@@ -13,14 +14,20 @@
                 @include('admin.partials.page-header', [
                     'title' => 'الملف الشامل للحلقة',
                     'breadcrumbs' => $breadcrumbs,
-                    'actions' => [
+                    'actions' => array_values(array_filter([
+                        auth()->user()?->can('group-schedules.create') ? [
+                            'title' => 'إضافة جدول للحلقة',
+                            'url' => $groupScheduleCreateUrl,
+                            'icon' => 'ti ti-calendar-plus',
+                            'class' => 'btn-outline-primary',
+                        ] : null,
                         [
                             'title' => 'تعديل',
                             'url' => route('admin.groups.edit', $group),
                             'icon' => 'ti ti-edit',
                             'class' => 'btn-primary',
                         ],
-                    ],
+                    ])),
                 ])
 
                 @include('admin.partials.alerts')
@@ -115,8 +122,13 @@
 
                     <div class="col-xl-5">
                         <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-white border-bottom">
+                            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between gap-2">
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-calendar-event me-1"></i> جداول الحلقة</h6>
+                                @can('group-schedules.create')
+                                    <a href="{{ $groupScheduleCreateUrl }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="ti ti-plus me-1"></i> إضافة جدول
+                                    </a>
+                                @endcan
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
@@ -258,6 +270,11 @@
                         </a>
 
                         <div class="d-flex gap-2">
+                            @can('group-schedules.create')
+                                <a href="{{ $groupScheduleCreateUrl }}" class="btn btn-outline-primary">
+                                    <i class="ti ti-calendar-plus me-1"></i> إضافة جدول للحلقة
+                                </a>
+                            @endcan
                             @can('groups.update')
                                 <a href="{{ route('admin.groups.edit', $group) }}" class="btn btn-primary">
                                     <i class="ti ti-pencil me-1"></i> تعديل الحلقة

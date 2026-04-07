@@ -49,8 +49,20 @@ class GroupScheduleController extends AdminController
         return response()->json($this->groupScheduleManagementService->datatable($request));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        $selectedGroupId = null;
+
+        if ($request->filled('group_id')) {
+            $requestedGroupId = (int) $request->query('group_id');
+            $groupOptions = $this->groupScheduleManagementService->getGroupOptions();
+
+            // Preselect only if the group is available in current branch scope/options.
+            if (isset($groupOptions[$requestedGroupId])) {
+                $selectedGroupId = $requestedGroupId;
+            }
+        }
+
         return $this->adminView('admin.group-schedules.create', [
             'breadcrumbs' => [
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
@@ -58,6 +70,7 @@ class GroupScheduleController extends AdminController
                 ['title' => 'إضافة جدول'],
             ],
             'groupOptions' => $this->groupScheduleManagementService->getGroupOptions(),
+            'selectedGroupId' => $selectedGroupId,
         ]);
     }
 

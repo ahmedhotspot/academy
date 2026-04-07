@@ -4,7 +4,7 @@
         <select name="group_id" class="form-select">
             <option value="">اختر الحلقة</option>
             @foreach($groupOptions as $groupId => $groupName)
-                <option value="{{ $groupId }}" @selected((string) old('group_id', $groupSchedule->group_id ?? '') === (string) $groupId)>{{ $groupName }}</option>
+                <option value="{{ $groupId }}" @selected((string) old('group_id', $selectedGroupId ?? ($groupSchedule->group_id ?? '')) === (string) $groupId)>{{ $groupName }}</option>
             @endforeach
         </select>
     </div>
@@ -36,4 +36,3 @@
         <input type="time" name="end_time" class="form-control" value="{{ old('end_time', isset($groupSchedule) ? substr((string) $groupSchedule->end_time, 0, 5) : '') }}">
     </div>
 </div>
-

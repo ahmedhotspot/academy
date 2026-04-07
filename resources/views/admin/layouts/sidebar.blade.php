@@ -23,6 +23,7 @@
                     ['title' => 'أولياء الأمور', 'route' => 'admin.guardians.index', 'route_is' => 'admin.guardians.*', 'icon' => 'fa fa-user', 'permission' => 'guardians.view'],
                     ['title' => 'المعلمون', 'route' => 'admin.teachers.index', 'route_is' => 'admin.teachers.*', 'icon' => 'fa fa-chalkboard-teacher', 'permission' => 'teachers.view'],
                     ['title' => 'الحلقات', 'route' => 'admin.groups.index', 'route_is' => 'admin.groups.*', 'icon' => 'fa fa-book', 'permission' => 'groups.view'],
+                    ['title' => 'إدارة جداول الحلقات', 'route' => 'admin.group-schedules.index', 'route_is' => 'admin.group-schedules.*', 'icon' => 'fa fa-book', 'permission' => 'group-schedules.view'],
                     ['title' => 'تسجيل في الحلقات', 'route' => 'admin.student-enrollments.index', 'route_is' => 'admin.student-enrollments.*', 'icon' => 'fa fa-users', 'permission' => 'student-enrollments.view'],
                     ['title' => 'المستويات ', 'route' => 'admin.study-levels.index', 'route_is' => 'admin.study-levels.*', 'icon' => 'fa fa-graduation-cap', 'permission' => 'study-levels.view'],
                     ['title' => 'المسارات', 'route' => 'admin.study-tracks.index', 'route_is' => 'admin.study-tracks.*', 'icon' => 'fa fa-graduation-cap', 'permission' => 'study-tracks.view'],
