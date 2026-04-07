@@ -107,7 +107,15 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-header bg-white border-bottom">
                                 <h6 class="mb-1 fw-semibold">التحصيل مقابل المصروفات الشهرية</h6>
-                                <p class="mb-0 text-muted small">مقارنة آخر 6 أشهر بين التحصيل والمصروفات.</p>
+                                <p class="mb-2 text-muted small">مقارنة آخر 6 أشهر بين التحصيل والمصروفات على مستوى النظام.</p>
+                                <div class="d-flex flex-wrap gap-2 small">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                        إجمالي التحصيل (النظام): {{ number_format($financialSummary['system_collection'] ?? 0, 2) }} ج
+                                    </span>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                        إجمالي المصروفات (النظام): {{ number_format($financialSummary['system_expenses'] ?? 0, 2) }} ج
+                                    </span>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div style="height:280px;">

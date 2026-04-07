@@ -18,17 +18,18 @@ class SendSubscriptionDueReminders extends Command
     /**
      * وصف الأمر
      */
-    protected $description = 'إرسال تنبيهات للاشتراكات التي يقترب موعد سداد الباقي (قبل يومين)';
+    protected $description = 'إرسال تنبيهات للاشتراكات التي يقترب أو يتجاوز تاريخ استحقاقها';
 
     public function handle(): int
     {
         $today    = Carbon::today();
         $twoDays  = $today->copy()->addDays(2);
 
-        // الاشتراكات التي تاريخ سداد الباقي بعد يومين تماماً + لديها باقي
+        // الاشتراكات التي تاريخ استحقاقها متأخر أو خلال يومين + لديها باقي
         $subscriptions = StudentSubscription::query()
             ->with(['student', 'feePlan'])
-            ->whereDate('remaining_due_date', $twoDays)
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<=', $twoDays)
             ->where('remaining_amount', '>', 0)
             ->get();
 
@@ -62,7 +63,7 @@ class SendSubscriptionDueReminders extends Command
 
             $studentName = $subscription->student?->full_name ?? 'طالب';
             $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
-            $dueDate     = $subscription->remaining_due_date?->format('Y-m-d') ?? '-';
+            $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
 
             foreach ($users as $user) {
                 // تجنب التكرار - لا ترسل إشعاراً للاشتراك نفسه إن كان موجوداً مسبقاً

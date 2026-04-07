@@ -81,12 +81,15 @@ class DashboardStatsService
             ->count();
 
         $monthlyExpenses = Expense::query()
+            ->withoutGlobalScopes()
             ->whereMonth('expense_date', $now->month)
             ->whereYear('expense_date', $now->year)
             ->sum('amount');
 
         $studentStatusStats = $this->buildStudentStatusStats($totalStudents);
         $financialStats = $this->buildMonthlyFinancialStats();
+        $systemCollectionTotal = array_sum($financialStats['collections']);
+        $systemExpensesTotal = array_sum($financialStats['expenses']);
 
         $recentStudents = Student::query()
             ->orderByDesc('created_at')
@@ -142,6 +145,8 @@ class DashboardStatsService
             'financialSummary' => [
                 'collection' => $todayCollection,
                 'expenses' => $monthlyExpenses,
+                'system_collection' => $systemCollectionTotal,
+                'system_expenses' => $systemExpensesTotal,
             ],
             'charts' => [
                 'studentsByStatus' => $studentStatusStats,
@@ -195,11 +200,13 @@ class DashboardStatsService
             $labels[] = $date->translatedFormat('M Y');
 
             $collections[] = (float) Payment::query()
+                ->withoutGlobalScope('branch')
                 ->whereYear('payment_date', $date->year)
                 ->whereMonth('payment_date', $date->month)
                 ->sum('amount');
 
             $expenses[] = (float) Expense::query()
+                ->withoutGlobalScopes()
                 ->whereYear('expense_date', $date->year)
                 ->whereMonth('expense_date', $date->month)
                 ->sum('amount');

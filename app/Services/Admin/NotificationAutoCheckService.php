@@ -30,13 +30,13 @@ class NotificationAutoCheckService
             $today   = Carbon::today();
             $twoDays = $today->copy()->addDays(2);
 
-            // الاشتراكات التي تاريخ سداد الباقي متأخر أو خلال يومين + لا تزال لها باقي
+            // الاشتراكات التي تاريخ استحقاقها متأخر أو خلال يومين + لا تزال لها باقي
             // نستخدم withoutGlobalScopes لأننا نريد كل الفروع هنا
             $subscriptions = StudentSubscription::query()
                 ->withoutGlobalScopes()
                 ->with(['student'])
-                ->whereNotNull('remaining_due_date')
-                ->whereDate('remaining_due_date', '<=', $twoDays)
+                ->whereNotNull('due_date')
+                ->whereDate('due_date', '<=', $twoDays)
                 ->where('remaining_amount', '>', 0)
                 ->get();
 
@@ -44,8 +44,8 @@ class NotificationAutoCheckService
                 $branchId    = $subscription->branch_id;
                 $studentName = $subscription->student?->full_name ?? 'طالب';
                 $remaining   = number_format((float) $subscription->remaining_amount, 2) . ' ج';
-                $dueDate     = $subscription->remaining_due_date?->format('Y-m-d') ?? '-';
-                $isOverdue   = $subscription->remaining_due_date?->isPast() ?? false;
+                $dueDate     = $subscription->due_date?->format('Y-m-d') ?? '-';
+                $isOverdue   = $subscription->due_date?->isPast() ?? false;
 
                 // المستخدمون الذين يجب إرسال الإشعار إليهم
                 $users = User::query()

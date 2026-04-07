@@ -52,16 +52,16 @@ class StudentSubscription extends Model
     /**
      * Resolve financial status from remaining amount and due date.
      */
-    public static function resolveFinancialStatus(float $remainingAmount, Carbon|string|null $remainingDueDate = null): string
+    public static function resolveFinancialStatus(float $remainingAmount, Carbon|string|null $dueDate = null): string
     {
         if ($remainingAmount <= 0) {
             return 'مكتمل';
         }
 
-        if ($remainingDueDate) {
-            $due = $remainingDueDate instanceof Carbon
-                ? $remainingDueDate->copy()->startOfDay()
-                : Carbon::parse($remainingDueDate)->startOfDay();
+        if ($dueDate) {
+            $due = $dueDate instanceof Carbon
+                ? $dueDate->copy()->startOfDay()
+                : Carbon::parse($dueDate)->startOfDay();
 
             if ($due->isPast()) {
                 return 'متأخر';
@@ -83,8 +83,8 @@ class StudentSubscription extends Model
             ->where(function (Builder $q) use ($today) {
                 $q->where('status', 'متأخر')
                     ->orWhere(function (Builder $dateQuery) use ($today) {
-                        $dateQuery->whereNotNull('remaining_due_date')
-                            ->whereDate('remaining_due_date', '<', $today);
+                        $dateQuery->whereNotNull('due_date')
+                            ->whereDate('due_date', '<', $today);
                     });
             });
     }
@@ -178,7 +178,7 @@ class StudentSubscription extends Model
             return true;
         }
 
-        return (bool) ($this->remaining_due_date?->isPast());
+        return (bool) ($this->due_date?->isPast());
     }
 
     public function getIsCompleteAttribute(): bool

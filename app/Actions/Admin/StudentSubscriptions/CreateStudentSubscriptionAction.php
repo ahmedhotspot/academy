@@ -40,7 +40,7 @@ class CreateStudentSubscriptionAction extends BaseAction
             'remaining_amount'   => $finalAmount - ($data['paid_amount'] ?? 0),
             'status'             => $data['status'] ?? StudentSubscription::resolveFinancialStatus(
                 (float) ($finalAmount - ($data['paid_amount'] ?? 0)),
-                $remainingDueDate
+                $dueDate
             ),
             'start_date'         => $startDate,
             'due_date'           => $dueDate,
