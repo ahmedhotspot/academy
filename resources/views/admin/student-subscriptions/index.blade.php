@@ -186,7 +186,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
                         <h6 class="mb-0 fw-semibold"><i class="ti ti-receipt me-1"></i> الاشتراكات</h6>
-                        <span class="badge bg-primary rounded-pill">بيانات آجاكس</span>
+
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">

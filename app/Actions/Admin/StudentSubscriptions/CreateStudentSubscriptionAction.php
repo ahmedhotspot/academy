@@ -7,6 +7,7 @@ use App\Models\FeePlan;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\StudentSubscription;
+use App\Services\Admin\NotificationAutoCheckService;
 use Carbon\Carbon;
 
 class CreateStudentSubscriptionAction extends BaseAction
@@ -61,6 +62,10 @@ class CreateStudentSubscriptionAction extends BaseAction
             ]);
         }
 
+        // إنشاء إشعار فوري إذا كان الاشتراك قريباً من الانتهاء أو منتهياً
+        app(NotificationAutoCheckService::class)
+            ->checkAndCreateDueReminderForSubscription($subscription->fresh(['student']));
+
         return $subscription;
     }
 
@@ -71,3 +76,5 @@ class CreateStudentSubscriptionAction extends BaseAction
         return StudentSubscription::calculateDueDate($feePlan->payment_cycle, $startDate);
     }
 }
+
+
