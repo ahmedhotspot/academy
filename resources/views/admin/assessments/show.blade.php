@@ -57,7 +57,7 @@
                 ══════════════════════════════════════════════════════════ --}}
                 <div class="row g-3 mb-4">
 
-                    <div class="col-xl-3 col-sm-6">
+                    <div class="col-xl col-sm-6">
                         <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">إجمالي الاختبارات</p>
@@ -70,11 +70,11 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-sm-6">
+                    <div class="col-xl col-sm-6">
                         <div class="card border-0 shadow-sm h-100 border-start border-4 border-success">
                             <div class="card-body">
-                                <p class="text-muted small mb-1">متوسط الحفظ</p>
-                                @if($report['avgMemoization'])
+                                <p class="text-muted small mb-1">التدبر </p>
+                                @if(!is_null($report['avgMemoization']))
                                     <h3 class="fw-bold mb-0">
                                         <span class="text-success">{{ $report['avgMemoization'] }}</span>
                                         <span class="text-muted small fw-normal">/100</span>
@@ -86,11 +86,11 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-sm-6">
+                    <div class="col-xl col-sm-6">
                         <div class="card border-0 shadow-sm h-100 border-start border-4 border-info">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">متوسط التجويد</p>
-                                @if($report['avgTajweed'])
+                                @if(!is_null($report['avgTajweed']))
                                     <h3 class="fw-bold mb-0">
                                         <span class="text-info">{{ $report['avgTajweed'] }}</span>
                                         <span class="text-muted small fw-normal">/100</span>
@@ -102,18 +102,34 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-sm-6">
+                    <div class="col-xl col-sm-6">
+                        <div class="card border-0 shadow-sm h-100 border-start border-4 border-secondary">
+                            <div class="card-body">
+                                <p class="text-muted small mb-1">متوسط التدبر</p>
+                                @if(!is_null($report['avgTadabbur']))
+                                    <h3 class="fw-bold mb-0">
+                                        <span class="text-secondary">{{ $report['avgTadabbur'] }}</span>
+                                        <span class="text-muted small fw-normal">/100</span>
+                                    </h3>
+                                @else
+                                    <p class="text-muted">—</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl col-sm-6">
                         <div class="card border-0 shadow-sm h-100 border-start border-4 border-warning">
                             <div class="card-body">
                                 <p class="text-muted small mb-1">أفضل / أضعف نتيجة</p>
                                 <div class="d-flex align-items-center gap-2">
-                                    @if($report['bestScore'])
+                                    @if(!is_null($report['bestScore']))
                                         <span class="badge bg-success">{{ $report['bestScore'] }}</span>
                                     @endif
-                                    @if($report['worstScore'])
+                                    @if(!is_null($report['worstScore']))
                                         <span class="badge bg-danger">{{ $report['worstScore'] }}</span>
                                     @endif
-                                    @if(!$report['bestScore'] && !$report['worstScore'])
+                                    @if(is_null($report['bestScore']) && is_null($report['worstScore']))
                                         <p class="text-muted small">—</p>
                                     @endif
                                 </div>
@@ -151,7 +167,7 @@
                                         <th>المعلم</th>
                                         <th>الحفظ</th>
                                         <th>التجويد</th>
-                                        <th>التدبير</th>
+                                        <th>التدبر</th>
                                         <th>الملاحظات</th>
                                         <th>العمليات</th>
                                     </tr>
