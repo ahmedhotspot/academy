@@ -16,6 +16,30 @@ use Illuminate\Http\Request;
 
 class ReportService extends BaseService
 {
+    private function applyBranchScope(Builder $query, Request $request, string $column = 'branch_id'): Builder
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return $query;
+        }
+
+        if (! $user->isSuperAdmin()) {
+            if (! $user->branch_id) {
+                // Non-super-admin users without a branch must not access cross-branch data.
+                return $query->whereRaw('1 = 0');
+            }
+
+            return $query->where($column, (int) $user->branch_id);
+        }
+
+        if ($request->filled('branch_id')) {
+            return $query->where($column, (int) $request->input('branch_id'));
+        }
+
+        return $query;
+    }
+
     private function applyDateRange(Builder $query, Request $request, string $column): Builder
     {
         if ($request->filled('start_date')) {
@@ -63,10 +87,7 @@ class ReportService extends BaseService
     public function studentReport(Request $request): array
     {
         $query = Student::query()->with('branch');
-
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->input('branch_id'));
-        }
+        $this->applyBranchScope($query, $request);
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -88,6 +109,7 @@ class ReportService extends BaseService
     public function attendanceReport(Request $request): array
     {
         $query = StudentAttendance::query();
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'attendance_date');
 
@@ -106,6 +128,7 @@ class ReportService extends BaseService
     public function progressReport(Request $request): array
     {
         $query = StudentProgressLog::query();
+        $this->applyBranchScope($query, $request);
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
@@ -122,6 +145,7 @@ class ReportService extends BaseService
     public function assessmentReport(Request $request): array
     {
         $query = Assessment::query();
+        $this->applyBranchScope($query, $request);
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
@@ -147,6 +171,7 @@ class ReportService extends BaseService
     public function subscriptionReport(Request $request): array
     {
         $query = StudentSubscription::query();
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'created_at');
 
@@ -172,6 +197,7 @@ class ReportService extends BaseService
     public function payrollReport(Request $request): array
     {
         $query = TeacherPayroll::query()->with('teacher');
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'created_at');
 
@@ -195,10 +221,7 @@ class ReportService extends BaseService
     public function expenseReport(Request $request): array
     {
         $query = Expense::query()->with('branch');
-
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->input('branch_id'));
-        }
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'expense_date');
 
@@ -215,10 +238,7 @@ class ReportService extends BaseService
     public function studentsDatatable(Request $request): array
     {
         $query = Student::query()->with('branch');
-
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->input('branch_id'));
-        }
+        $this->applyBranchScope($query, $request);
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -252,6 +272,7 @@ class ReportService extends BaseService
     public function attendanceDatatable(Request $request): array
     {
         $query = StudentAttendance::query()->with('student');
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'attendance_date');
         $query->orderByDesc('attendance_date')->orderByDesc('id');
@@ -277,6 +298,7 @@ class ReportService extends BaseService
     public function progressDatatable(Request $request): array
     {
         $query = StudentProgressLog::query()->with(['student', 'teacher', 'group']);
+        $this->applyBranchScope($query, $request);
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
@@ -309,6 +331,7 @@ class ReportService extends BaseService
     public function assessmentsDatatable(Request $request): array
     {
         $query = Assessment::query()->with('student');
+        $this->applyBranchScope($query, $request);
 
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
@@ -345,6 +368,7 @@ class ReportService extends BaseService
         $query = StudentSubscription::query()->with(['student', 'feePlan'])
             ->where('status', 'متأخر')
             ->where('remaining_amount', '>', 0);
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'created_at');
         $query->orderByDesc('remaining_amount')->orderByDesc('id');
@@ -373,6 +397,7 @@ class ReportService extends BaseService
     public function payrollsDatatable(Request $request): array
     {
         $query = TeacherPayroll::query()->with('teacher');
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'created_at');
         $query->orderByDesc('year')->orderByDesc('month')->orderByDesc('id');
@@ -402,10 +427,7 @@ class ReportService extends BaseService
     public function expensesDatatable(Request $request): array
     {
         $query = Expense::query()->with('branch');
-
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->input('branch_id'));
-        }
+        $this->applyBranchScope($query, $request);
 
         $this->applyDateRange($query, $request, 'expense_date');
         $query->orderByDesc('expense_date')->orderByDesc('id');
@@ -433,10 +455,7 @@ class ReportService extends BaseService
     public function studentsPdfRows(Request $request): array
     {
         $query = Student::query()->with('branch');
-
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->input('branch_id'));
-        }
+        $this->applyBranchScope($query, $request);
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -457,6 +476,7 @@ class ReportService extends BaseService
     public function attendancePdfRows(Request $request): array
     {
         $query = StudentAttendance::query()->with('student');
+        $this->applyBranchScope($query, $request);
         $this->applyDateRange($query, $request, 'attendance_date');
 
         return $query->orderByDesc('attendance_date')->get()
@@ -470,6 +490,7 @@ class ReportService extends BaseService
     public function progressPdfRows(Request $request): array
     {
         $query = StudentProgressLog::query()->with(['student', 'teacher', 'group']);
+        $this->applyBranchScope($query, $request);
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
         }
@@ -488,6 +509,7 @@ class ReportService extends BaseService
     public function assessmentsPdfRows(Request $request): array
     {
         $query = Assessment::query()->with('student');
+        $this->applyBranchScope($query, $request);
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->input('student_id'));
         }
@@ -510,6 +532,7 @@ class ReportService extends BaseService
         $query = StudentSubscription::query()->with(['student', 'feePlan'])
             ->where('status', 'متأخر')
             ->where('remaining_amount', '>', 0);
+        $this->applyBranchScope($query, $request);
         $this->applyDateRange($query, $request, 'created_at');
 
         return $query->orderByDesc('remaining_amount')->get()
@@ -525,6 +548,7 @@ class ReportService extends BaseService
     public function payrollsPdfRows(Request $request): array
     {
         $query = TeacherPayroll::query()->with('teacher');
+        $this->applyBranchScope($query, $request);
         $this->applyDateRange($query, $request, 'created_at');
 
         return $query->orderByDesc('year')->orderByDesc('month')->get()
@@ -542,9 +566,7 @@ class ReportService extends BaseService
     public function expensesPdfRows(Request $request): array
     {
         $query = Expense::query()->with('branch');
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->input('branch_id'));
-        }
+        $this->applyBranchScope($query, $request);
         $this->applyDateRange($query, $request, 'expense_date');
 
         return $query->orderByDesc('expense_date')->get()
