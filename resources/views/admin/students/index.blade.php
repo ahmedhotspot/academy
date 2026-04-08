@@ -35,6 +35,7 @@
         .dataTables_wrapper .dataTables_paginate .page-link { color:var(--q-green); }
         .dataTables_wrapper .dataTables_filter input { border-color:#c8e6c9!important; border-radius:8px!important; }
         .dataTables_wrapper .dataTables_filter input:focus { box-shadow:0 0 0 3px rgba(27,94,32,.15)!important; }
+        .dataTables_wrapper .dataTables_filter { margin-left:auto; }
         #students-table tbody td { text-align:right; }
         #students-table { direction:rtl; }
     </style>
