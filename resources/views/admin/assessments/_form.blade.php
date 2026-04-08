@@ -77,15 +77,23 @@
         <label class="form-label fw-semibold">
             المعلم <span class="text-danger">*</span>
         </label>
-        <select name="teacher_id" class="form-select">
-            <option value="">— اختر المعلم —</option>
-            @foreach($teacherOptions ?? [] as $tId => $tName)
-                <option value="{{ $tId }}"
-                    @selected(old('teacher_id', $assessment->teacher_id ?? auth()->id()) == $tId)>
-                    {{ $tName }}
-                </option>
-            @endforeach
-        </select>
+        @if(count($teacherOptions ?? []) > 0)
+            <select name="teacher_id" class="form-select">
+                <option value="">— اختر المعلم —</option>
+                @foreach($teacherOptions as $tId => $tName)
+                    <option value="{{ $tId }}"
+                        @selected(old('teacher_id', $assessment->teacher_id ?? auth()->id()) == $tId)>
+                        {{ $tName }}
+                    </option>
+                @endforeach
+            </select>
+        @else
+            <div class="alert alert-warning small mb-0">
+                <i class="ti ti-alert-circle me-1"></i>
+                لا توجد معلمين متاحين في فرعك
+            </div>
+            <input type="hidden" name="teacher_id" value="{{ auth()->id() }}">
+        @endif
     </div>
 
 </div>

@@ -13,13 +13,22 @@ class AssessmentManagementService extends BaseService
 {
     /**
      * قائمة الحلقات النشطة للقوائم المنسدلة
+     * تصفية الحلقات حسب فرع المستخدم الحالي
      */
     public function getGroupOptions(): array
     {
-        return Group::query()
+        $userBranchId = auth()->user()?->branch_id;
+
+        $query = Group::query()
             ->with('teacher')
-            ->where('status', 'active')
-            ->orderBy('name')
+            ->where('status', 'active');
+
+        // إذا كان المستخدم مرتبطاً بفرع معين، احصر الحلقات على هذا الفرع
+        if ($userBranchId) {
+            $query->where('branch_id', $userBranchId);
+        }
+
+        return $query->orderBy('name')
             ->get()
             ->mapWithKeys(fn (Group $g) => [
                 $g->id => $g->name . ($g->teacher ? ' — ' . $g->teacher->name : ''),
@@ -52,19 +61,22 @@ class AssessmentManagementService extends BaseService
 
     /**
      * قائمة المعلمين حسب الفرع الحالي
+     * يجلب فقط المعلمين المرتبطين بنفس فرع المستخدم الحالي
      */
     public function getTeachersByBranch(?int $branchId = null): array
     {
-        $query = User::query()
-            ->whereNotNull('branch_id')
-            ->where('status', 'active')
-            ->orderBy('name');
-
-        if ($branchId) {
-            $query->where('branch_id', $branchId);
+        // إذا لم يكن هناك فرع محدد، أرجع قائمة فارغة
+        if (!$branchId) {
+            return [];
         }
 
-        return $query->get()
+        $teachers = User::query()
+            ->where('branch_id', $branchId)  // فقط المعلمين من هذا الفرع
+            ->where('status', 'active')       // النشطين فقط
+            ->orderBy('name')                 // مرتبة حسب الاسم
+            ->get();
+
+        return $teachers
             ->mapWithKeys(fn ($teacher) => [
                 $teacher->id => $teacher->name,
             ])
@@ -84,6 +96,12 @@ class AssessmentManagementService extends BaseService
         $baseQuery = Assessment::query()
             ->with(['student', 'group', 'teacher']);
 
+        // تصفية الاختبارات حسب الفرع الحالي للمستخدم
+        $userBranchId = auth()->user()?->branch_id;
+        if ($userBranchId) {
+            $baseQuery->whereHas('group', fn ($q) => $q->where('branch_id', $userBranchId));
+        }
+
         if ($request->filled('group_id')) {
             $baseQuery->where('group_id', $request->input('group_id'));
         }
@@ -96,7 +114,12 @@ class AssessmentManagementService extends BaseService
             $baseQuery->whereDate('assessment_date', $request->input('assessment_date'));
         }
 
-        $recordsTotal = Assessment::query()->count();
+        // إجمالي الاختبارات (بعد تطبيق filter الفرع)
+        $recordsTotal = Assessment::query()
+            ->with(['group'])
+            ->when($userBranchId, fn ($q) =>
+                $q->whereHas('group', fn ($q2) => $q2->where('branch_id', $userBranchId))
+            )->count();
 
         if ($search !== '') {
             $baseQuery->where(function ($q) use ($search) {
@@ -150,6 +173,12 @@ class AssessmentManagementService extends BaseService
     public function reportSummary(array $filters = []): array
     {
         $query = Assessment::query();
+
+        // تصفية الاختبارات حسب الفرع الحالي للمستخدم
+        $userBranchId = auth()->user()?->branch_id;
+        if ($userBranchId) {
+            $query->whereHas('group', fn ($q) => $q->where('branch_id', $userBranchId));
+        }
 
         if (! empty($filters['group_id'])) {
             $query->where('group_id', $filters['group_id']);
