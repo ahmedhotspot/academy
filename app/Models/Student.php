@@ -19,6 +19,7 @@ class Student extends Authenticatable
 
     protected $fillable = [
         'branch_id',
+        'student_code',
         'guardian_id',
         'full_name',
         'enrollment_date',

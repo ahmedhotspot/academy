@@ -17,6 +17,7 @@ class StudentFactory extends Factory
     {
         return [
             'branch_id' => Branch::factory(),
+            'student_code' => 'STD-' . $this->faker->unique()->numerify('####'),
             'guardian_id' => null,
             'full_name' => $this->faker->name(),
             'enrollment_date' => $this->faker->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),

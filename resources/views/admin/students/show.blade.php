@@ -281,6 +281,10 @@
                             <div class="card-body p-4">
                                 <div class="row g-4">
                                     <div class="col-md-6">
+                                        <div class="label-muted">كود الطالب</div>
+                                        <div class="value-strong">{{ $student->student_code ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <div class="label-muted">تاريخ الالتحاق</div>
                                         <div class="value-strong">{{ optional($student->enrollment_date)->format('Y-m-d') ?: '-' }}</div>
                                     </div>

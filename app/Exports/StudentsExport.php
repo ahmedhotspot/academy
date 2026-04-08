@@ -17,10 +17,12 @@ class StudentsExport implements FromCollection, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
+            'كود الطالب',
             'الاسم الكامل',
             'العمر',
             'الجنسية',
             'رقم الهوية',
+            'تاريخ انتهاء الهوية',
             'الهاتف',
             'الواتساب',
             'الفرع',
@@ -31,10 +33,12 @@ class StudentsExport implements FromCollection, WithHeadings, WithMapping
     public function map($student): array
     {
         return [
+            $student->student_code,
             $student->full_name,
             $student->age,
             $student->nationality,
             $student->identity_number,
+            optional($student->identity_expiry_date)->format('Y-m-d'),
             $student->phone,
             $student->whatsapp,
             $student->branch?->name ?? 'غير محدد',

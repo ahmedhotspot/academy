@@ -152,6 +152,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>كود الطالب</th>
                                     <th>اسم الطالب</th>
                                     <th>العمر</th>
                                     <th>الجنسية</th>
@@ -200,7 +201,7 @@ $(function () {
             sInfoEmpty    : 'لا توجد سجلات',
             sInfoFiltered : '(تصفية من _MAX_ إجمالي)',
             sSearch       : '',
-            sSearchPlaceholder: 'ابحث بالاسم أو الهاتف أو الهوية...',
+            sSearchPlaceholder: 'ابحث بالكود أو الاسم أو الهاتف أو الهوية...',
             sLoadingRecords: 'جاري التحميل...',
             sInfoThousands : ',',
             oPaginate: { sFirst:'«', sLast:'»', sNext:'‹', sPrevious:'›' },
@@ -211,6 +212,14 @@ $(function () {
                 data:'id', orderable:false, searchable:false,
                 render: function(id, type, row, meta) {
                     return '<span class="row-num">' + (meta.row + 1) + '</span>';
+                }
+            },
+            {
+                data:'student_code',
+                render: function(code) {
+                    return code && code !== '-'
+                        ? '<span class="badge bg-light text-dark border fw-semibold">' + code + '</span>'
+                        : '<span class="text-muted">-</span>';
                 }
             },
             {

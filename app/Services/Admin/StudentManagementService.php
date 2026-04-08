@@ -70,6 +70,7 @@ class StudentManagementService extends BaseService
             ->select([
                 'id',
                 'branch_id',
+                'student_code',
                 'full_name',
                 'age',
                 'nationality',
@@ -86,6 +87,7 @@ class StudentManagementService extends BaseService
         if ($search !== '') {
             $baseQuery->where(function ($query) use ($search) {
                 $query->where('full_name', 'like', "%{$search}%")
+                    ->orWhere('student_code', 'like', "%{$search}%")
                     ->orWhere('nationality', 'like', "%{$search}%")
                     ->orWhere('identity_number', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
@@ -104,6 +106,7 @@ class StudentManagementService extends BaseService
         $data = $rows->map(function (Student $student) {
             return [
                 'id' => $student->id,
+                'student_code' => $student->student_code ?: '-',
                 'full_name' => $student->full_name,
                 'age' => $student->age,
                 'nationality' => $student->nationality,

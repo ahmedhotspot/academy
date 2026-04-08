@@ -77,13 +77,20 @@ class StudentsSeeder extends Seeder
                 ? $faker->numberBetween(5, 10)
                 : (($i % 3 === 1) ? $faker->numberBetween(11, 15) : $faker->numberBetween(16, 20));
             $phone      = '011' . str_pad($phoneCounter, 8, '0', STR_PAD_LEFT);
+            $birthDate  = now()->subYears($age)->subDays($faker->numberBetween(0, 364))->format('Y-m-d');
+            $enrollmentDate = now()->subMonths($faker->numberBetween(1, 24))->format('Y-m-d');
             $allStudents[] = [
+                'student_code'    => sprintf('STD-%06d', $phoneCounter),
                 'full_name'       => $name,
+                'enrollment_date' => $enrollmentDate,
+                'birth_date'      => $birthDate,
                 'age'             => $age,
+                'gender'          => 'male',
                 'phone'           => $phone,
                 'whatsapp'        => ($phoneCounter % 4 !== 0) ? $phone : null,
                 'nationality'     => $faker->randomElement($nationalities),
-                'identity_number' => null,
+                'identity_number' => 'IDM' . str_pad((string) $phoneCounter, 8, '0', STR_PAD_LEFT),
+                'identity_expiry_date' => now()->addYears($faker->numberBetween(1, 5))->format('Y-m-d'),
                 'branch_id'       => $branches[$phoneCounter % count($branches)],
                 'guardian_id'     => $guardianIds[($phoneCounter - 1) % $guardianCount],
                 'status'          => $statuses[$phoneCounter % count($statuses)],
@@ -97,13 +104,20 @@ class StudentsSeeder extends Seeder
                 ? $faker->numberBetween(5, 10)
                 : (($i % 3 === 1) ? $faker->numberBetween(11, 15) : $faker->numberBetween(16, 20));
             $phone      = '011' . str_pad($phoneCounter, 8, '0', STR_PAD_LEFT);
+            $birthDate  = now()->subYears($age)->subDays($faker->numberBetween(0, 364))->format('Y-m-d');
+            $enrollmentDate = now()->subMonths($faker->numberBetween(1, 24))->format('Y-m-d');
             $allStudents[] = [
+                'student_code'    => sprintf('STD-%06d', $phoneCounter),
                 'full_name'       => $name,
+                'enrollment_date' => $enrollmentDate,
+                'birth_date'      => $birthDate,
                 'age'             => $age,
+                'gender'          => 'female',
                 'phone'           => $phone,
                 'whatsapp'        => ($phoneCounter % 3 !== 0) ? $phone : null,
                 'nationality'     => $faker->randomElement($nationalities),
-                'identity_number' => null,
+                'identity_number' => 'IDF' . str_pad((string) $phoneCounter, 8, '0', STR_PAD_LEFT),
+                'identity_expiry_date' => now()->addYears($faker->numberBetween(1, 5))->format('Y-m-d'),
                 'branch_id'       => $branches[$phoneCounter % count($branches)],
                 'guardian_id'     => $guardianIds[($phoneCounter - 1) % $guardianCount],
                 'status'          => $statuses[$phoneCounter % count($statuses)],
@@ -115,11 +129,16 @@ class StudentsSeeder extends Seeder
             Student::query()->updateOrCreate(
                 ['phone' => $data['phone']],
                 [
+                    'student_code'    => $data['student_code'],
                     'full_name'       => $data['full_name'],
+                    'enrollment_date' => $data['enrollment_date'],
+                    'birth_date'      => $data['birth_date'],
                     'age'             => $data['age'],
+                    'gender'          => $data['gender'],
                     'whatsapp'        => $data['whatsapp'],
                     'nationality'     => $data['nationality'],
                     'identity_number' => $data['identity_number'],
+                    'identity_expiry_date' => $data['identity_expiry_date'],
                     'branch_id'       => $data['branch_id'],
                     'guardian_id'     => $data['guardian_id'],
                     'status'          => $data['status'],

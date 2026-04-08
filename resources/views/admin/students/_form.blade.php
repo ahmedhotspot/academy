@@ -15,7 +15,23 @@
         </div>
     </div>
     <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">
+                <i class="ti ti-hash me-1 text-muted"></i>كود الطالب
+                <span class="text-danger">*</span>
+            </label>
+            <input type="text"
+                   name="student_code"
+                   class="form-control @error('student_code') is-invalid @enderror"
+                   value="{{ old('student_code', $student->student_code ?? '') }}"
+                   placeholder="مثال: STD-1001"
+                   required>
+            @error('student_code')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-md-9">
             <label class="form-label fw-semibold">
                 <i class="ti ti-user me-1 text-muted"></i>الاسم الكامل
                 <span class="text-danger">*</span>
@@ -127,12 +143,14 @@
         <div class="col-md-6">
             <label class="form-label fw-semibold">
                 <i class="ti ti-id-badge me-1 text-muted"></i>رقم الهوية أو جواز السفر
+                <span class="text-danger">*</span>
             </label>
             <input type="text"
                    name="identity_number"
                    class="form-control @error('identity_number') is-invalid @enderror"
                    value="{{ old('identity_number', $student->identity_number ?? '') }}"
-                   placeholder="اختياري">
+                   placeholder="أدخل رقم الهوية أو الجواز"
+                   required>
             @error('identity_number')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror

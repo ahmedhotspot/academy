@@ -11,6 +11,7 @@ class StoreStudentRequest extends AdminRequest
     {
         return [
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
+            'student_code' => ['required', 'string', 'max:50', 'unique:students,student_code'],
             'guardian_mode' => ['nullable', Rule::in(['none', 'existing', 'new'])],
             'guardian_id' => ['nullable', 'integer', 'required_if:guardian_mode,existing', 'exists:guardians,id'],
             'guardian_full_name' => ['nullable', 'string', 'max:255', 'required_if:guardian_mode,new'],
@@ -21,7 +22,7 @@ class StoreStudentRequest extends AdminRequest
             'birth_date' => ['required', 'date', 'before_or_equal:today'],
             'age' => ['required', 'integer', 'min:5', 'max:100'],
             'nationality' => ['required', 'string', 'max:100'],
-            'identity_number' => ['nullable', 'string', 'max:100'],
+            'identity_number' => ['required', 'string', 'max:100'],
             'identity_expiry_date' => ['required', 'date'],
             'gender' => ['required', Rule::in(['male', 'female'])],
             'residency_number' => ['nullable', 'string', 'max:100', 'required_with:residency_expiry_date'],
@@ -36,6 +37,7 @@ class StoreStudentRequest extends AdminRequest
     {
         return [
             'branch_id' => 'الفرع',
+            'student_code' => 'كود الطالب',
             'guardian_mode' => 'طريقة اختيار ولي الأمر',
             'guardian_id' => 'ولي الأمر',
             'guardian_full_name' => 'اسم ولي الأمر الجديد',
