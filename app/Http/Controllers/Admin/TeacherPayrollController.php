@@ -81,6 +81,7 @@ class TeacherPayrollController extends AdminController
             // Fallback if a concurrent request created the same payroll.
             if (($exception->errorInfo[1] ?? null) === 1062) {
                 $existingPayroll = TeacherPayroll::query()
+                    ->withoutGlobalScope('branch')
                     ->where('teacher_id', (int) $request->input('teacher_id'))
                     ->where('month', (int) $request->input('month'))
                     ->where('year', (int) $request->input('year'))

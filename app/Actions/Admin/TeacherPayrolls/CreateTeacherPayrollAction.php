@@ -5,18 +5,33 @@ namespace App\Actions\Admin\TeacherPayrolls;
 use App\Actions\BaseAction;
 use App\Models\TeacherAttendance;
 use App\Models\TeacherPayroll;
+use App\Models\User;
+use Illuminate\Validation\ValidationException;
 
 class CreateTeacherPayrollAction extends BaseAction
 {
     public function handle(array $data): TeacherPayroll
     {
+        $teacher = User::query()->select(['id', 'branch_id'])->find($data['teacher_id']);
+
+        $branchId = $teacher?->branch_id ?: auth()->user()?->branch_id;
+        if (! $branchId) {
+            throw ValidationException::withMessages([
+                'teacher_id' => 'لا يمكن إنشاء المستحق لأن المعلم غير مرتبط بأي فرع.',
+            ]);
+        }
+
         $existingPayroll = TeacherPayroll::query()
+            ->withoutGlobalScope('branch')
             ->where('teacher_id', $data['teacher_id'])
             ->where('month', $data['month'])
             ->where('year', $data['year'])
             ->first();
 
         if ($existingPayroll) {
+            if (! $existingPayroll->branch_id) {
+                $existingPayroll->forceFill(['branch_id' => $branchId])->save();
+            }
             return $existingPayroll;
         }
 
@@ -32,6 +47,7 @@ class CreateTeacherPayrollAction extends BaseAction
         $finalAmount = $data['base_salary'] - $deductionAmount - ($data['penalty_amount'] ?? 0) + ($data['bonus_amount'] ?? 0);
 
         return TeacherPayroll::query()->create([
+            'branch_id'       => $branchId,
             'teacher_id'      => $data['teacher_id'],
             'month'           => $data['month'],
             'year'            => $data['year'],

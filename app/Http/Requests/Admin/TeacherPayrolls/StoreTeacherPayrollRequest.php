@@ -14,7 +14,8 @@ class StoreTeacherPayrollRequest extends AdminRequest
                 'required',
                 'integer',
                 Rule::exists('users', 'id')->where(function ($query) {
-                    $query->where('status', 'active');
+                    $query->where('status', 'active')
+                        ->whereNotNull('branch_id');
 
                     $user = auth()->user();
                     if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
@@ -57,6 +58,7 @@ class StoreTeacherPayrollRequest extends AdminRequest
     {
         return [
             'teacher_id.unique' => 'تم حساب مستحق لهذا المعلم في نفس الشهر والسنة مسبقاً.',
+            'teacher_id.exists' => 'المعلم المحدد غير متاح أو غير مرتبط بفرع.',
         ];
     }
 }
