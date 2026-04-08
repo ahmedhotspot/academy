@@ -2,6 +2,15 @@
 
 @section('title', 'إدارة حضور وغياب المعلمين - سجل المعلم')
 
+@section('css')
+    <style>
+        .teacher-attendance-profile-table th,
+        .teacher-attendance-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $teacherProfile = $profile['teacher'] ?? [];
@@ -94,7 +103,7 @@
                                 <span class="badge bg-info rounded-pill">{{ count($profile['recent_attendances'] ?? []) }}</span>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end teacher-attendance-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>التاريخ</th>
@@ -130,7 +139,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-book-2 me-1"></i> الحلقات التي يدرّسها</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end teacher-attendance-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الحلقة</th>

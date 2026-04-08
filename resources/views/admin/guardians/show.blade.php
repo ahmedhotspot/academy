@@ -2,6 +2,15 @@
 
 @section('title', 'إدارة أولياء الأمور - عرض')
 
+@section('css')
+    <style>
+        .guardian-profile-table th,
+        .guardian-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $stats = $profile['stats'] ?? [];
@@ -84,7 +93,7 @@
                                 <span class="badge bg-info">{{ count($profile['students'] ?? []) }}</span>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end guardian-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>
@@ -138,7 +147,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-receipt-2 me-1"></i> أحدث الاشتراكات</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end guardian-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>
@@ -170,7 +179,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-receipt me-1"></i> أحدث المدفوعات</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end guardian-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>

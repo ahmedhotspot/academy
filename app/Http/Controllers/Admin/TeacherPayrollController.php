@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\TeacherPayrolls\StoreTeacherPayrollRequest;
 use App\Http\Requests\Admin\TeacherPayrolls\UpdateTeacherPayrollRequest;
 use App\Models\TeacherPayroll;
 use App\Services\Admin\TeacherPayrollManagementService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -74,7 +75,32 @@ class TeacherPayrollController extends AdminController
         StoreTeacherPayrollRequest $request,
         CreateTeacherPayrollAction $action
     ): RedirectResponse {
-        $payroll = $action->handle($request->validated());
+        try {
+            $payroll = $action->handle($request->validated());
+        } catch (QueryException $exception) {
+            // Fallback if a concurrent request created the same payroll.
+            if (($exception->errorInfo[1] ?? null) === 1062) {
+                $existingPayroll = TeacherPayroll::query()
+                    ->where('teacher_id', (int) $request->input('teacher_id'))
+                    ->where('month', (int) $request->input('month'))
+                    ->where('year', (int) $request->input('year'))
+                    ->first();
+
+                if ($existingPayroll) {
+                    return redirect()
+                        ->route('admin.teacher-payrolls.show', $existingPayroll)
+                        ->with('warning', 'هذا المستحق موجود بالفعل لنفس الشهر والسنة.');
+                }
+            }
+
+            throw $exception;
+        }
+
+        if (! $payroll->wasRecentlyCreated) {
+            return redirect()
+                ->route('admin.teacher-payrolls.show', $payroll)
+                ->with('warning', 'هذا المستحق موجود بالفعل لنفس الشهر والسنة.');
+        }
 
         return redirect()
             ->route('admin.teacher-payrolls.show', $payroll)

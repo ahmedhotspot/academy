@@ -3,13 +3,23 @@
 namespace App\Http\Requests\Admin\TeacherPayrolls;
 
 use App\Http\Requests\Admin\AdminRequest;
+use Illuminate\Validation\Rule;
 
 class StoreTeacherPayrollRequest extends AdminRequest
 {
     public function rules(): array
     {
         return [
-            'teacher_id'           => ['required', 'integer', 'exists:users,id'],
+            'teacher_id'           => [
+                'required',
+                'integer',
+                'exists:users,id',
+                Rule::unique('teacher_payrolls', 'teacher_id')
+                    ->where(fn ($query) => $query
+                        ->where('month', $this->integer('month'))
+                        ->where('year', $this->integer('year'))
+                    ),
+            ],
             'month'                => ['required', 'integer', 'min:1', 'max:12'],
             'year'                 => ['required', 'integer', 'min:2000', 'max:2100'],
             'base_salary'          => ['required', 'numeric', 'min:0', 'max:999999.99'],
@@ -33,6 +43,13 @@ class StoreTeacherPayrollRequest extends AdminRequest
             'penalty_amount'       => 'الجزاء',
             'bonus_amount'         => 'المكافأة',
             'notes'                => 'الملاحظات',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'teacher_id.unique' => 'تم حساب مستحق لهذا المعلم في نفس الشهر والسنة مسبقاً.',
         ];
     }
 }

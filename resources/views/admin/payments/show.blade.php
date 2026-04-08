@@ -2,6 +2,15 @@
 
 @section('title', 'إيصال قبض')
 
+@section('css')
+    <style>
+        .payment-details-table th,
+        .payment-details-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="page-content-wrapper">
         <div class="content-container">
@@ -93,7 +102,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-borderless align-middle mb-0">
+                            <table class="table table-borderless align-middle mb-0 text-end payment-details-table">
                                 <tr class="border-bottom">
                                     <td class="text-muted fw-semibold">المبلغ المدفوع</td>
                                     <td class="text-end fw-bold text-success fs-5">{{ $payment->formatted_amount }}</td>

@@ -2,6 +2,15 @@
 
 @section('title', 'إدارة المستويات - عرض')
 
+@section('css')
+    <style>
+        .study-level-profile-table th,
+        .study-level-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $stats = $profile['stats'] ?? [];
@@ -90,7 +99,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-book-2 me-1"></i> الحلقات المرتبطة بالمستوى</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end study-level-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الحلقة</th>
@@ -126,7 +135,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-school me-1"></i> المعلمون المرتبطون</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end study-level-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>المعلم</th>
@@ -158,7 +167,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-users me-1"></i> الطلاب المرتبطون بالمستوى</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end study-level-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>
@@ -188,7 +197,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-progress me-1"></i> آخر المتابعات التعليمية</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end study-level-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>التاريخ</th>
@@ -220,7 +229,7 @@
                         <h6 class="mb-0 fw-semibold"><i class="ti ti-test-pipe me-1"></i> آخر الاختبارات</h6>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0 text-end study-level-profile-table">
                             <thead class="table-light">
                             <tr>
                                 <th>التاريخ</th>

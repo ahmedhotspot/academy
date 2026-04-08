@@ -2,6 +2,15 @@
 
 @section('title', 'إدارة الحلقات - عرض')
 
+@section('css')
+    <style>
+        .group-profile-table th,
+        .group-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $stats = $profile['stats'] ?? [];
@@ -92,7 +101,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-users me-1"></i> الطلاب المرتبطون بالحلقة</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end group-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>
@@ -131,7 +140,7 @@
                                 @endcan
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end group-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>اليوم</th>
@@ -165,7 +174,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-progress me-1"></i> آخر المتابعات التعليمية</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end group-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>التاريخ</th>
@@ -199,7 +208,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-test-pipe me-1"></i> آخر الاختبارات</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end group-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>التاريخ</th>
@@ -238,7 +247,7 @@
                         <span class="badge bg-warning text-dark rounded-pill">{{ $stats['overdue_students'] ?? 0 }} طالب</span>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0 text-end group-profile-table">
                             <thead class="table-light">
                             <tr>
                                 <th>الطالب</th>

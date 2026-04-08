@@ -2,6 +2,15 @@
 
 @section('title', 'اشتراك الطالب')
 
+@section('css')
+    <style>
+        .student-subscription-table th,
+        .student-subscription-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="page-content-wrapper">
         <div class="content-container">
@@ -185,7 +194,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-borderless align-middle">
+                            <table class="table table-borderless align-middle text-end student-subscription-table">
                                 <tr class="border-bottom">
                                     <td class="text-muted fw-semibold">معرّف الاشتراك</td>
                                     <td><code>#{{ $subscription->id }}</code></td>

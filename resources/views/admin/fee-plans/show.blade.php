@@ -2,6 +2,15 @@
 
 @section('title', 'خطة الرسوم — ' . $feePlan->name)
 
+@section('css')
+    <style>
+        .fee-plan-profile-table th,
+        .fee-plan-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $stats = $profile['stats'] ?? [];
@@ -125,7 +134,7 @@
                         <span class="badge bg-info rounded-pill">{{ count($profile['subscriptions'] ?? []) }}</span>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0 text-end fee-plan-profile-table">
                             <thead class="table-light">
                             <tr>
                                 <th>الطالب</th>
@@ -174,7 +183,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-receipt me-1"></i> أحدث المدفوعات المرتبطة بالخطة</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end fee-plan-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>
@@ -207,7 +216,7 @@
                                 <span class="badge bg-warning text-dark rounded-pill">{{ count($profile['top_outstanding'] ?? []) }}</span>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end fee-plan-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>

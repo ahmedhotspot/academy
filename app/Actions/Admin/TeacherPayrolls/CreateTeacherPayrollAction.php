@@ -10,6 +10,16 @@ class CreateTeacherPayrollAction extends BaseAction
 {
     public function handle(array $data): TeacherPayroll
     {
+        $existingPayroll = TeacherPayroll::query()
+            ->where('teacher_id', $data['teacher_id'])
+            ->where('month', $data['month'])
+            ->where('year', $data['year'])
+            ->first();
+
+        if ($existingPayroll) {
+            return $existingPayroll;
+        }
+
         // حساب الاستقطاع من الغياب
         $deductionAmount = $this->calculateDeductionFromAbsences(
             $data['teacher_id'],

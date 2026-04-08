@@ -2,6 +2,15 @@
 
 @section('title', 'إدارة جداول الحلقات - عرض')
 
+@section('css')
+    <style>
+        .group-schedule-profile-table th,
+        .group-schedule-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $group = $profile['group'] ?? [];
@@ -94,7 +103,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-calendar-event me-1"></i> كل جداول الحلقة</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end group-schedule-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>اليوم</th>
@@ -133,7 +142,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-users me-1"></i> الطلاب المرتبطون بالحلقة</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end group-schedule-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الطالب</th>

@@ -2,6 +2,15 @@
 
 @section('title', 'تفاصيل المصروف')
 
+@section('css')
+    <style>
+        .expense-profile-table th,
+        .expense-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $expenseInfo = $profile['expense'] ?? [];
@@ -96,7 +105,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-history me-1"></i> أحدث المصروفات المرتبطة</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end expense-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>التاريخ</th>
@@ -126,7 +135,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-chart-pie me-1"></i> توزيع مصروفات الشهر حسب البنود</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end expense-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>البند</th>

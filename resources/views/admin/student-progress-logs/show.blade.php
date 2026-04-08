@@ -2,6 +2,15 @@
 
 @section('title', 'سجل المتابعة التعليمية — ' . $student->full_name)
 
+@section('css')
+    <style>
+        .student-progress-profile-table th,
+        .student-progress-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $quickAddParams = ['student_id' => $student->id];
@@ -201,7 +210,7 @@
                             </div>
                         @else
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end student-progress-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>التاريخ</th>

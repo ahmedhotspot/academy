@@ -4,6 +4,12 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <style>
+        #fee-plans-table th,
+        #fee-plans-table td {
+            text-align: right !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -165,6 +171,12 @@
                     search:      'بحث:',
                     paginate: {first:'الأول', last:'الأخير', next:'التالي', previous:'السابق'},
                 },
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        className: 'text-end'
+                    }
+                ],
                 order: [[0, 'desc']],
                 columns: [
                     {data: 'id', width: '50px'},
