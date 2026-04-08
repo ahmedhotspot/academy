@@ -2,6 +2,15 @@
 
 @section('title', 'إدارة المعلمين - عرض')
 
+@section('css')
+    <style>
+        .teacher-profile-table th,
+        .teacher-profile-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $info = $profile['info'] ?? [];
@@ -105,7 +114,7 @@
                                 <h6 class="mb-0 fw-semibold"><i class="ti ti-book-2 me-1"></i> الحلقات المرتبطة بالتدريس</h6>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 text-end teacher-profile-table">
                                     <thead class="table-light">
                                     <tr>
                                         <th>الحلقة</th>

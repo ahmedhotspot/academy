@@ -4,6 +4,12 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <style>
+        #teachers-table th,
+        #teachers-table td {
+            text-align: right !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -58,6 +64,12 @@
                     emptyTable: 'لا توجد بيانات لعرضها',
                     processing: 'جاري التحميل...'
                 },
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        className: 'text-end'
+                    }
+                ],
                 columns: [
                     {data: 'id'},
                     {data: 'name'},
