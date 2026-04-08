@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class TeacherManagementService
@@ -23,6 +24,10 @@ class TeacherManagementService
             ->with(['branch:id,name'])
             ->select(['id', 'name', 'phone', 'whatsapp', 'branch_id', 'status', 'created_at']);
 
+        $this->applyViewerBranchScope($baseQuery);
+
+        $recordsTotal = (clone $baseQuery)->count();
+
         if ($search !== '') {
             $baseQuery->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
@@ -33,7 +38,6 @@ class TeacherManagementService
         }
 
         $recordsFiltered = (clone $baseQuery)->count();
-        $recordsTotal = User::query()->role('المعلم')->count();
 
         $rows = $baseQuery->orderByDesc('id')->skip($start)->take($length)->get();
 
@@ -59,6 +63,11 @@ class TeacherManagementService
     {
         abort_unless($teacher->hasRole('المعلم'), 404);
 
+        $viewer = auth()->user();
+        if ($viewer && ! $viewer->isSuperAdmin()) {
+            abort_unless((int) $teacher->branch_id === (int) $viewer->branch_id, 404);
+        }
+
         return $teacher->load(['roles', 'branch']);
     }
 
@@ -69,12 +78,32 @@ class TeacherManagementService
 
     public function getBranchOptions(): array
     {
-        return $this->userManagementService->getBranchOptions();
+        $branches = $this->userManagementService->getBranchOptions();
+        $viewer = auth()->user();
+
+        if (! $viewer || $viewer->isSuperAdmin()) {
+            return $branches;
+        }
+
+        $branchId = (int) $viewer->branch_id;
+
+        return isset($branches[$branchId]) ? [$branchId => $branches[$branchId]] : [];
     }
 
     public function getStatusOptions(): array
     {
         return $this->userManagementService->getStatusOptions();
+    }
+
+    private function applyViewerBranchScope(Builder $query): void
+    {
+        $viewer = auth()->user();
+
+        if (! $viewer || $viewer->isSuperAdmin()) {
+            return;
+        }
+
+        $query->where('branch_id', (int) $viewer->branch_id);
     }
 }
 

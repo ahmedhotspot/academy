@@ -41,7 +41,9 @@ class StudentController extends AdminController
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
                 ['title' => 'إدارة الطلاب'],
             ],
-            'actions' => $actions,
+            'actions'       => $actions,
+            'stats'         => $this->studentManagementService->getStats(),
+            'branchOptions' => $this->studentManagementService->getBranchOptions(),
         ]);
     }
 

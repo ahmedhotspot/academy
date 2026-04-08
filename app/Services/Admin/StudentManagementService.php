@@ -37,12 +37,23 @@ class StudentManagementService extends BaseService
             ->toArray();
     }
 
+    public function getStats(): array
+    {
+        $total    = Student::query()->count();
+        $active   = Student::query()->where('status', 'active')->count();
+        $inactive = Student::query()->where('status', 'inactive')->count();
+
+        return compact('total', 'active', 'inactive');
+    }
+
     public function datatable(Request $request): array
     {
-        $draw = (int) $request->input('draw', 1);
-        $start = max((int) $request->input('start', 0), 0);
-        $length = max((int) $request->input('length', 10), 1);
-        $search = trim((string) data_get($request->input('search'), 'value', ''));
+        $draw          = (int) $request->input('draw', 1);
+        $start         = max((int) $request->input('start', 0), 0);
+        $length        = max((int) $request->input('length', 10), 1);
+        $search        = trim((string) data_get($request->input('search'), 'value', ''));
+        $filterBranch  = $request->input('filter_branch_id');
+        $filterStatus  = $request->input('filter_status');
 
         $baseQuery = Student::query()
             ->with(['branch'])
@@ -56,9 +67,11 @@ class StudentManagementService extends BaseService
                 'phone',
                 'whatsapp',
                 'status',
-            ]);
+            ])
+            ->when($filterBranch, fn ($q) => $q->where('students.branch_id', $filterBranch))
+            ->when($filterStatus,  fn ($q) => $q->where('students.status', $filterStatus));
 
-        $recordsTotal = Student::query()->count();
+        $recordsTotal = (clone $baseQuery)->count();
 
         if ($search !== '') {
             $baseQuery->where(function ($query) use ($search) {
@@ -194,6 +207,9 @@ class StudentManagementService extends BaseService
         $totalPaid = (float) $student->payments->sum('amount');
         $totalRemaining = (float) $student->subscriptions->sum('remaining_amount');
         $totalFinal = (float) $student->subscriptions->sum('final_amount');
+        $collectionRate = $totalFinal > 0
+            ? min(100, round(($totalPaid / $totalFinal) * 100, 2))
+            : 0.0;
 
         $assessmentAverage = (float) Assessment::query()
             ->where('student_id', $student->id)
@@ -209,7 +225,7 @@ class StudentManagementService extends BaseService
             'stats' => [
                 'enrollments' => count($enrollments),
                 'subscriptions' => count($subscriptions),
-                'payments' => count($payments),
+                'payments' => $student->payments->count(),
                 'progress_logs' => StudentProgressLog::query()->where('student_id', $student->id)->count(),
                 'assessments' => Assessment::query()->where('student_id', $student->id)->count(),
             ],
@@ -217,6 +233,7 @@ class StudentManagementService extends BaseService
                 'total_paid' => number_format($totalPaid, 2) . ' ج',
                 'total_remaining' => number_format($totalRemaining, 2) . ' ج',
                 'total_final' => number_format($totalFinal, 2) . ' ج',
+                'collection_rate' => $collectionRate,
             ],
             'learning' => [
                 'assessment_avg' => $assessmentAverage > 0 ? round($assessmentAverage, 2) : null,
