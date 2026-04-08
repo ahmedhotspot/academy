@@ -171,6 +171,15 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script>
         $(function () {
+            const formatAssessmentScore = function (score) {
+                if (score === null || score === undefined || score === '-') return '-';
+
+                const numericScore = Number(score);
+                if (Number.isNaN(numericScore)) return score;
+
+                return numericScore.toFixed(2).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
+            };
+
             const table = $('#assessments-table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -202,21 +211,21 @@
                         data: 'memorization_result',
                         render: function (val, t, row) {
                             if (val === '-') return '-';
-                            return '<span class="badge ' + row.memorization_badge + '">' + val + '</span>';
+                            return '<span class="badge ' + row.memorization_badge + '">' + formatAssessmentScore(val) + '</span>';
                         }
                     },
                     {
                         data: 'tajweed_result',
                         render: function (val, t, row) {
                             if (val === '-') return '-';
-                            return '<span class="badge ' + row.tajweed_badge + '">' + val + '</span>';
+                            return '<span class="badge ' + row.tajweed_badge + '">' + formatAssessmentScore(val) + '</span>';
                         }
                     },
                     {
                         data: 'average_score',
                         render: function (val, t, row) {
                             if (val === '-') return '-';
-                            return '<span class="badge ' + row.average_badge + ' fw-bold">' + val + '</span>';
+                            return '<span class="badge ' + row.average_badge + ' fw-bold">' + formatAssessmentScore(val) + '</span>';
                         }
                     },
                     {
