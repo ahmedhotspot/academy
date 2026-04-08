@@ -33,6 +33,36 @@
 
         <div class="col-md-3">
             <label class="form-label fw-semibold">
+                <i class="ti ti-calendar-plus me-1 text-muted"></i>تاريخ الالتحاق
+                <span class="text-danger">*</span>
+            </label>
+            <input type="date"
+                   name="enrollment_date"
+                   class="form-control @error('enrollment_date') is-invalid @enderror"
+                   value="{{ old('enrollment_date', optional($student->enrollment_date ?? null)->format('Y-m-d')) }}"
+                   required>
+            @error('enrollment_date')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">
+                <i class="ti ti-cake me-1 text-muted"></i>تاريخ الميلاد
+                <span class="text-danger">*</span>
+            </label>
+            <input type="date"
+                   name="birth_date"
+                   class="form-control @error('birth_date') is-invalid @enderror"
+                   value="{{ old('birth_date', optional($student->birth_date ?? null)->format('Y-m-d')) }}"
+                   required>
+            @error('birth_date')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">
                 <i class="ti ti-calendar-time me-1 text-muted"></i>العمر
                 <span class="text-danger">*</span>
             </label>
@@ -79,6 +109,21 @@
             @enderror
         </div>
 
+        <div class="col-md-3">
+            <label class="form-label fw-semibold">
+                <i class="ti ti-gender-bigender me-1 text-muted"></i>الجنس
+                <span class="text-danger">*</span>
+            </label>
+            <select name="gender" class="form-select @error('gender') is-invalid @enderror" required>
+                <option value="">— اختر الجنس —</option>
+                <option value="male" @selected(old('gender', $student->gender ?? '') === 'male')>ذكر</option>
+                <option value="female" @selected(old('gender', $student->gender ?? '') === 'female')>أنثى</option>
+            </select>
+            @error('gender')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         <div class="col-md-6">
             <label class="form-label fw-semibold">
                 <i class="ti ti-id-badge me-1 text-muted"></i>رقم الهوية أو جواز السفر
@@ -89,6 +134,48 @@
                    value="{{ old('identity_number', $student->identity_number ?? '') }}"
                    placeholder="اختياري">
             @error('identity_number')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">
+                <i class="ti ti-calendar-x me-1 text-muted"></i>تاريخ انتهاء الهوية أو الجواز
+                <span class="text-danger">*</span>
+            </label>
+            <input type="date"
+                   name="identity_expiry_date"
+                   class="form-control @error('identity_expiry_date') is-invalid @enderror"
+                   value="{{ old('identity_expiry_date', optional($student->identity_expiry_date ?? null)->format('Y-m-d')) }}"
+                   required>
+            @error('identity_expiry_date')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">
+                <i class="ti ti-id me-1 text-muted"></i>رقم الإقامة
+            </label>
+            <input type="text"
+                   name="residency_number"
+                   class="form-control @error('residency_number') is-invalid @enderror"
+                   value="{{ old('residency_number', $student->residency_number ?? '') }}"
+                   placeholder="اختياري">
+            @error('residency_number')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">
+                <i class="ti ti-calendar-clock me-1 text-muted"></i>تاريخ انتهاء الإقامة
+            </label>
+            <input type="date"
+                   name="residency_expiry_date"
+                   class="form-control @error('residency_expiry_date') is-invalid @enderror"
+                   value="{{ old('residency_expiry_date', optional($student->residency_expiry_date ?? null)->format('Y-m-d')) }}">
+            @error('residency_expiry_date')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

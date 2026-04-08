@@ -281,8 +281,22 @@
                             <div class="card-body p-4">
                                 <div class="row g-4">
                                     <div class="col-md-6">
+                                        <div class="label-muted">تاريخ الالتحاق</div>
+                                        <div class="value-strong">{{ optional($student->enrollment_date)->format('Y-m-d') ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="label-muted">تاريخ الميلاد</div>
+                                        <div class="value-strong">{{ optional($student->birth_date)->format('Y-m-d') ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <div class="label-muted">العمر</div>
                                         <div class="value-strong">{{ $student->age }} سنة</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="label-muted">الجنس</div>
+                                        <div class="value-strong">
+                                            {{ $student->gender === 'male' ? 'ذكر' : ($student->gender === 'female' ? 'أنثى' : '-') }}
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="label-muted">الجنسية</div>
@@ -301,8 +315,16 @@
                                         <div class="value-strong">{{ $student->identity_number ?: '-' }}</div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="label-muted">تاريخ التسجيل</div>
-                                        <div class="value-strong">{{ optional($student->created_at)->format('Y-m-d') }}</div>
+                                        <div class="label-muted">تاريخ انتهاء الهوية / الجواز</div>
+                                        <div class="value-strong">{{ optional($student->identity_expiry_date)->format('Y-m-d') ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="label-muted">رقم الإقامة</div>
+                                        <div class="value-strong">{{ $student->residency_number ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="label-muted">تاريخ انتهاء الإقامة</div>
+                                        <div class="value-strong">{{ optional($student->residency_expiry_date)->format('Y-m-d') ?: '-' }}</div>
                                     </div>
                                 </div>
 

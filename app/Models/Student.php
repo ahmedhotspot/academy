@@ -21,9 +21,15 @@ class Student extends Authenticatable
         'branch_id',
         'guardian_id',
         'full_name',
+        'enrollment_date',
+        'birth_date',
         'age',
         'nationality',
         'identity_number',
+        'identity_expiry_date',
+        'gender',
+        'residency_number',
+        'residency_expiry_date',
         'phone',
         'whatsapp',
         'status',
@@ -38,7 +44,11 @@ class Student extends Authenticatable
     protected function casts(): array
     {
         return [
+            'enrollment_date' => 'date',
+            'birth_date' => 'date',
             'age' => 'integer',
+            'identity_expiry_date' => 'date',
+            'residency_expiry_date' => 'date',
         ];
     }
 
