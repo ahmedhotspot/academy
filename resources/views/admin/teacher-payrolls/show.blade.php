@@ -2,6 +2,15 @@
 
 @section('title', 'مستحق المعلم')
 
+@section('css')
+    <style>
+        .teacher-payroll-table th,
+        .teacher-payroll-table td {
+            text-align: right !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     <div class="page-content-wrapper">
         <div class="content-container">
@@ -122,7 +131,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-borderless align-middle">
+                            <table class="table table-borderless align-middle text-end teacher-payroll-table">
                                 <tr class="border-bottom">
                                     <td class="text-muted fw-semibold">المعلم</td>
                                     <td>{{ $payroll->teacher?->name ?? '-' }}</td>

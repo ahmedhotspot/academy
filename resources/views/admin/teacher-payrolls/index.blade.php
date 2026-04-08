@@ -4,6 +4,12 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <style>
+        #payrolls-table th,
+        #payrolls-table td {
+            text-align: right !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -129,6 +135,12 @@
                     search:      'بحث:',
                     paginate: {first:'الأول', last:'الأخير', next:'التالي', previous:'السابق'},
                 },
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        className: 'text-end'
+                    }
+                ],
                 order: [[2, 'desc']],
                 columns: [
                     {data: 'id', width: '50px'},
