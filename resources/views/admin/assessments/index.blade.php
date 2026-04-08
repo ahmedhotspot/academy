@@ -153,8 +153,7 @@
                                     <th>التاريخ</th>
                                     <th>الحفظ</th>
                                     <th>التجويد</th>
-                                    <th>التدبر</th>
-                                    <th>المتوسط</th>
+                                    <th>التدبير</th>
                                     <th>العمليات</th>
                                 </tr>
                                 </thead>
@@ -211,13 +210,6 @@
                         render: function (val, t, row) {
                             if (val === '-') return '-';
                             return '<span class="badge ' + row.tajweed_badge + '">' + val + '</span>';
-                        }
-                    },
-                    {
-                        data: 'tadabbur_result',
-                        render: function (val, t, row) {
-                            if (val === '-') return '-';
-                            return '<span class="badge ' + row.tadabbur_badge + '">' + val + '</span>';
                         }
                     },
                     {
