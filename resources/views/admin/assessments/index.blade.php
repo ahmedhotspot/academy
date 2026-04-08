@@ -4,6 +4,27 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <style>
+        #assessments-table thead th,
+        #assessments-table tbody td {
+            text-align: right;
+        }
+
+        #assessments-table {
+            direction: rtl;
+        }
+
+        #assessments-table_wrapper {
+            direction: rtl;
+            text-align: right;
+        }
+
+        #assessments-table_wrapper .dataTables_filter,
+        #assessments-table_wrapper .dataTables_length,
+        #assessments-table_wrapper .dataTables_info {
+            text-align: right;
+        }
+    </style>
 @endsection
 
 @section('content')
