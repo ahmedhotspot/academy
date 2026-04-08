@@ -15,12 +15,18 @@ class TeacherPayrollManagementService extends BaseService
      */
     public function getTeacherOptions(): array
     {
-        return User::query()
+        $user = auth()->user();
+
+        $query = User::query()
             ->whereHas('roles', fn ($q) => $q->where('name', 'المعلم'))
             ->where('status', 'active')
-            ->orderBy('name')
-            ->pluck('name', 'id')
-            ->toArray();
+            ->orderBy('name');
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $query->where('branch_id', (int) $user->branch_id);
+        }
+
+        return $query->pluck('name', 'id')->toArray();
     }
 
     /**

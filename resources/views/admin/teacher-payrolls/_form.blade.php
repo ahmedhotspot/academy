@@ -21,6 +21,9 @@
                 </option>
             @endforeach
         </select>
+        @if(empty($teacherOptions))
+            <small class="text-muted">لا يوجد معلمون متاحون حسب الفرع الحالي.</small>
+        @endif
     </div>
 
     {{-- الشهر --}}

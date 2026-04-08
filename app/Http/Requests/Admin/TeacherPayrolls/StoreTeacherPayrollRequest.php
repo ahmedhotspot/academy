@@ -13,7 +13,14 @@ class StoreTeacherPayrollRequest extends AdminRequest
             'teacher_id'           => [
                 'required',
                 'integer',
-                'exists:users,id',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->where('status', 'active');
+
+                    $user = auth()->user();
+                    if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+                        $query->where('branch_id', (int) $user->branch_id);
+                    }
+                }),
                 Rule::unique('teacher_payrolls', 'teacher_id')
                     ->where(fn ($query) => $query
                         ->where('month', $this->integer('month'))
