@@ -151,8 +151,7 @@
                                         <th>المعلم</th>
                                         <th>الحفظ</th>
                                         <th>التجويد</th>
-                                        <th>التدبر</th>
-                                        <th>المتوسط</th>
+                                        <th>التدبير</th>
                                         <th>الملاحظات</th>
                                         <th>العمليات</th>
                                     </tr>
@@ -183,15 +182,6 @@
                                                 @if($assessment->tajweed_result)
                                                     <span class="badge {{ $assessment->tajweed_badge_class }}">
                                                         {{ $assessment->tajweed_result }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted">—</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($assessment->tadabbur_result)
-                                                    <span class="badge {{ $assessment->tadabbur_badge_class }}">
-                                                        {{ $assessment->tadabbur_result }}
                                                     </span>
                                                 @else
                                                     <span class="text-muted">—</span>
