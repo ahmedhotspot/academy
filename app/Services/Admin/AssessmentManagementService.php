@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Assessment;
 use App\Models\Group;
 use App\Models\Student;
+use App\Models\User;
 use App\Services\BaseService;
 use Illuminate\Http\Request;
 
@@ -46,6 +47,27 @@ class AssessmentManagementService extends BaseService
             ])
             ->sortBy('name')
             ->values()
+            ->toArray();
+    }
+
+    /**
+     * قائمة المعلمين حسب الفرع الحالي
+     */
+    public function getTeachersByBranch(?int $branchId = null): array
+    {
+        $query = User::query()
+            ->whereNotNull('branch_id')
+            ->where('status', 'active')
+            ->orderBy('name');
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
+
+        return $query->get()
+            ->mapWithKeys(fn ($teacher) => [
+                $teacher->id => $teacher->name,
+            ])
             ->toArray();
     }
 

@@ -27,6 +27,7 @@
                                 'groupOptions'    => $groupOptions,
                                 'assessmentTypes' => $assessmentTypes,
                                 'maxScore'        => $maxScore,
+                                'teacherOptions'  => $teacherOptions ?? [],
                             ])
                         </div>
                         <div class="card-footer bg-white border-top d-flex gap-2 justify-content-end">

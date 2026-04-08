@@ -77,10 +77,15 @@
         <label class="form-label fw-semibold">
             المعلم <span class="text-danger">*</span>
         </label>
-        <input type="hidden" name="teacher_id"
-               value="{{ old('teacher_id', $assessment->teacher_id ?? auth()->id()) }}">
-        <input type="text" class="form-control bg-light" readonly
-               value="{{ $assessment->teacher->name ?? auth()->user()->name }}">
+        <select name="teacher_id" class="form-select">
+            <option value="">— اختر المعلم —</option>
+            @foreach($teacherOptions ?? [] as $tId => $tName)
+                <option value="{{ $tId }}"
+                    @selected(old('teacher_id', $assessment->teacher_id ?? auth()->id()) == $tId)>
+                    {{ $tName }}
+                </option>
+            @endforeach
+        </select>
     </div>
 
 </div>

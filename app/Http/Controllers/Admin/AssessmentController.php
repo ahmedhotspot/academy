@@ -71,6 +71,8 @@ class AssessmentController extends AdminController
 
     public function create(): View
     {
+        $userBranchId = auth()->user()?->branch_id;
+
         return $this->adminView('admin.assessments.create', [
             'breadcrumbs' => [
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
@@ -80,6 +82,8 @@ class AssessmentController extends AdminController
             'groupOptions'      => $this->service->getGroupOptions(),
             'assessmentTypes'   => Assessment::TYPES,
             'maxScore'          => Assessment::MAX_SCORE,
+            'teacherOptions'    => $this->service->getTeachersByBranch($userBranchId),
+            'userBranchId'      => $userBranchId,
         ]);
     }
 
@@ -112,6 +116,7 @@ class AssessmentController extends AdminController
     public function edit(Assessment $assessment): View
     {
         $assessment->load(['student', 'group', 'teacher']);
+        $userBranchId = auth()->user()?->branch_id;
 
         return $this->adminView('admin.assessments.edit', [
             'breadcrumbs' => [
@@ -124,6 +129,8 @@ class AssessmentController extends AdminController
             'assessmentTypes'    => Assessment::TYPES,
             'maxScore'           => Assessment::MAX_SCORE,
             'currentStudents'    => $this->service->getStudentsByGroup($assessment->group_id ?? 0),
+            'teacherOptions'    => $this->service->getTeachersByBranch($userBranchId),
+            'userBranchId'      => $userBranchId,
         ]);
     }
 

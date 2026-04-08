@@ -38,6 +38,7 @@
                                 'assessmentTypes' => $assessmentTypes,
                                 'maxScore'        => $maxScore,
                                 'currentStudents' => $currentStudents,
+                                'teacherOptions'  => $teacherOptions ?? [],
                             ])
                         </div>
                         <div class="card-footer bg-white border-top d-flex gap-2 justify-content-end">
