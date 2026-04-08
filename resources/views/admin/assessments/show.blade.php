@@ -204,9 +204,9 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($assessment->avgMemoization)
-                                                    <span class="badge {{ $assessment->avgMemoization }} fw-bold">
-                                                        {{ $assessment->avgMemoization }}
+                                                @if(!is_null($assessment->tadabbur_result))
+                                                    <span class="badge {{ $assessment->tadabur_badge_class }}">
+                                                        {{ $assessment->tadabbur_result }}
                                                     </span>
                                                 @else
                                                     <span class="text-muted">—</span>
