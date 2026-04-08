@@ -62,6 +62,7 @@ class AssessmentManagementService extends BaseService
     /**
      * قائمة المعلمين حسب الفرع الحالي
      * يجلب فقط المعلمين المرتبطين بنفس فرع المستخدم الحالي
+     * (لا يشمل المستخدم الحالي نفسه)
      */
     public function getTeachersByBranch(?int $branchId = null): array
     {
@@ -70,8 +71,11 @@ class AssessmentManagementService extends BaseService
             return [];
         }
 
+        $currentUserId = auth()->id();
+
         $teachers = User::query()
             ->where('branch_id', $branchId)  // فقط المعلمين من هذا الفرع
+            ->where('id', '!=', $currentUserId)  // استبعاد المستخدم الحالي
             ->where('status', 'active')       // النشطين فقط
             ->orderBy('name')                 // مرتبة حسب الاسم
             ->get();
