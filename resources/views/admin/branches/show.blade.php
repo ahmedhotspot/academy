@@ -2,6 +2,20 @@
 
 @section('title', 'إدارة الفروع - عرض')
 
+@section('css')
+    <style>
+        /* Keep all table content right-aligned in this page while preserving explicit centering utilities. */
+        .branch-show-page table th,
+        .branch-show-page table td {
+            text-align: right !important;
+        }
+
+        .branch-show-page table .text-center {
+            text-align: center !important;
+        }
+    </style>
+@endsection
+
 @section('content')
     @php
         $stats = $profile['stats'] ?? [];
@@ -12,7 +26,7 @@
 
     <div class="page-content-wrapper">
         <div class="content-container">
-            <div class="page-content">
+            <div class="page-content branch-show-page">
                 @include('admin.partials.page-header', [
                     'title' => 'تفاصيل الفرع',
                     'breadcrumbs' => $breadcrumbs,
