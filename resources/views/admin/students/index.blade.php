@@ -143,7 +143,7 @@
                 </div>
                 <div class="card-body p-3">
                     <div class="table-responsive">
-                        <table id="students-table" class="table table-hover align-middle w-100 mb-0">
+                        <table id="students-table" class="table table-hover align-middle w-100 mb-0 text-end">
                             <thead>
                                 <tr>
                                     <th>#</th>
