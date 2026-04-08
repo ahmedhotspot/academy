@@ -173,6 +173,11 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    @php
+                                        $formatAssessmentScore = static fn ($score) => is_null($score)
+                                            ? null
+                                            : rtrim(rtrim(number_format((float) $score, 2, '.', ''), '0'), '.');
+                                    @endphp
                                     @foreach($report['assessments'] as $assessment)
                                         <tr>
                                             <td class="fw-semibold text-nowrap">
@@ -186,18 +191,18 @@
                                             <td>{{ $assessment->group?->name ?? '-' }}</td>
                                             <td>{{ $assessment->teacher?->name ?? '-' }}</td>
                                             <td>
-                                                @if($assessment->memorization_result)
+                                                @if(!is_null($assessment->memorization_result))
                                                     <span class="badge {{ $assessment->memorization_badge_class }}">
-                                                        {{ $assessment->memorization_result }}
+                                                        {{ $formatAssessmentScore($assessment->memorization_result) }}
                                                     </span>
                                                 @else
                                                     <span class="text-muted">—</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($assessment->tajweed_result)
+                                                @if(!is_null($assessment->tajweed_result))
                                                     <span class="badge {{ $assessment->tajweed_badge_class }}">
-                                                        {{ $assessment->tajweed_result }}
+                                                        {{ $formatAssessmentScore($assessment->tajweed_result) }}
                                                     </span>
                                                 @else
                                                     <span class="text-muted">—</span>
@@ -206,7 +211,7 @@
                                             <td>
                                                 @if(!is_null($assessment->tadabbur_result))
                                                     <span class="badge {{ $assessment->tadabur_badge_class }}">
-                                                        {{ $assessment->tadabbur_result }}
+                                                        {{ $formatAssessmentScore($assessment->tadabbur_result) }}
                                                     </span>
                                                 @else
                                                     <span class="text-muted">—</span>
