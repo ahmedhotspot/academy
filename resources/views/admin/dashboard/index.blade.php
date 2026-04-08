@@ -119,13 +119,13 @@
                                         </select>
                                     </form>
                                 </div>
-                                <p class="mb-2 text-muted small">مقارنة {{ $financialRange['label'] ?? 'آخر 6 شهور' }} بين التحصيل والمصروفات على مستوى النظام.</p>
+                                <p class="mb-2 text-muted small">مقارنة {{ $financialRange['label'] ?? 'آخر 6 شهور' }} بين التحصيل والمصروفات على مستوى {{ $financialSummary['scope_label'] ?? 'النظام' }}.</p>
                                 <div class="d-flex flex-wrap gap-2 small">
                                     <span class="badge bg-success-subtle text-success border border-success-subtle">
-                                        إجمالي التحصيل (النظام): {{ number_format($financialSummary['system_collection'] ?? 0, 2) }} ج
+                                        إجمالي التحصيل ({{ $financialSummary['scope_label'] ?? 'النظام' }}): {{ number_format($financialSummary['system_collection'] ?? 0, 2) }} ج
                                     </span>
                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
-                                        إجمالي المصروفات (النظام): {{ number_format($financialSummary['system_expenses'] ?? 0, 2) }} ج
+                                        إجمالي المصروفات ({{ $financialSummary['scope_label'] ?? 'النظام' }}): {{ number_format($financialSummary['system_expenses'] ?? 0, 2) }} ج
                                     </span>
                                 </div>
                             </div>

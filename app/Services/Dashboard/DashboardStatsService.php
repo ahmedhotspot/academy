@@ -84,15 +84,15 @@ class DashboardStatsService
             ->count();
 
         $monthlyExpenses = Expense::query()
-            ->withoutGlobalScopes()
             ->whereMonth('expense_date', $now->month)
             ->whereYear('expense_date', $now->year)
             ->sum('amount');
 
         $studentStatusStats = $this->buildStudentStatusStats($totalStudents);
-        $financialStats = $this->buildMonthlyFinancialStats($monthsRange);
+        $financialStats = $this->buildMonthlyFinancialStats($monthsRange, $authUser);
         $systemCollectionTotal = array_sum($financialStats['collections']);
         $systemExpensesTotal = array_sum($financialStats['expenses']);
+        $financialScopeLabel = ! $isSuperAdmin && $branchId ? 'الفرع الحالي' : 'النظام';
 
         $recentStudents = Student::query()
             ->orderByDesc('created_at')
@@ -150,6 +150,7 @@ class DashboardStatsService
                 'expenses' => $monthlyExpenses,
                 'system_collection' => $systemCollectionTotal,
                 'system_expenses' => $systemExpensesTotal,
+                'scope_label' => $financialScopeLabel,
             ],
             'financialRange' => [
                 'selected' => $monthsRange,
@@ -197,24 +198,27 @@ class DashboardStatsService
         ];
     }
 
-    private function buildMonthlyFinancialStats(int $monthsRange): array
+    private function buildMonthlyFinancialStats(int $monthsRange, ?User $authUser = null): array
     {
         $labels = [];
         $collections = [];
         $expenses = [];
+
+        $isSuperAdmin = $authUser?->isSuperAdmin() ?? false;
+        $branchId = $authUser?->branch_id;
 
         for ($i = $monthsRange - 1; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $labels[] = $date->translatedFormat('M Y');
 
             $collections[] = (float) Payment::query()
-                ->withoutGlobalScope('branch')
+                ->when(! $isSuperAdmin && $branchId, fn ($q) => $q->forBranch($branchId))
                 ->whereYear('payment_date', $date->year)
                 ->whereMonth('payment_date', $date->month)
                 ->sum('amount');
 
             $expenses[] = (float) Expense::query()
-                ->withoutGlobalScopes()
+                ->when(! $isSuperAdmin && $branchId, fn ($q) => $q->forBranch($branchId))
                 ->whereYear('expense_date', $date->year)
                 ->whereMonth('expense_date', $date->month)
                 ->sum('amount');
