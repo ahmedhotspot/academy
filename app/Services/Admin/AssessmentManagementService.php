@@ -103,7 +103,7 @@ class AssessmentManagementService extends BaseService
         // تصفية الاختبارات حسب الفرع الحالي للمستخدم
         $userBranchId = auth()->user()?->branch_id;
         if ($userBranchId) {
-            $baseQuery->whereHas('group', fn ($q) => $q->where('branch_id', $userBranchId));
+            $baseQuery->where('branch_id', $userBranchId);
         }
 
         if ($request->filled('group_id')) {
@@ -120,10 +120,8 @@ class AssessmentManagementService extends BaseService
 
         // إجمالي الاختبارات (بعد تطبيق filter الفرع)
         $recordsTotal = Assessment::query()
-            ->with(['group'])
-            ->when($userBranchId, fn ($q) =>
-                $q->whereHas('group', fn ($q2) => $q2->where('branch_id', $userBranchId))
-            )->count();
+            ->when($userBranchId, fn ($q) => $q->where('branch_id', $userBranchId))
+            ->count();
 
         if ($search !== '') {
             $baseQuery->where(function ($q) use ($search) {
@@ -181,7 +179,7 @@ class AssessmentManagementService extends BaseService
         // تصفية الاختبارات حسب الفرع الحالي للمستخدم
         $userBranchId = auth()->user()?->branch_id;
         if ($userBranchId) {
-            $query->whereHas('group', fn ($q) => $q->where('branch_id', $userBranchId));
+            $query->where('branch_id', $userBranchId);
         }
 
         if (! empty($filters['group_id'])) {

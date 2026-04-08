@@ -10,6 +10,7 @@ class CreateAssessmentAction extends BaseAction
     public function handle(array $data): Assessment
     {
         return Assessment::query()->create([
+            'branch_id'           => auth()->user()?->branch_id,
             'student_id'          => $data['student_id'],
             'group_id'            => $data['group_id'] ?? null,
             'teacher_id'          => $data['teacher_id'],
