@@ -71,6 +71,8 @@ class BranchController extends AdminController
 
     public function show(Branch $branch): View
     {
+        $this->authorizeBranchAccess($branch);
+
         $branchProfile = $this->branchManagementService->getBranchProfile($branch);
 
         return $this->adminView('admin.branches.show', [
@@ -86,6 +88,8 @@ class BranchController extends AdminController
 
     public function edit(Branch $branch): View
     {
+        $this->authorizeBranchAccess($branch);
+
         return $this->adminView('admin.branches.edit', [
             'breadcrumbs' => [
                 ['title' => 'الرئيسية', 'url' => route('admin.dashboard')],
@@ -98,6 +102,8 @@ class BranchController extends AdminController
 
     public function update(UpdateBranchRequest $request, Branch $branch, UpdateBranchAction $updateBranchAction): RedirectResponse
     {
+        $this->authorizeBranchAccess($branch);
+
         $payload = $request->validated();
         $payload['branch'] = $branch;
         $updated = $updateBranchAction->handle($payload);
@@ -109,6 +115,8 @@ class BranchController extends AdminController
 
     public function destroy(Branch $branch, DeleteBranchAction $deleteBranchAction): RedirectResponse
     {
+        $this->authorizeBranchAccess($branch);
+
         $deleted = $deleteBranchAction->handle(['branch' => $branch]);
 
         if (! $deleted) {
@@ -120,6 +128,17 @@ class BranchController extends AdminController
         return redirect()
             ->route('admin.branches.index')
             ->with('success', 'تم حذف الفرع بنجاح.');
+    }
+
+    private function authorizeBranchAccess(Branch $branch): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->isSuperAdmin()) {
+            return;
+        }
+
+        abort_unless((int) $branch->id === (int) $user->branch_id, 403);
     }
 }
 

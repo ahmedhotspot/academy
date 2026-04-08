@@ -12,6 +12,7 @@ use App\Models\TeacherAttendance;
 use App\Models\User;
 use App\Services\BaseService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class BranchManagementService extends BaseService
@@ -23,8 +24,10 @@ class BranchManagementService extends BaseService
         $length = max((int) $request->input('length', 10), 1);
         $search = trim((string) data_get($request->input('search'), 'value', ''));
 
-        $baseQuery = Branch::query()->select(['id', 'name', 'status', 'created_at']);
-        $recordsTotal = Branch::query()->count();
+        $baseQuery = $this->applyBranchScope(
+            Branch::query()->select(['id', 'name', 'status', 'created_at'])
+        );
+        $recordsTotal = (clone $baseQuery)->count();
 
         if ($search !== '') {
             $baseQuery->where(function ($query) use ($search) {
@@ -57,6 +60,17 @@ class BranchManagementService extends BaseService
             'recordsFiltered' => $recordsFiltered,
             'data' => $data,
         ];
+    }
+
+    private function applyBranchScope(Builder $query): Builder
+    {
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $query->where('id', (int) $user->branch_id);
+        }
+
+        return $query;
     }
 
     public function getBranchStats(int $branchId): array

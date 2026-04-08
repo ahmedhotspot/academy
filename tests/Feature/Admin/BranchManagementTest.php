@@ -24,6 +24,25 @@ function makeBranchManager(): User
     return $user;
 }
 
+function makeSecretaryForBranch(Branch $branch): User
+{
+    Role::findOrCreate('السكرتيرة', 'web');
+
+    foreach (['branches.view'] as $permissionName) {
+        Permission::findOrCreate($permissionName, 'web');
+    }
+
+    $role = Role::findByName('السكرتيرة', 'web');
+    $role->syncPermissions(['branches.view']);
+
+    $user = User::factory()->create([
+        'branch_id' => $branch->id,
+    ]);
+    $user->assignRole('السكرتيرة');
+
+    return $user;
+}
+
 it('يعرض صفحة فهرس الفروع للمستخدم المخول', function () {
     $user = makeBranchManager();
 
@@ -66,5 +85,30 @@ it('يعيد بيانات datatable للفروع بصيغة json', function () {
                 ['id', 'name', 'status', 'status_badge', 'created_at'],
             ],
         ]);
+});
+
+it('يعرض في datatable للسكرتيرة فرعها فقط', function () {
+    $branchA = Branch::factory()->create();
+    $branchB = Branch::factory()->create();
+    $secretary = makeSecretaryForBranch($branchA);
+
+    $this->actingAs($secretary)
+        ->getJson(route('admin.branches.datatable', ['draw' => 1]))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('recordsTotal', 1)
+        ->assertJsonPath('recordsFiltered', 1)
+        ->assertJsonPath('data.0.id', $branchA->id)
+        ->assertJsonMissing(['id' => $branchB->id]);
+});
+
+it('يمنع السكرتيرة من عرض تفاصيل فرع آخر', function () {
+    $branchA = Branch::factory()->create();
+    $branchB = Branch::factory()->create();
+    $secretary = makeSecretaryForBranch($branchA);
+
+    $this->actingAs($secretary)
+        ->get(route('admin.branches.show', $branchB))
+        ->assertForbidden();
 });
 
