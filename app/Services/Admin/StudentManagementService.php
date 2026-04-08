@@ -18,10 +18,20 @@ class StudentManagementService extends BaseService
 {
     public function getBranchOptions(): array
     {
-        return Branch::query()
+        $branches = Branch::query()
             ->orderBy('name')
             ->pluck('name', 'id')
             ->toArray();
+
+        $viewer = auth()->user();
+
+        if (! $viewer || $viewer->isSuperAdmin()) {
+            return $branches;
+        }
+
+        $branchId = (int) $viewer->branch_id;
+
+        return isset($branches[$branchId]) ? [$branchId => $branches[$branchId]] : [];
     }
 
     public function getGuardianOptions(): array

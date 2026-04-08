@@ -51,9 +51,7 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div>
                         <h4 class="fw-bold mb-1"><i class="ti ti-books me-2"></i>طلاب أكاديمية تحفيظ القرآن الكريم</h4>
-                        <p class="mb-0 small" style="opacity:.8;">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾ — سورة القمر: ١٧</p>
                     </div>
-                    <div style="opacity:.15;font-size:4rem;line-height:1;"><i class="ti ti-book-2"></i></div>
                 </div>
             </div>
 
@@ -119,7 +117,9 @@
                         <option value="inactive">غير نشط</option>
                     </select>
                     <select id="filter-branch" class="form-select form-select-sm" style="min-width:190px;">
-                        <option value="">جميع الفروع</option>
+                        @if(auth()->user()?->isSuperAdmin())
+                            <option value="">جميع الفروع</option>
+                        @endif
                         @foreach($branchOptions as $bid => $bname)
                             <option value="{{ $bid }}">{{ $bname }}</option>
                         @endforeach
