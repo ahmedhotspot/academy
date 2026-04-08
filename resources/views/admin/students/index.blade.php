@@ -24,7 +24,7 @@
         .stat-card:hover { transform:translateY(-4px); box-shadow:0 10px 28px rgba(0,0,0,.12)!important; }
         .stat-icon { width:54px;height:54px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; }
         .filter-bar { background:linear-gradient(135deg,#f8fff8,#f0faf0); border:1px solid #c8e6c9; border-radius:12px; }
-        #students-table thead th { background:var(--q-green);color:#fff;font-weight:600;border:none;white-space:nowrap;padding:12px 14px; }
+        #students-table thead th { background:var(--q-green);color:#fff;font-weight:600;border:none;white-space:nowrap;padding:12px 14px;text-align:right; }
         .btn-tbl { padding:4px 9px;border-radius:8px;font-size:.8rem;transition:filter .15s; }
         .btn-tbl:hover { filter:brightness(.88); }
         .badge-active   { background:linear-gradient(135deg,#1B5E20,#43A047);color:#fff;padding:5px 12px;border-radius:20px;font-size:.78rem; }
@@ -35,6 +35,8 @@
         .dataTables_wrapper .dataTables_paginate .page-link { color:var(--q-green); }
         .dataTables_wrapper .dataTables_filter input { border-color:#c8e6c9!important; border-radius:8px!important; }
         .dataTables_wrapper .dataTables_filter input:focus { box-shadow:0 0 0 3px rgba(27,94,32,.15)!important; }
+        #students-table tbody td { text-align:right; }
+        #students-table { direction:rtl; }
     </style>
 @endsection
 
@@ -269,7 +271,7 @@ $(function () {
         order     : [[0, 'desc']],
         pageLength: 15,
         lengthMenu: [[10,15,25,50,100],[10,15,25,50,100]],
-        dom: '<"row align-items-center mb-3"<"col-sm-4"l><"col-sm-8"f>>rt<"row align-items-center mt-3"<"col-sm-6"i><"col-sm-6"p>>'
+        dom: '<"row align-items-center mb-3"<"col-sm-8"f><"col-sm-4"l>>rt<"row align-items-center mt-3"<"col-sm-6"i><"col-sm-6"p>>'
     });
 
     $('#filter-status, #filter-branch').on('change', function() { table.ajax.reload(); });

@@ -209,9 +209,7 @@
                         <div class="text-end">
                             <div class="small mb-2" style="opacity:.85;">آخر تحديث للملف</div>
                             <div class="fw-semibold">{{ $profile['meta']['generated_at'] ?? now()->format('Y-m-d H:i') }}</div>
-                            <div class="small mt-3" style="opacity:.8;">
-                                ﴿ خَيْرُكُم مَّن تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ ﴾
-                            </div>
+
                         </div>
                     </div>
                 </div>
