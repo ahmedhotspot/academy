@@ -159,13 +159,12 @@
         <div class="col-md-6">
             <label class="form-label fw-semibold">
                 <i class="ti ti-calendar-x me-1 text-muted"></i>تاريخ انتهاء الهوية أو الجواز
-                <span class="text-danger">*</span>
             </label>
             <input type="date"
                    name="identity_expiry_date"
                    class="form-control @error('identity_expiry_date') is-invalid @enderror"
-                   value="{{ old('identity_expiry_date', optional($student->identity_expiry_date ?? null)->format('Y-m-d')) }}"
-                   required>
+                   value="{{ old('identity_expiry_date', optional($student->identity_expiry_date ?? null)->format('Y-m-d')) }}">
+            <small class="text-muted d-block mt-1">اختياري — اتركه فارغًا إذا كانت الوثيقة بلا تاريخ انتهاء مثل شهادة الميلاد.</small>
             @error('identity_expiry_date')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror

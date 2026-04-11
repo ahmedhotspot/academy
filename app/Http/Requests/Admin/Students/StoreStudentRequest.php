@@ -23,7 +23,7 @@ class StoreStudentRequest extends AdminRequest
             'age' => ['required', 'integer', 'min:5', 'max:100'],
             'nationality' => ['required', 'string', 'max:100'],
             'identity_number' => ['required', 'string', 'max:100'],
-            'identity_expiry_date' => ['required', 'date'],
+            'identity_expiry_date' => ['nullable', 'date'],
             'gender' => ['required', Rule::in(['male', 'female'])],
             'residency_number' => ['nullable', 'string', 'max:100', 'required_with:residency_expiry_date'],
             'residency_expiry_date' => ['nullable', 'date', 'required_with:residency_number'],
