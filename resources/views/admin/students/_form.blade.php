@@ -68,6 +68,7 @@
                 <span class="text-danger">*</span>
             </label>
             <input type="date"
+                   id="birth_date"
                    name="birth_date"
                    class="form-control @error('birth_date') is-invalid @enderror"
                    value="{{ old('birth_date', optional($student->birth_date ?? null)->format('Y-m-d')) }}"
@@ -84,6 +85,7 @@
             </label>
             <div class="input-group">
                 <input type="number"
+                       id="age"
                        name="age"
                        class="form-control @error('age') is-invalid @enderror"
                        min="5" max="100"
@@ -432,3 +434,53 @@
     font-weight: 600;
 }
 </style>
+
+<script>
+    (function () {
+        const birthDateInput = document.getElementById('birth_date');
+        const ageInput = document.getElementById('age');
+
+        if (!birthDateInput || !ageInput) {
+            return;
+        }
+
+        function calculateAge(dateValue) {
+            if (!dateValue) {
+                return null;
+            }
+
+            const birthDate = new Date(dateValue + 'T00:00:00');
+
+            if (Number.isNaN(birthDate.getTime())) {
+                return null;
+            }
+
+            const today = new Date();
+            const thisYearBirthday = new Date(
+                today.getFullYear(),
+                birthDate.getMonth(),
+                birthDate.getDate()
+            );
+
+            let age = today.getFullYear() - birthDate.getFullYear();
+
+            if (today < thisYearBirthday) {
+                age -= 1;
+            }
+
+            return age >= 0 ? age : null;
+        }
+
+        function updateAgeFromBirthDate() {
+            const age = calculateAge(birthDateInput.value);
+            ageInput.value = age === null ? '' : age;
+        }
+
+        birthDateInput.addEventListener('change', updateAgeFromBirthDate);
+        birthDateInput.addEventListener('input', updateAgeFromBirthDate);
+
+        // Ensure edit pages and old input always show computed age on load.
+        updateAgeFromBirthDate();
+    })();
+</script>
+
