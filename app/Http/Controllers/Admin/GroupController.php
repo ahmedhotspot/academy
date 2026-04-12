@@ -66,7 +66,7 @@ class GroupController extends AdminController
 
     public function store(StoreGroupRequest $request, CreateGroupAction $createGroupAction): RedirectResponse
     {
-        $createGroupAction->handle($request->validated());
+        $createGroupAction->handle($this->normalizeBranchPayload($request->validated()));
 
         return redirect()
             ->route('admin.groups.index')
@@ -106,7 +106,7 @@ class GroupController extends AdminController
 
     public function update(UpdateGroupRequest $request, Group $group, UpdateGroupAction $updateGroupAction): RedirectResponse
     {
-        $payload = $request->validated();
+        $payload = $this->normalizeBranchPayload($request->validated());
         $payload['group'] = $group;
 
         $updateGroupAction->handle($payload);
@@ -123,6 +123,17 @@ class GroupController extends AdminController
         return redirect()
             ->route('admin.groups.index')
             ->with('success', 'تم حذف الحلقة بنجاح.');
+    }
+
+    private function normalizeBranchPayload(array $payload): array
+    {
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $payload['branch_id'] = (int) $user->branch_id;
+        }
+
+        return $payload;
     }
 }
 

@@ -27,6 +27,25 @@ function makeGroupManager(): User
     return $user;
 }
 
+function makeBranchGroupManager(int $branchId, string $roleName = 'السكرتيرة'): User
+{
+    Role::findOrCreate('المشرف العام', 'web');
+    Role::findOrCreate('السكرتيرة', 'web');
+    Role::findOrCreate('المعلم', 'web');
+
+    foreach (['groups.view', 'groups.create', 'groups.update', 'groups.delete'] as $permissionName) {
+        Permission::findOrCreate($permissionName, 'web');
+    }
+
+    $role = Role::findByName($roleName, 'web');
+    $role->syncPermissions(['groups.view', 'groups.create', 'groups.update', 'groups.delete']);
+
+    $user = User::factory()->create(['branch_id' => $branchId]);
+    $user->assignRole($roleName);
+
+    return $user;
+}
+
 it('يعرض صفحة فهرس الحلقات للمستخدم المخول', function () {
     $user = makeGroupManager();
 
@@ -80,5 +99,63 @@ it('يعيد بيانات datatable للحلقات بصيغة json', function ()
                 ['name', 'branch', 'teacher', 'study_level', 'study_track', 'type', 'schedule_type', 'status'],
             ],
         ]);
+});
+
+it('يعرض في نموذج الحلقة معلمي فرع المستخدم فقط', function () {
+    $branchA = Branch::factory()->create();
+    $branchB = Branch::factory()->create();
+
+    $secretary = makeBranchGroupManager($branchA->id);
+
+    $visibleTeacher = User::factory()->create([
+        'branch_id' => $branchA->id,
+        'name' => 'معلم الفرع الأول',
+    ]);
+    $visibleTeacher->assignRole('المعلم');
+
+    $hiddenTeacher = User::factory()->create([
+        'branch_id' => $branchB->id,
+        'name' => 'معلم الفرع الثاني',
+    ]);
+    $hiddenTeacher->assignRole('المعلم');
+
+    $this->actingAs($secretary)
+        ->get(route('admin.groups.create'))
+        ->assertOk()
+        ->assertSee($visibleTeacher->name)
+        ->assertDontSee($hiddenTeacher->name);
+});
+
+it('يرفض إنشاء حلقة بمعلم من فرع آخر', function () {
+    $branchA = Branch::factory()->create();
+    $branchB = Branch::factory()->create();
+    $studyLevel = StudyLevel::factory()->create();
+    $studyTrack = StudyTrack::factory()->create();
+
+    $secretary = makeBranchGroupManager($branchA->id);
+
+    $foreignTeacher = User::factory()->create(['branch_id' => $branchB->id]);
+    $foreignTeacher->assignRole('المعلم');
+
+    $response = $this->actingAs($secretary)
+        ->from(route('admin.groups.create'))
+        ->post(route('admin.groups.store'), [
+            'branch_id' => $branchA->id,
+            'teacher_id' => $foreignTeacher->id,
+            'study_level_id' => $studyLevel->id,
+            'study_track_id' => $studyTrack->id,
+            'name' => 'حلقة غير صحيحة',
+            'type' => 'group',
+            'schedule_type' => 'daily',
+            'status' => 'active',
+        ]);
+
+    $response
+        ->assertRedirect(route('admin.groups.create'))
+        ->assertSessionHasErrors(['teacher_id']);
+
+    $this->assertDatabaseMissing('groups', [
+        'name' => 'حلقة غير صحيحة',
+    ]);
 });
 

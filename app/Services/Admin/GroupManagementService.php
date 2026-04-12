@@ -19,16 +19,31 @@ class GroupManagementService extends BaseService
 {
     public function getBranchOptions(): array
     {
-        return Branch::query()->orderBy('name')->pluck('name', 'id')->toArray();
+        $branches = Branch::query()->orderBy('name')->pluck('name', 'id')->toArray();
+        $viewer = auth()->user();
+
+        if (! $viewer || $viewer->isSuperAdmin()) {
+            return $branches;
+        }
+
+        $branchId = (int) $viewer->branch_id;
+
+        return isset($branches[$branchId]) ? [$branchId => $branches[$branchId]] : [];
     }
 
     public function getTeacherOptions(): array
     {
-        return User::query()
+        $query = User::query()
             ->role('المعلم')
-            ->orderBy('name')
-            ->pluck('name', 'id')
-            ->toArray();
+            ->orderBy('name');
+
+        $viewer = auth()->user();
+
+        if ($viewer && ! $viewer->isSuperAdmin() && $viewer->branch_id) {
+            $query->where('branch_id', $viewer->branch_id);
+        }
+
+        return $query->pluck('name', 'id')->toArray();
     }
 
     public function getStudyLevelOptions(): array
