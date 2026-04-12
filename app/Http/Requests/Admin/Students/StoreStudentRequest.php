@@ -9,11 +9,18 @@ class StoreStudentRequest extends AdminRequest
 {
     public function rules(): array
     {
+        $guardianExistsRule = Rule::exists('guardians', 'id');
+        $guardianBranchId = $this->guardianBranchId();
+
+        if ($guardianBranchId) {
+            $guardianExistsRule = $guardianExistsRule->where(fn ($query) => $query->where('branch_id', $guardianBranchId));
+        }
+
         return [
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
             'student_code' => ['required', 'string', 'max:50', 'unique:students,student_code'],
             'guardian_mode' => ['nullable', Rule::in(['none', 'existing', 'new'])],
-            'guardian_id' => ['nullable', 'integer', 'required_if:guardian_mode,existing', 'exists:guardians,id'],
+            'guardian_id' => ['nullable', 'integer', 'required_if:guardian_mode,existing', $guardianExistsRule],
             'guardian_full_name' => ['nullable', 'string', 'max:255', 'required_if:guardian_mode,new'],
             'guardian_phone' => ['nullable', 'string', 'max:20', 'required_if:guardian_mode,new'],
             'guardian_whatsapp' => ['nullable', 'string', 'max:20'],
@@ -57,6 +64,19 @@ class StoreStudentRequest extends AdminRequest
             'whatsapp' => 'رقم الواتساب',
             'status' => 'الحالة',
         ];
+    }
+
+    private function guardianBranchId(): ?int
+    {
+        $user = $this->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            return (int) $user->branch_id;
+        }
+
+        $branchId = $this->input('branch_id');
+
+        return $branchId ? (int) $branchId : null;
     }
 }
 

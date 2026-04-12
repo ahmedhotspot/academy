@@ -14,6 +14,7 @@ class CreateStudentAction extends BaseAction
 
         if ($guardianMode === 'new') {
             $guardian = Guardian::query()->create([
+                'branch_id' => $data['branch_id'],
                 'full_name' => $data['guardian_full_name'],
                 'phone' => $data['guardian_phone'],
                 'whatsapp' => $data['guardian_whatsapp'] ?? null,

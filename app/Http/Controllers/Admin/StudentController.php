@@ -67,7 +67,7 @@ class StudentController extends AdminController
 
     public function store(StoreStudentRequest $request, CreateStudentAction $createStudentAction): RedirectResponse
     {
-        $createStudentAction->handle($request->validated());
+        $createStudentAction->handle($this->normalizeBranchPayload($request->validated()));
 
         return redirect()
             ->route('admin.students.index')
@@ -105,7 +105,7 @@ class StudentController extends AdminController
 
     public function update(UpdateStudentRequest $request, Student $student, UpdateStudentAction $updateStudentAction): RedirectResponse
     {
-        $payload = $request->validated();
+        $payload = $this->normalizeBranchPayload($request->validated());
         $payload['student'] = $student;
 
         $updateStudentAction->handle($payload);
@@ -139,6 +139,17 @@ class StudentController extends AdminController
         return redirect()
             ->route('admin.students.show', $student)
             ->with('success', 'تم تعيين كلمة مرور البوابة بنجاح.');
+    }
+
+    private function normalizeBranchPayload(array $payload): array
+    {
+        $user = auth()->user();
+
+        if ($user && ! $user->isSuperAdmin() && $user->branch_id) {
+            $payload['branch_id'] = (int) $user->branch_id;
+        }
+
+        return $payload;
     }
 }
 

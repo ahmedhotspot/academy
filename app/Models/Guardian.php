@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BranchScoped;
 use Database\Factories\GuardianFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Guardian extends Authenticatable
 {
-    use HasFactory, SoftDeletes, Notifiable;
+    use HasFactory, SoftDeletes, Notifiable, BranchScoped;
 
     protected $table = 'guardians';
 

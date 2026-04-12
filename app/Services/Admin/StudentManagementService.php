@@ -40,7 +40,13 @@ class StudentManagementService extends BaseService
             return [];
         }
 
+        $viewer = auth()->user();
+
         return Guardian::query()
+            ->when(
+                $viewer && ! $viewer->isSuperAdmin() && $viewer->branch_id,
+                fn ($query) => $query->where('branch_id', $viewer->branch_id)
+            )
             ->where('status', 'active')
             ->orderBy('full_name')
             ->pluck('full_name', 'id')
