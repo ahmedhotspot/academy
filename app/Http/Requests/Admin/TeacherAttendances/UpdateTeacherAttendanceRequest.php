@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\TeacherAttendances;
 
 use App\Http\Requests\Admin\AdminRequest;
+use App\Models\TeacherAttendance;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Exists;
@@ -30,8 +31,18 @@ class UpdateTeacherAttendanceRequest extends AdminRequest
 
     public function rules(): array
     {
+        /** @var TeacherAttendance|null $attendance */
+        $attendance = $this->route('teacherAttendance');
+
+        $teacherDateUniqueRule = Rule::unique('teacher_attendances', 'teacher_id')
+            ->where(fn ($query) => $query->where('attendance_date', $this->input('attendance_date')));
+
+        if ($attendance) {
+            $teacherDateUniqueRule = $teacherDateUniqueRule->ignore($attendance->id);
+        }
+
         return [
-            'teacher_id' => ['required', 'integer', $this->teacherRule()],
+            'teacher_id' => ['required', 'integer', $this->teacherRule(), $teacherDateUniqueRule],
             'attendance_date' => ['required', 'date'],
             'status' => ['required', Rule::in(['حاضر', 'غائب', 'متأخر', 'بعذر'])],
             'notes' => ['nullable', 'string', 'max:1000'],
