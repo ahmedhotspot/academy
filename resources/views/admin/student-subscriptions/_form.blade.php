@@ -141,7 +141,7 @@
     {{-- تاريخ البداية --}}
     <div class="col-md-4">
         <label class="form-label fw-semibold">
-            تاريخ البداية <span class="text-danger">*</span>
+            تاريخ الدفع <span class="text-danger">*</span>
         </label>
         <input type="date" id="start_date" name="start_date" class="form-control @error('start_date') is-invalid @enderror"
                value="{{ old('start_date', optional($subscription->start_date ?? null)->format('Y-m-d') ?? now()->format('Y-m-d')) }}">
