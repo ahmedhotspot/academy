@@ -75,6 +75,7 @@ class UpdateStudentSubscriptionAction extends BaseAction
                 (float) $remainingAmount,
                 $dueDate
             ),
+            'payment_method'     => $data['payment_method'],
             'start_date'         => $startDate,
             'due_date'           => $dueDate,
             'remaining_due_date' => $remainingDueDate,

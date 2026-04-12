@@ -78,6 +78,14 @@ class StudentSubscriptionManagementService extends BaseService
     }
 
     /**
+     * قائمة طرق الدفع.
+     */
+    public function getPaymentMethodOptions(): array
+    {
+        return StudentSubscription::PAYMENT_METHOD_LABELS;
+    }
+
+    /**
      * بيانات DataTable Ajax
      */
     public function datatable(Request $request): array
@@ -159,6 +167,8 @@ class StudentSubscriptionManagementService extends BaseService
                 'formatted_remaining' => $subscription->formatted_remaining_amount,
                 'status'              => $subscription->status,
                 'status_badge'        => $subscription->status_badge_class,
+                'payment_method'      => $subscription->payment_method,
+                'payment_method_label'=> $subscription->payment_method_label,
                 'payment_progress'    => $subscription->payment_progress,
                 'is_overdue'          => $subscription->is_overdue,
                 'is_expired'          => $subscription->is_expired,

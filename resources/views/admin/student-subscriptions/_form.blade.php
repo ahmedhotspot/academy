@@ -105,6 +105,26 @@
 
 <div class="row g-3 mb-3">
     <div class="col-md-4">
+        <label class="form-label fw-semibold">
+            طريقة الدفع <span class="text-danger">*</span>
+        </label>
+        <select name="payment_method" class="form-select @error('payment_method') is-invalid @enderror">
+            <option value="">— اختر طريقة الدفع —</option>
+            @foreach($paymentMethodOptions as $paymentMethodValue => $paymentMethodLabel)
+                <option value="{{ $paymentMethodValue }}"
+                    @selected(old('payment_method', $subscription->payment_method ?? 'cash') === $paymentMethodValue)>
+                    {{ $paymentMethodLabel }}
+                </option>
+            @endforeach
+        </select>
+        @error('payment_method')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
         <label class="form-label fw-semibold">المبلغ المتبقي (ج)</label>
         <input type="text" id="remaining_amount_preview" class="form-control" readonly
                value="{{ number_format(max(0, (old('amount', $subscription->amount ?? 0) - old('discount_amount', $subscription->discount_amount ?? 0) - old('paid_amount', $subscription->paid_amount ?? 0))), 2, '.', '') }}">

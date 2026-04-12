@@ -44,6 +44,7 @@ class CreateStudentSubscriptionAction extends BaseAction
                 (float) ($finalAmount - ($data['paid_amount'] ?? 0)),
                 $dueDate
             ),
+            'payment_method'     => $data['payment_method'],
             'start_date'         => $startDate,
             'due_date'           => $dueDate,
             'remaining_due_date' => $remainingDueDate,

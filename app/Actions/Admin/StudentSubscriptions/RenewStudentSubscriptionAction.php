@@ -34,6 +34,7 @@ class RenewStudentSubscriptionAction extends BaseAction
             'paid_amount'        => 0,
             'remaining_amount'   => $old->final_amount,
             'status'             => 'نشط',
+            'payment_method'     => $old->payment_method ?? 'cash',
             'start_date'         => $newStartDate,
             'due_date'           => $newDueDate,
             'remaining_due_date' => $newDueDate,

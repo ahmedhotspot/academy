@@ -24,6 +24,7 @@ class StudentSubscription extends Model
         'paid_amount',
         'remaining_amount',
         'status',
+        'payment_method',
         'start_date',
         'due_date',
         'remaining_due_date',
@@ -48,6 +49,12 @@ class StudentSubscription extends Model
     // =====================================================
 
     public const STATUSES = ['نشط', 'متأخر', 'مكتمل', 'موقوف'];
+    public const PAYMENT_METHODS = ['cash', 'instapay'];
+
+    public const PAYMENT_METHOD_LABELS = [
+        'cash' => 'نقدي',
+        'instapay' => 'انستاباي',
+    ];
 
     /**
      * Resolve financial status from remaining amount and due date.
@@ -167,6 +174,11 @@ class StudentSubscription extends Model
             'موقوف'  => 'bg-danger',
             default  => 'bg-secondary',
         };
+    }
+
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return self::PAYMENT_METHOD_LABELS[$this->payment_method] ?? 'غير محدد';
     }
 
     public function getPaymentProgressAttribute(): int

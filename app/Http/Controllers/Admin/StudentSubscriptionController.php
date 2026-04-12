@@ -75,6 +75,7 @@ class StudentSubscriptionController extends AdminController
             'studentStatuses' => $this->service->getStudentStatuses(),
             'feePlanOptions'  => $this->service->getFeePlanOptions(),
             'statuses'        => $this->service->getStatuses(),
+            'paymentMethodOptions' => $this->service->getPaymentMethodOptions(),
         ]);
     }
 
@@ -118,6 +119,7 @@ class StudentSubscriptionController extends AdminController
             'studentStatuses'  => $this->service->getStudentStatuses($studentSubscription->student_id),
             'feePlanOptions'   => $this->service->getFeePlanOptions(),
             'statuses'         => $this->service->getStatuses(),
+            'paymentMethodOptions' => $this->service->getPaymentMethodOptions(),
         ]);
     }
 
