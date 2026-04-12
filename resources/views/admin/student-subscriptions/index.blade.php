@@ -206,6 +206,7 @@
                                      <th>#</th>
                                      <th>الطالب</th>
                                      <th>الخطة / الدورة</th>
+                                     <th>طريقة الدفع</th>
                                      <th>المبلغ</th>
                                      <th>المدفوع</th>
                                      <th>المتبقي</th>
@@ -265,6 +266,13 @@
                         render: function (val, t, row) {
                             let cycle = row.payment_cycle ? '<br><span class="badge bg-info text-dark small">' + row.payment_cycle + '</span>' : '';
                             return val + cycle;
+                        }
+                    },
+                    {
+                        data: 'payment_method_label',
+                        render: function (val, _t, row) {
+                            const cls = row.payment_method === 'instapay' ? 'bg-primary' : 'bg-success';
+                            return '<span class="badge ' + cls + '">' + (val || '-') + '</span>';
                         }
                     },
                     {data: 'formatted_amount'},

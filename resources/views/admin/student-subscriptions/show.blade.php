@@ -74,6 +74,10 @@
                                         <p class="mb-1">تاريخ الإنشاء</p>
                                         <p class="fw-semibold text-dark">{{ optional($subscription->created_at)->format('Y-m-d') }}</p>
                                     </div>
+                                    <div>
+                                        <p class="mb-1">طريقة الدفع</p>
+                                        <p class="fw-semibold text-dark">{{ $subscription->payment_method_label }}</p>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-auto d-flex gap-2">
@@ -230,6 +234,10 @@
                                 <tr class="border-bottom">
                                     <td class="text-muted fw-semibold">الحالة</td>
                                     <td><span class="badge {{ $subscription->status_badge_class }}">{{ $subscription->status }}</span></td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <td class="text-muted fw-semibold">طريقة الدفع</td>
+                                    <td>{{ $subscription->payment_method_label }}</td>
                                 </tr>
                                 <tr class="border-bottom">
                                     <td class="text-muted fw-semibold">تاريخ البداية</td>
