@@ -12,6 +12,10 @@ class DeleteFeePlanAction extends BaseAction
         /** @var FeePlan $feePlan */
         $feePlan = $data['feePlan'];
 
+        if ($feePlan->studentSubscriptions()->exists()) {
+            return false;
+        }
+
         return (bool) $feePlan->delete();
     }
 }

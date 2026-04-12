@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\FeePlans\StoreFeePlanRequest;
 use App\Http\Requests\Admin\FeePlans\UpdateFeePlanRequest;
 use App\Models\FeePlan;
 use App\Services\Admin\FeePlanManagementService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -128,7 +129,23 @@ class FeePlanController extends AdminController
         FeePlan $feePlan,
         DeleteFeePlanAction $action
     ): RedirectResponse {
-        $action->handle(['feePlan' => $feePlan]);
+        try {
+            $deleted = $action->handle(['feePlan' => $feePlan]);
+        } catch (QueryException $exception) {
+            if ((string) $exception->getCode() === '23000') {
+                return redirect()
+                    ->route('admin.fee-plans.index')
+                    ->with('error', 'لا يمكن حذف خطة الرسوم لوجود اشتراكات طلاب مرتبطة بها.');
+            }
+
+            throw $exception;
+        }
+
+        if (! $deleted) {
+            return redirect()
+                ->route('admin.fee-plans.index')
+                ->with('error', 'لا يمكن حذف خطة الرسوم لوجود اشتراكات طلاب مرتبطة بها.');
+        }
 
         return redirect()
             ->route('admin.fee-plans.index')
