@@ -53,6 +53,15 @@ class ReportService extends BaseService
         return $query;
     }
 
+    private function applySubscriptionStatusFilter(Builder $query, Request $request): Builder
+    {
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        return $query;
+    }
+
     private function makeDatatable(Request $request, Builder $query, callable $mapper, callable $searchHandler): array
     {
         $draw   = (int) $request->input('draw', 1);
@@ -365,13 +374,12 @@ class ReportService extends BaseService
 
     public function subscriptionsDatatable(Request $request): array
     {
-        $query = StudentSubscription::query()->with(['student', 'feePlan'])
-            ->where('status', 'متأخر')
-            ->where('remaining_amount', '>', 0);
+        $query = StudentSubscription::query()->with(['student', 'feePlan']);
         $this->applyBranchScope($query, $request);
+        $this->applySubscriptionStatusFilter($query, $request);
 
         $this->applyDateRange($query, $request, 'created_at');
-        $query->orderByDesc('remaining_amount')->orderByDesc('id');
+        $query->orderByDesc('created_at')->orderByDesc('id');
 
         return $this->makeDatatable(
             $request,
@@ -529,13 +537,12 @@ class ReportService extends BaseService
 
     public function subscriptionsPdfRows(Request $request): array
     {
-        $query = StudentSubscription::query()->with(['student', 'feePlan'])
-            ->where('status', 'متأخر')
-            ->where('remaining_amount', '>', 0);
+        $query = StudentSubscription::query()->with(['student', 'feePlan']);
         $this->applyBranchScope($query, $request);
+        $this->applySubscriptionStatusFilter($query, $request);
         $this->applyDateRange($query, $request, 'created_at');
 
-        return $query->orderByDesc('remaining_amount')->get()
+        return $query->orderByDesc('created_at')->get()
             ->map(fn (StudentSubscription $r) => [
                 $r->student?->full_name ?? '-',
                 $r->feePlan?->name ?? '-',
